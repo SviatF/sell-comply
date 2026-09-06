@@ -25,6 +25,17 @@ type SavedCheck = {
   created_at?: string;
 };
 
+type ChangeItem = {
+  id: string;
+  market_slug?: string;
+  change_type?: string;
+  title: string;
+  summary?: string;
+  detected_at?: string;
+  source_url?: string;
+  review_status?: string;
+};
+
 type Monitor = {
   id: string;
   rawProduct: string;
@@ -84,6 +95,7 @@ export default function DashboardClient() {
   const [checks, setChecks] = useState<SavedCheck[]>([]);
   const [monitors, setMonitors] = useState<Monitor[]>([]);
   const [syncState, setSyncState] = useState<"local" | "cloud">("local");
+  const [changes, setChanges] = useState<ChangeItem[]>([]);
 
   useEffect(() => {
     const localChecks = readLocalArray<SavedCheck>(SAVED_CHECKS_KEY).map(normalizeCheck);
@@ -96,12 +108,14 @@ export default function DashboardClient() {
     Promise.all([
       fetch(`/api/checks?visitor_id=${encodeURIComponent(visitorId)}`).then((res) => res.json()),
       fetch(`/api/monitors?visitor_id=${encodeURIComponent(visitorId)}`).then((res) => res.json()),
+      fetch(`/api/changes?visitor_id=${encodeURIComponent(visitorId)}`).then((res) => res.json()),
     ])
-      .then(([checkResult, monitorResult]) => {
+      .then(([checkResult, monitorResult, changeResult]) => {
         const cloudChecks = Array.isArray(checkResult.items) ? checkResult.items.map(normalizeCheck) : [];
         const cloudMonitors = Array.isArray(monitorResult.items) ? monitorResult.items.map(normalizeMonitor) : [];
 
-        if (checkResult.persisted || monitorResult.persisted) setSyncState("cloud");
+        if (checkResult.persisted || monitorResult.persisted || changeResult.persisted) setSyncState("cloud");
+        if (Array.isArray(changeResult.items)) setChanges(changeResult.items);
 
         setChecks(
           uniqueByKey([...cloudChecks, ...localChecks], (item) =>
@@ -157,6 +171,7 @@ export default function DashboardClient() {
         <article><span>Monitored</span><strong>{monitors.length}</strong></article>
         <article><span>Markets</span><strong>{markets}</strong></article>
         <article><span>Needs review</span><strong>{checks.filter((item) => item.status !== "compliant").length}</strong></article>
+        <article className="change-stat"><span>Source changes</span><strong>{changes.length}</strong></article>
       </section>
 
       <section className="dashboard-section">
@@ -229,6 +244,37 @@ export default function DashboardClient() {
           <div className="dashboard-empty compact">
             <h3>Your saved checks will appear here.</h3>
             <p>Save useful product-market reviews so you can return to them without starting over.</p>
+          </div>
+        )}
+      </section>
+
+      <section className="dashboard-section">
+        <div className="dashboard-section-head">
+          <div><span>03</span><h2>Regulatory change feed</h2></div>
+          <span>{changes.length ? `${changes.length} detected` : "No changes yet"}</span>
+        </div>
+
+        {changes.length ? (
+          <div className="dashboard-change-list">
+            {changes.map((item) => (
+              <article className="dashboard-change-row" key={item.id}>
+                <div>
+                  <span className="change-type">{item.change_type || "source_updated"}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.summary || "Official source content changed and requires review."}</p>
+                </div>
+                <div className="change-meta">
+                  <span>{item.market_slug || "global"}</span>
+                  <span>{item.review_status || "needs_review"}</span>
+                  {item.source_url && <a href={item.source_url} target="_blank" rel="noreferrer">Source ↗</a>}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="dashboard-empty compact">
+            <h3>No official-source changes detected yet.</h3>
+            <p>Once D1 and the scheduled monitor are connected, SellComply will surface source changes here for review.</p>
           </div>
         )}
       </section>
