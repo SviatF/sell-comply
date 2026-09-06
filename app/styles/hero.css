@@ -277,3 +277,6 @@
 }
 .note-one{right:118px;top:444px;transform:rotate(-7deg)}
 .note-two{right:2px;bottom:50px;transform:rotate(5deg)}
+
+.checker-error{color:#ff7bb9}
+.checker-error svg{color:#ff5fa9}
