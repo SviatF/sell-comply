@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { trackEvent } from "@/lib/analytics-client";
 import {
   ArrowRight,
   Bell,
@@ -97,6 +98,12 @@ export default function Home() {
 
     setInputError("");
     setChecked(true);
+
+    trackEvent("checker_started", {
+      marketSlug: country.toLowerCase().replace(/\s+/g, "-"),
+      marketplaceSlug: marketplace.toLowerCase().replace(/\s+/g, "-"),
+      metadata: { inputMode: mode },
+    });
 
     const query = new URLSearchParams({
       product: value,
