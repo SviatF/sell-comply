@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildComplianceReview } from "@/lib/compliance-engine";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
-import MonitorButton from "@/app/components/MonitorButton";
+import CheckActions from "@/app/components/CheckActions";
 
 export const metadata: Metadata = {
   title: "Product Compliance Check Results",
@@ -83,10 +83,16 @@ export default async function CheckPage({
           </div>
 
           <aside className="check-side">
-            <MonitorButton
-              product={rawProduct}
-              market={result.market.name}
-              marketplace={result.marketplace?.name}
+            <CheckActions
+              rawProduct={rawProduct}
+              productSlug={result.product.slug}
+              category={result.product.category}
+              marketSlug={result.market.slug}
+              marketName={result.market.name}
+              marketplaceSlug={result.marketplace?.slug}
+              marketplaceName={result.marketplace?.name}
+              certainty={result.certainty}
+              reviewCount={result.reviewItems.length}
             />
 
             <div className="side-card">
