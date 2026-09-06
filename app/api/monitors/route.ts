@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOptionalDb } from "@/lib/cloudflare-db";
 import { ensureDatabaseSchema } from "@/lib/db-schema";
+import { ensureOfficialSources } from "@/lib/source-bootstrap";
 
 type MonitorPayload = {
   visitorId?: string;
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
 
   try {
     await ensureDatabaseSchema(db);
+    await ensureOfficialSources(db);
     const existing = await db
       .prepare(
         `SELECT id FROM monitoring_subscriptions
@@ -84,6 +86,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    await ensureDatabaseSchema(db);
     const result = await db
       .prepare(
         `SELECT id, raw_product, product_slug, market_slug, market_name,
