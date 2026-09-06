@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getOptionalDb } from "@/lib/cloudflare-db";
+import { ensureDatabaseSchema } from "@/lib/db-schema";
 
 export async function GET(request: Request) {
   const visitorId = new URL(request.url).searchParams.get("visitor_id") || "";
@@ -13,6 +14,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    await ensureDatabaseSchema(db);
     const result = await db
       .prepare(
         `SELECT DISTINCT
