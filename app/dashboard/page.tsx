@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function DashboardPage() {
   return (
-    <div className="seo-page dashboard-page" data-product-core="v1-monitoring">
+    <div className="seo-page dashboard-page" data-product-core="v1-d1">
       <SeoHeader />
       <main className="dashboard-main">
         <DashboardClient />
