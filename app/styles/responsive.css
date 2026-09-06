@@ -89,3 +89,14 @@
   .requirement-row{grid-template-columns:34px 1fr auto}.requirement-row svg{display:none}
   .cta-section h2{font-size:42px}
 }
+
+@media(max-width:1180px){
+  .seo-discovery-section{width:min(100% - 40px,1100px);grid-template-columns:1fr;gap:36px}
+}
+@media(max-width:820px){
+  .seo-discovery-section{width:calc(100% - 28px);margin-top:82px}
+}
+@media(max-width:620px){
+  .seo-discovery-grid{grid-template-columns:1fr}
+  .seo-discovery-card{min-height:116px}
+}
