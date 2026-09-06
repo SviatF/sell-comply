@@ -44,3 +44,20 @@ export async function seedOfficialSources(db: SellComplyD1) {
 
   return { inserted };
 }
+
+
+let sourcesReady = false;
+
+export async function ensureOfficialSources(db: SellComplyD1) {
+  if (sourcesReady) return;
+
+  const existing = await db
+    .prepare("SELECT id FROM sources WHERE source_type = 'official' LIMIT 1")
+    .first<{ id: string }>();
+
+  if (!existing?.id) {
+    await seedOfficialSources(db);
+  }
+
+  sourcesReady = true;
+}
