@@ -73,6 +73,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    await ensureDatabaseSchema(db);
     const result = await db
       .prepare(
         `SELECT id, raw_product, product_slug, category, market_slug, market_name,
