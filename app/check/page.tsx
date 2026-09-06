@@ -4,6 +4,7 @@ import { buildComplianceReview } from "@/lib/compliance-engine";
 import { resolveProductInput } from "@/lib/product-resolver";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import CheckActions from "@/app/components/CheckActions";
+import TrackEvent from "@/app/components/TrackEvent";
 
 export const metadata: Metadata = {
   title: "Product Compliance Check Results",
@@ -32,6 +33,13 @@ export default async function CheckPage({
 
   return (
     <div className="seo-page check-results-page">
+      <TrackEvent
+        eventName="checker_completed"
+        productSlug={result.product.slug}
+        marketSlug={result.market.slug}
+        marketplaceSlug={result.marketplace?.slug}
+        metadata={{ sourceType: resolved.sourceType, fetchedProductPage: resolved.fetched }}
+      />
       <SeoHeader />
       <main className="check-main">
         <div className="check-breadcrumbs">
