@@ -110,7 +110,7 @@ export default function Home() {
           <a href="#product">Product</a>
           <a href="#solutions">Solutions</a>
           <a href="#pricing">Pricing</a>
-          <a href="#resources">Resources</a>
+          <a href="/products">Resources</a>
           <a href="#about">About</a>
         </nav>
 
@@ -443,6 +443,49 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="seo-discovery-section" aria-labelledby="popular-checks-title">
+        <div className="section-heading">
+          <div className="eyebrow"><span className="eyebrow-dot" /> POPULAR COMPLIANCE CHECKS</div>
+          <h2 id="popular-checks-title">Start with a product,<br />market or marketplace.</h2>
+          <p>
+            Explore useful compliance entry points, then move into the checker for an exact product review.
+          </p>
+        </div>
+
+        <div className="seo-discovery-grid">
+          <a className="seo-discovery-card" href="/sell/wireless-headphones/germany">
+            <span>Electronics · Germany</span>
+            <strong>Can I sell wireless headphones in Germany?</strong>
+            <ArrowRight size={17} />
+          </a>
+          <a className="seo-discovery-card" href="/sell/toys/united-states">
+            <span>Children&apos;s products · USA</span>
+            <strong>Toy compliance for the United States</strong>
+            <ArrowRight size={17} />
+          </a>
+          <a className="seo-discovery-card" href="/sell/cosmetics/france">
+            <span>Beauty · France</span>
+            <strong>Cosmetics compliance for France</strong>
+            <ArrowRight size={17} />
+          </a>
+          <a className="seo-discovery-card" href="/marketplaces/amazon/power-banks">
+            <span>Amazon · Electronics</span>
+            <strong>Power bank compliance for Amazon sellers</strong>
+            <ArrowRight size={17} />
+          </a>
+          <a className="seo-discovery-card" href="/markets">
+            <span>Browse by country</span>
+            <strong>Explore global markets</strong>
+            <ArrowRight size={17} />
+          </a>
+          <a className="seo-discovery-card" href="/products">
+            <span>Browse by category</span>
+            <strong>Explore product compliance checks</strong>
+            <ArrowRight size={17} />
+          </a>
+        </div>
+      </section>
+
       <section className="cta-section" id="pricing">
         <div>
           <div className="eyebrow"><span className="eyebrow-dot" /> SELL WITH CLARITY</div>
@@ -461,7 +504,7 @@ export default function Home() {
         </a>
         <p>Global product compliance intelligence for modern commerce.</p>
         <div className="footer-links" id="resources">
-          <a href="#">Product</a><a href="#">Resources</a><a href="#">Privacy</a><a href="#">Terms</a>
+          <a href="/products">Products</a><a href="/markets">Markets</a><a href="/marketplaces">Marketplaces</a><a href="#">Privacy</a><a href="#">Terms</a>
         </div>
         <span>© 2026 SellComply</span>
       </footer>
