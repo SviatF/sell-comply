@@ -9,9 +9,7 @@
     "start": "next start",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && wrangler deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "db:migrate": "wrangler d1 migrations apply sell-comply-db --remote",
-    "db:list": "wrangler d1 migrations list sell-comply-db --remote"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "1.20.6",
