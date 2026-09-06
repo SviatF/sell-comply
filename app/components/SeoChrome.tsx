@@ -11,6 +11,7 @@ export function SeoHeader() {
         <Link href="/products">Products</Link>
         <Link href="/markets">Markets</Link>
         <Link href="/marketplaces">Marketplaces</Link>
+        <Link href="/dashboard">Dashboard</Link>
         <Link href="/#checker">Checker</Link>
       </nav>
       <Link className="button button-light seo-header-cta" href="/#checker">Check a product</Link>
