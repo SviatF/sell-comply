@@ -22,3 +22,7 @@
 .save-check-button{width:100%;text-align:left;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:linear-gradient(145deg,#111114,#09090b);color:#fff;padding:17px;display:flex;gap:12px;align-items:center;cursor:pointer}
 .save-check-button>span{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#1a1a1e;border:1px solid rgba(255,255,255,.09);color:#ff72b4;font-weight:900}
 .save-check-button strong,.save-check-button small{display:block}.save-check-button strong{font-size:13px}.save-check-button small{color:#80808a;font-size:10px;margin-top:4px;line-height:1.4}.save-check-button.saved{border-color:rgba(131,232,167,.18)}.save-check-button.saved>span{background:#91e8ae;color:#07150e}
+
+.resolved-product-note{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px}
+.resolved-product-note>span{font-size:9px;font-weight:800;letter-spacing:.08em;color:#ff79b8;background:rgba(255,79,163,.08);border:1px solid rgba(255,79,163,.16);border-radius:999px;padding:6px 8px}
+.resolved-product-note>a{font-size:10px;color:#a9a9b2}.resolved-product-note>a:hover{color:#fff}.resolved-product-note>small{flex-basis:100%;font-size:9px;color:#65656f;line-height:1.45}
