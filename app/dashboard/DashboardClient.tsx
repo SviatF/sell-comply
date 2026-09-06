@@ -53,6 +53,8 @@ type Monitor = {
   savedAt?: string;
   created_at?: string;
   next_check_at?: string;
+  emailReady?: boolean;
+  email_ready?: number;
 };
 
 function normalizeCheck(item: any): SavedCheck {
@@ -83,6 +85,7 @@ function normalizeMonitor(item: any): Monitor {
     marketplaceName: item.marketplaceName ?? item.marketplace_name,
     savedAt: item.savedAt ?? item.created_at,
     next_check_at: item.next_check_at,
+    emailReady: Boolean(item.emailReady ?? item.email_ready),
   };
 }
 
@@ -195,7 +198,7 @@ export default function DashboardClient() {
                   <h3>{item.rawProduct}</h3>
                   <p>{item.marketName || "Market"}{item.marketplaceName ? ` · ${item.marketplaceName}` : ""}</p>
                   <div className="dashboard-product-status">
-                    <span>No new change detected</span>
+                    <span>{item.emailReady ? "Email attached" : "No email attached"}</span>
                     <strong>{item.next_check_at ? "Scheduled" : "Monitoring queue"}</strong>
                   </div>
                   <Link href={`/check?product=${encodeURIComponent(item.rawProduct)}&country=${encodeURIComponent(item.marketName || "Germany")}&marketplace=${encodeURIComponent(item.marketplaceName || "Amazon")}`}>
