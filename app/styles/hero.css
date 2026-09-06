@@ -1,5 +1,5 @@
-.hero{width:min(1460px,calc(100% - 72px));min-height:650px;margin:28px auto 0;display:grid;grid-template-columns:minmax(0,.9fr) minmax(580px,1.1fr);gap:44px;position:relative;z-index:5}
-.hero-copy{padding-top:38px;position:relative;z-index:4}
+.hero{width:min(1460px,calc(100% - 72px));min-height:620px;margin:22px auto 0;display:grid;grid-template-columns:minmax(0,.9fr) minmax(580px,1.1fr);gap:44px;position:relative;z-index:5}
+.hero-copy{padding-top:30px;position:relative;z-index:4}
 .hero h1{margin:22px 0 16px;font-size:clamp(64px,5.55vw,96px);line-height:.92;letter-spacing:-.065em;font-weight:760;max-width:700px}
 .hero h1 span{display:block;width:max-content;max-width:100%;background:linear-gradient(90deg,#ff4fa3,#ff8cc8 70%,#ffd7e9);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .hero-description{max-width:660px;color:#bebec6;font-size:20px;line-height:1.5;letter-spacing:-.015em;margin:0 0 28px}
@@ -18,7 +18,7 @@
 .trust-row{margin-top:22px;color:#74747d;font-size:11px}.marketplace-list{display:flex;flex-wrap:wrap;align-items:center;gap:26px;margin-top:12px}.marketplace-list strong{color:#bdbdc3;font-size:18px;font-weight:650;letter-spacing:-.04em}
 
 .hero-visual{
-  min-height:650px;
+  min-height:620px;
   position:relative;
   isolation:isolate;
   overflow:visible;
@@ -30,7 +30,7 @@
   z-index:0;
   pointer-events:none;
   background:
-    radial-gradient(circle at 66% 44%,rgba(255,79,163,.12),transparent 34%),
+    radial-gradient(circle at 66% 44%,rgba(255,79,163,.075),transparent 36%),
     radial-gradient(circle at 34% 54%,rgba(255,255,255,.055),transparent 30%);
   filter:blur(10px);
 }
@@ -38,11 +38,11 @@
 .earth-visual{
   position:absolute;
   z-index:1;
-  width:775px;
+  width:755px;
   max-width:none;
-  right:-230px;
-  top:8px;
-  opacity:.76;
+  right:-202px;
+  top:12px;
+  opacity:.74;
   object-fit:contain;
   pointer-events:none;
   user-select:none;
@@ -54,11 +54,11 @@
 .platform-visual{
   position:absolute;
   z-index:2;
-  width:690px;
+  width:650px;
   max-width:none;
-  left:-112px;
-  bottom:-48px;
-  opacity:.94;
+  left:-96px;
+  bottom:-38px;
+  opacity:.86;
   object-fit:contain;
   pointer-events:none;
   user-select:none;
@@ -212,28 +212,28 @@
 .geo-node div span{font-size:10px;color:#b7b7bf;margin-top:3px}
 .geo-flag{font-size:16px}
 
-.geo-us{right:-6px;top:176px}
+.geo-us{right:12px;top:174px}
 .geo-us::before{left:-5px;bottom:7px}
 .geo-us::after{width:64px;left:-64px;bottom:10px;transform:rotate(-18deg)}
 
-.geo-eu{right:-38px;top:90px}
+.geo-eu{right:-18px;top:92px}
 .geo-eu::before{left:-5px;bottom:7px}
 .geo-eu::after{width:76px;left:-76px;bottom:10px;transform:rotate(8deg)}
 
-.geo-uk{right:-42px;top:270px}
+.geo-uk{right:-22px;top:270px}
 .geo-uk::before{left:-5px;top:13px}
 .geo-uk::after{width:60px;left:-60px;top:16px;transform:rotate(18deg)}
 
-.geo-ca{right:-12px;top:408px}
+.geo-ca{right:8px;top:404px}
 .geo-ca::before{left:-5px;top:13px}
 .geo-ca::after{width:92px;left:-92px;top:16px;transform:rotate(-7deg)}
 
 .country-card{
   position:absolute;
   z-index:10;
-  width:338px;
-  left:260px;
-  bottom:24px;
+  width:334px;
+  left:266px;
+  bottom:34px;
   border-radius:15px;
   padding:16px 18px;
 }
@@ -275,5 +275,5 @@
   opacity:.82;
   text-shadow:0 4px 18px rgba(0,0,0,.7);
 }
-.note-one{right:42px;top:448px;transform:rotate(-7deg)}
-.note-two{right:-24px;bottom:42px;transform:rotate(5deg)}
+.note-one{right:46px;top:438px;transform:rotate(-7deg)}
+.note-two{right:-4px;bottom:48px;transform:rotate(5deg)}
