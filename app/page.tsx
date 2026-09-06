@@ -248,50 +248,95 @@ export default function Home() {
         </div>
 
         <div className="hero-visual" aria-label="SellComply product compliance preview">
-          <div className="world-globe">
-            <div className="globe-grid" />
-            <span className="route route-one" />
-            <span className="route route-two" />
-            <span className="route route-three" />
-            <span className="map-node node-one" />
-            <span className="map-node node-two" />
-            <span className="map-node node-three" />
-            <span className="map-node node-four" />
-          </div>
+          <div className="hero-vignette" aria-hidden="true" />
 
-          <img className="headphones" src="/headphones.svg" alt="Wireless headphones" />
+          <img
+            className="earth-visual"
+            src="/earth.webp"
+            alt=""
+            aria-hidden="true"
+          />
+
+          <img
+            className="platform-visual"
+            src="/platform.webp"
+            alt=""
+            aria-hidden="true"
+          />
+
+          <img
+            className="headphones"
+            src="/headphone.webp"
+            alt="Premium wireless headphones"
+          />
 
           <div className="product-floating-card glass-card">
-            <img src="/headphones.svg" alt="" />
+            <img src="/headphone.webp" alt="" />
             <div>
               <strong>Wireless Headphones</strong>
+              <span>Brand: SoundMax</span>
               <span>Category: Electronics</span>
             </div>
           </div>
 
-          <div className="compliance-stack">
+          <div className="compliance-stack" aria-label="Example compliance requirements">
             <div className="glass-card compliance-item">
-              <span className="icon-box">CE</span>
-              <div><strong>CE marking</strong><span>Applicability check</span></div>
-              <span className="status-dot"><Check size={14} /></span>
+              <span className="icon-box icon-symbol">CE</span>
+              <div><strong>CE Marking</strong><span>Required in EU</span></div>
+              <span className="status-dot status-ok"><Check size={14} /></span>
             </div>
+
             <div className="glass-card compliance-item">
-              <span className="icon-box">EU</span>
-              <div><strong>GPSR</strong><span>General product safety</span></div>
-              <span className="status-pill">CHECK</span>
+              <span className="icon-box icon-symbol">FCC</span>
+              <div><strong>FCC Certification</strong><span>Required in US</span></div>
+              <span className="status-dot status-ok"><Check size={14} /></span>
             </div>
+
+            <div className="glass-card compliance-item compliance-warning">
+              <span className="icon-box icon-symbol">Ro</span>
+              <div><strong>RoHS</strong><span>Restricted materials</span></div>
+              <span className="status-dot status-review">!</span>
+            </div>
+
             <div className="glass-card compliance-item">
               <FileCheck2 size={20} />
-              <div><strong>Documentation</strong><span>Product file review</span></div>
+              <div><strong>Product Documentation</strong><span>Required</span></div>
               <ArrowRight size={16} />
             </div>
           </div>
 
+          <div className="geo-node geo-us glass-card">
+            <span className="geo-flag">🇺🇸</span>
+            <div><strong>US</strong><span>FCC</span></div>
+          </div>
+
+          <div className="geo-node geo-eu glass-card">
+            <span className="geo-flag">🇪🇺</span>
+            <div><strong>EU</strong><span>GPSR</span></div>
+          </div>
+
+          <div className="geo-node geo-uk glass-card">
+            <span className="geo-flag">🇬🇧</span>
+            <div><strong>UK</strong><span>UKCA</span></div>
+          </div>
+
+          <div className="geo-node geo-ca glass-card">
+            <span className="geo-flag">🇨🇦</span>
+            <div><strong>CA</strong><span>CCPSA</span></div>
+          </div>
+
           <div className="country-card glass-card">
-            <span>Coverage preview</span>
+            <strong>Compliant in 32+ countries</strong>
             <div className="flag-row">
-              {countries.map((item) => (
-                <span key={item.value} title={item.value}>{item.flag}</span>
+              {[
+                { flag: "🇪🇺", label: "European Union" },
+                { flag: "🇺🇸", label: "United States" },
+                { flag: "🇬🇧", label: "United Kingdom" },
+                { flag: "🇨🇦", label: "Canada" },
+                { flag: "🇦🇺", label: "Australia" },
+                { flag: "🇯🇵", label: "Japan" },
+              ].map((item) => (
+                <span key={item.label} title={item.label}>{item.flag}</span>
               ))}
               <span className="more-flag">+25</span>
             </div>
