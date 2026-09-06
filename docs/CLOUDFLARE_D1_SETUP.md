@@ -1,93 +1,71 @@
-# SellComply — Cloudflare D1 activation
+# SellComply — Cloudflare D1
 
-The application works local-first without D1. Connecting D1 turns saved checks, monitoring, regulatory changes and funnel events into persistent cloud data.
+## Production database
 
-## 1. Create the database
+- Database: `sell-comply-db`
+- Binding: `DB`
+- Database ID: `15c02f17-c27a-45b3-a543-637685c90c4c`
 
-```bash
-npx wrangler d1 create sell-comply-db
+The binding is configured in `wrangler.jsonc`.
+
+## Automatic schema bootstrap
+
+SellComply does **not** require a manual SQL step for a new empty database.
+
+The first request to a database-backed endpoint runs the idempotent schema bootstrap in:
+
+`lib/db-schema.ts`
+
+It creates the current schema and stores:
+
+`schema_meta.schema_version = 3`
+
+The health endpoint also initializes the database:
+
+`GET /api/health`
+
+Expected healthy response:
+
+```json
+{
+  "ok": true,
+  "d1": "connected",
+  "schema": "ready",
+  "schemaVersion": "3",
+  "officialSources": 1
+}
 ```
 
-Cloudflare will return a `database_id`.
+The exact official source count can grow as markets are added.
 
-## 2. Add the binding to wrangler.jsonc
+## Historical migrations
 
-Add this top-level property:
+The files under `migrations/` document the evolution of the schema. Do not manually apply migrations 0001–0003 to a database that has already been initialized by the application bootstrap.
 
-```jsonc
-"d1_databases": [
-  {
-    "binding": "DB",
-    "database_name": "sell-comply-db",
-    "database_id": "PASTE_DATABASE_ID_HERE",
-    "migrations_dir": "migrations"
-  }
-]
-```
+Future production schema changes should be implemented through a versioned, idempotent update to `lib/db-schema.ts`.
 
-The application expects the binding name to be exactly `DB`.
+## Official sources
 
-## 3. Apply migrations
+The first health check or first monitored-product save seeds curated official regulator URLs into D1 automatically.
 
-```bash
-npx wrangler d1 migrations apply sell-comply-db --remote
-```
+A page fetch does **not** count as human verification. SellComply keeps:
 
-Current migrations:
+- source checked
+- source changed
+- requirement reviewed
 
-- `0001_product_core.sql` — users, checks, monitoring, requirements, sources, rule changes
-- `0002_source_monitoring.sql` — source fingerprints and monitoring fields
-- `0003_events.sql` — first-party funnel events
+as separate states.
 
-## 4. Add Worker secrets
+## Regulatory monitor
 
-Generate two long random values and configure:
+The scheduled GitHub workflow is:
 
-```bash
-npx wrangler secret put ADMIN_TOKEN
-npx wrangler secret put MONITOR_SECRET
-```
+`.github/workflows/monitor.yml`
 
-Never commit these values.
+To activate daily checks later, configure:
 
-## 5. Deploy
+- Cloudflare secret: `MONITOR_SECRET`
+- GitHub secret: `MONITOR_SECRET`
+- GitHub secret: `MONITOR_URL=https://sellcomply.com/api/monitoring/run`
 
-```bash
-npm run build:cloudflare
-npx wrangler deploy
-```
-
-## 6. Seed official regulator sources
-
-After deployment:
-
-```bash
-curl -X POST \
-  -H "x-admin-token: YOUR_ADMIN_TOKEN" \
-  https://sellcomply.com/api/admin/bootstrap
-```
-
-This seeds only official regulator URLs already curated in SellComply market data.
-
-## 7. Enable free scheduled monitoring via GitHub Actions
-
-Repository workflow: `.github/workflows/monitor.yml`
-
-Add GitHub repository secrets:
-
-- `MONITOR_URL` = `https://sellcomply.com/api/monitoring/run`
-- `MONITOR_SECRET` = the same value configured in Cloudflare
-
-If the secrets are absent, the workflow exits safely and does nothing.
-
-The workflow runs once per day. It checks official source fingerprints and records a `source_updated` event when content changes. A source fingerprint change is **not** automatically treated as a legal requirement change; it is put into `needs_review` status.
-
-## Safety model
-
-SellComply monitoring intentionally separates:
-
-1. **Official source changed**
-2. **Change reviewed**
-3. **Requirement updated**
-
-This prevents a website content edit from being presented to sellers as a confirmed regulatory change without review.
+If these secrets are not configured, the workflow exits safely without cost or errors.
