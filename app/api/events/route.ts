@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getOptionalDb } from "@/lib/cloudflare-db";
+import { ensureDatabaseSchema } from "@/lib/db-schema";
 
 type EventPayload = {
   visitorId?: string;
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    await ensureDatabaseSchema(db);
     await db
       .prepare(
         `INSERT INTO events (
