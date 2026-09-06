@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics-client";
 import {
   getVisitorId,
   MONITORED_PRODUCTS_KEY,
@@ -103,6 +104,12 @@ export default function CheckActions(props: Props) {
       // Local persistence keeps the action useful when D1 is not yet connected.
     }
 
+    trackEvent("save_check", {
+      productSlug: props.productSlug,
+      marketSlug: props.marketSlug,
+      marketplaceSlug: props.marketplaceSlug,
+    });
+
     setSaved(true);
     setBusy(null);
   };
@@ -149,6 +156,12 @@ export default function CheckActions(props: Props) {
     } catch {
       // Local persistence is the fallback until Cloudflare D1 is bound.
     }
+
+    trackEvent("monitor_product", {
+      productSlug: props.productSlug,
+      marketSlug: props.marketSlug,
+      marketplaceSlug: props.marketplaceSlug,
+    });
 
     setMonitored(true);
     setBusy(null);
