@@ -443,7 +443,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="seo-discovery-section" aria-labelledby="popular-checks-title">
+      <section className="seo-discovery-section" data-section="seo-discovery" aria-labelledby="popular-checks-title">
         <div className="section-heading">
           <div className="eyebrow"><span className="eyebrow-dot" /> POPULAR COMPLIANCE CHECKS</div>
           <h2 id="popular-checks-title">Start with a product,<br />market or marketplace.</h2>
