@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buildComplianceReview } from "@/lib/compliance-engine";
+import { resolveProductInput } from "@/lib/product-resolver";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import CheckActions from "@/app/components/CheckActions";
 
@@ -25,7 +26,9 @@ export default async function CheckPage({
   const rawProduct = (params.product || "wireless headphones").slice(0, 500);
   const country = params.country || "Germany";
   const marketplace = params.marketplace || "Amazon";
-  const result = buildComplianceReview(rawProduct, country, marketplace);
+  const resolved = await resolveProductInput(rawProduct);
+  const result = buildComplianceReview(resolved.resolvedText, country, marketplace);
+  const displayProduct = resolved.title || rawProduct;
 
   return (
     <div className="seo-page check-results-page">
@@ -39,7 +42,14 @@ export default async function CheckPage({
           <div>
             <span className="seo-kicker"><i /> INITIAL PRODUCT REVIEW</span>
             <h1>Review before you <em>sell.</em></h1>
-            <p className="check-query">{rawProduct}</p>
+            <p className="check-query">{displayProduct}</p>
+            {resolved.sourceType === "url" && (
+              <div className="resolved-product-note">
+                <span>{resolved.fetched ? "Product page resolved" : "URL fallback used"}</span>
+                <a href={resolved.sourceUrl} target="_blank" rel="noreferrer">Source ↗</a>
+                {resolved.note && <small>{resolved.note}</small>}
+              </div>
+            )}
             <div className="check-target-row">
               <span>{result.market.flag} {result.market.name}</span>
               {result.marketplace && <span>▦ {result.marketplace.name}</span>}
@@ -84,7 +94,7 @@ export default async function CheckPage({
 
           <aside className="check-side">
             <CheckActions
-              rawProduct={rawProduct}
+              rawProduct={displayProduct}
               productSlug={result.product.slug}
               category={result.product.category}
               marketSlug={result.market.slug}
