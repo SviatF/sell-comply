@@ -62,6 +62,39 @@ function pickMeta(html: string, patterns: RegExp[]) {
   return "";
 }
 
+async function readTextLimited(response: Response, maxBytes = 500_000) {
+  if (!response.body) return "";
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let received = 0;
+  let output = "";
+
+  try {
+    while (received < maxBytes) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+
+      const remaining = maxBytes - received;
+      const chunk = value.byteLength > remaining ? value.slice(0, remaining) : value;
+      received += chunk.byteLength;
+      output += decoder.decode(chunk, { stream: received < maxBytes });
+
+      if (received >= maxBytes) break;
+    }
+  } finally {
+    try {
+      await reader.cancel();
+    } catch {
+      // Response is already complete or closed.
+    }
+  }
+
+  output += decoder.decode();
+  return output;
+}
+
 function extractJsonLdProductName(html: string) {
   const scripts = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
   for (const match of scripts.slice(0, 12)) {
@@ -133,7 +166,19 @@ export async function resolveProductInput(input: string): Promise<ResolvedProduc
       };
     }
 
-    const html = (await response.text()).slice(0, 450_000);
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
+      return {
+        original,
+        resolvedText: fallbackText,
+        sourceType: "url",
+        sourceUrl: url.toString(),
+        fetched: false,
+        note: "The product URL did not return an HTML product page; URL text was used as a fallback.",
+      };
+    }
+
+    const html = await readTextLimited(response, 450_000);
     const title =
       extractJsonLdProductName(html) ||
       pickMeta(html, [
