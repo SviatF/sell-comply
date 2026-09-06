@@ -12,3 +12,11 @@
 .cta-section{width:min(1460px,calc(100% - 72px));margin:120px auto 0;border:1px solid rgba(255,79,163,.2);background:radial-gradient(circle at 85% 50%,rgba(255,79,163,.1),transparent 22rem),linear-gradient(140deg,#111114,#08080a);border-radius:24px;min-height:260px;padding:46px;display:flex;align-items:center;justify-content:space-between;gap:40px}
 .cta-section h2{font-size:clamp(40px,4vw,64px);letter-spacing:-.055em;line-height:1;margin:18px 0 10px}.cta-section p{color:#8e8e96;margin:0}
 footer{width:min(1460px,calc(100% - 72px));margin:52px auto 0;min-height:170px;border-top:1px solid var(--line);display:grid;grid-template-columns:auto 1fr auto auto;gap:36px;align-items:center;color:#777780;font-size:11px}footer .brand{font-size:20px;color:#fff}footer p{max-width:320px}.footer-links{display:flex;gap:22px;color:#aaaab1}
+
+.seo-discovery-section{width:min(1460px,calc(100% - 72px));margin:120px auto 0;display:grid;grid-template-columns:.75fr 1.25fr;gap:76px;align-items:start}
+.seo-discovery-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seo-discovery-card{min-height:132px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:linear-gradient(145deg,rgba(18,18,21,.9),rgba(8,8,10,.94));padding:18px;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr;gap:10px;transition:transform .2s ease,border-color .2s ease,background .2s ease}
+.seo-discovery-card:hover{transform:translateY(-2px);border-color:rgba(255,79,163,.28);background:linear-gradient(145deg,rgba(29,17,24,.94),rgba(9,9,11,.96))}
+.seo-discovery-card span{grid-column:1/-1;color:#74747e;font-size:10px;letter-spacing:.03em;text-transform:uppercase}
+.seo-discovery-card strong{font-size:14px;line-height:1.45;align-self:end;max-width:240px}
+.seo-discovery-card svg{align-self:end;color:#ff74b6}
