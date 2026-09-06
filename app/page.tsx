@@ -74,6 +74,7 @@ export default function Home() {
   const [country, setCountry] = useState("Germany");
   const [marketplace, setMarketplace] = useState("Amazon");
   const [checked, setChecked] = useState(false);
+  const [inputError, setInputError] = useState("");
 
   const selectedCountry = useMemo(
     () => countries.find((item) => item.value === country) ?? countries[0],
@@ -83,13 +84,27 @@ export default function Home() {
   const requirements = requirementSets[country] ?? requirementSets.Germany;
 
   const runCheck = () => {
+    if (mode === "upload") {
+      setInputError("Image analysis is not connected yet. Use a product link or description for this MVP check.");
+      return;
+    }
+
+    const value = product.trim();
+    if (!value) {
+      setInputError("Add a product URL or describe the product first.");
+      return;
+    }
+
+    setInputError("");
     setChecked(true);
-    window.setTimeout(() => {
-      document.getElementById("compliance-preview")?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }, 60);
+
+    const query = new URLSearchParams({
+      product: value,
+      country,
+      marketplace,
+    });
+
+    window.location.assign(`/check?${query.toString()}`);
   };
 
   return (
@@ -183,7 +198,10 @@ export default function Home() {
                   {mode === "link" ? <Link2 size={18} /> : <Search size={18} />}
                   <input
                     value={product}
-                    onChange={(event) => setProduct(event.target.value)}
+                    onChange={(event) => {
+                      setProduct(event.target.value);
+                      if (inputError) setInputError("");
+                    }}
                     placeholder={
                       mode === "link"
                         ? "Paste product URL (Amazon, Shopify, etc.)"
@@ -231,9 +249,9 @@ export default function Home() {
               </label>
             </div>
 
-            <div className="checker-note">
+            <div className={inputError ? "checker-note checker-error" : "checker-note"}>
               <LockKeyhole size={13} />
-              Free check. No credit card required.
+              {inputError || "Free check. No credit card required."}
             </div>
           </div>
 
