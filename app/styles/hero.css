@@ -56,8 +56,8 @@
   z-index:2;
   width:900px;
   max-width:none;
-  left:-170px;
-  bottom:-112px;
+  left:-110px;
+  bottom:-125px;
   opacity:.94;
   object-fit:contain;
   pointer-events:none;
@@ -68,11 +68,11 @@
 }
 
 .headphones{
-  width:500px;
+  width:482px;
   max-width:none;
   position:absolute;
   left:-34px;
-  top:78px;
+  top:82px;
   z-index:4;
   object-fit:contain;
   pointer-events:none;
@@ -121,7 +121,7 @@
 .compliance-stack{
   position:absolute;
   top:166px;
-  right:170px;
+  right:150px;
   left:auto;
   z-index:9;
   width:260px;
@@ -232,8 +232,8 @@
   position:absolute;
   z-index:10;
   width:350px;
-  left:245px;
-  bottom:26px;
+  left:260px;
+  bottom:39px;
   border-radius:15px;
   padding:16px 18px;
 }
