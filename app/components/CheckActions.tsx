@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
 import {
   getVisitorId,
@@ -45,13 +45,24 @@ type LocalMonitor = {
   marketName: string;
   marketplaceSlug?: string;
   marketplaceName?: string;
+  emailReady?: boolean;
   savedAt: string;
 };
+
+const EMAIL_KEY = "sellcomply-alert-email";
 
 export default function CheckActions(props: Props) {
   const [saved, setSaved] = useState(false);
   const [monitored, setMonitored] = useState(false);
+  const [monitorOpen, setMonitorOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [monitorError, setMonitorError] = useState("");
   const [busy, setBusy] = useState<"save" | "monitor" | null>(null);
+
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem(EMAIL_KEY) || "";
+    if (rememberedEmail) setEmail(rememberedEmail);
+  }, []);
 
   const saveCheck = async () => {
     if (saved || busy) return;
@@ -101,7 +112,7 @@ export default function CheckActions(props: Props) {
         }),
       });
     } catch {
-      // Local persistence keeps the action useful when D1 is not yet connected.
+      // Local storage remains a fallback for saved checks.
     }
 
     trackEvent("save_check", {
@@ -114,37 +125,28 @@ export default function CheckActions(props: Props) {
     setBusy(null);
   };
 
-  const monitorProduct = async () => {
+  const submitMonitor = async (event: FormEvent) => {
+    event.preventDefault();
     if (monitored || busy) return;
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      setMonitorError("Enter a valid email address.");
+      return;
+    }
+
+    setMonitorError("");
     setBusy("monitor");
 
     const visitorId = getVisitorId();
-    const local: LocalMonitor = {
-      id: crypto.randomUUID(),
-      rawProduct: props.rawProduct,
-      productSlug: props.productSlug,
-      marketSlug: props.marketSlug,
-      marketName: props.marketName,
-      marketplaceSlug: props.marketplaceSlug,
-      marketplaceName: props.marketplaceName,
-      savedAt: new Date().toISOString(),
-    };
-
-    const current = readLocalArray<LocalMonitor>(MONITORED_PRODUCTS_KEY);
-    const duplicate = current.some(
-      (item) =>
-        item.rawProduct === local.rawProduct &&
-        item.marketSlug === local.marketSlug &&
-        (item.marketplaceSlug || "") === (local.marketplaceSlug || "")
-    );
-    if (!duplicate) writeLocalArray(MONITORED_PRODUCTS_KEY, [local, ...current].slice(0, 100));
 
     try {
-      await fetch("/api/monitors", {
+      const response = await fetch("/api/monitors", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           visitorId,
+          email: normalizedEmail,
           rawProduct: props.rawProduct,
           productSlug: props.productSlug,
           marketSlug: props.marketSlug,
@@ -153,18 +155,52 @@ export default function CheckActions(props: Props) {
           marketplaceName: props.marketplaceName || null,
         }),
       });
+
+      const result = await response.json();
+
+      if (!response.ok || !result?.ok || !result?.persisted) {
+        throw new Error(result?.reason || result?.error || "Monitoring could not be enabled.");
+      }
+
+      const local: LocalMonitor = {
+        id: result.id || crypto.randomUUID(),
+        rawProduct: props.rawProduct,
+        productSlug: props.productSlug,
+        marketSlug: props.marketSlug,
+        marketName: props.marketName,
+        marketplaceSlug: props.marketplaceSlug,
+        marketplaceName: props.marketplaceName,
+        emailReady: true,
+        savedAt: new Date().toISOString(),
+      };
+
+      const current = readLocalArray<LocalMonitor>(MONITORED_PRODUCTS_KEY);
+      const filtered = current.filter(
+        (item) =>
+          !(
+            item.rawProduct === local.rawProduct &&
+            item.marketSlug === local.marketSlug &&
+            (item.marketplaceSlug || "") === (local.marketplaceSlug || "")
+          )
+      );
+
+      writeLocalArray(MONITORED_PRODUCTS_KEY, [local, ...filtered].slice(0, 100));
+      localStorage.setItem(EMAIL_KEY, normalizedEmail);
+
+      trackEvent("monitor_product", {
+        productSlug: props.productSlug,
+        marketSlug: props.marketSlug,
+        marketplaceSlug: props.marketplaceSlug,
+        metadata: { emailCaptured: true },
+      });
+
+      setMonitored(true);
+      setMonitorOpen(false);
     } catch {
-      // Local persistence is the fallback until Cloudflare D1 is bound.
+      setMonitorError("We couldn't enable monitoring right now. Please try again.");
+    } finally {
+      setBusy(null);
     }
-
-    trackEvent("monitor_product", {
-      productSlug: props.productSlug,
-      marketSlug: props.marketSlug,
-      marketplaceSlug: props.marketplaceSlug,
-    });
-
-    setMonitored(true);
-    setBusy(null);
   };
 
   return (
@@ -177,13 +213,68 @@ export default function CheckActions(props: Props) {
         </div>
       </button>
 
-      <button className={monitored ? "monitor-button saved" : "monitor-button"} onClick={monitorProduct}>
-        <span>{monitored ? "✓" : "◎"}</span>
-        <div>
-          <strong>{monitored ? "Monitoring enabled" : busy === "monitor" ? "Saving…" : "Monitor this product"}</strong>
-          <small>{monitored ? "Saved for future regulatory-change checks." : "Track this product-market combination for changes."}</small>
+      {monitored ? (
+        <div className="monitor-button saved monitor-complete">
+          <span>✓</span>
+          <div>
+            <strong>Monitoring enabled</strong>
+            <small>Email attached to this product-market watch.</small>
+          </div>
         </div>
-      </button>
+      ) : (
+        <>
+          <button
+            className={monitorOpen ? "monitor-button active" : "monitor-button"}
+            onClick={() => {
+              setMonitorOpen((value) => !value);
+              setMonitorError("");
+            }}
+            type="button"
+          >
+            <span>◎</span>
+            <div>
+              <strong>Monitor this product</strong>
+              <small>Get ready for compliance-change alerts without creating an account.</small>
+            </div>
+          </button>
+
+          {monitorOpen && (
+            <form className="monitor-email-form" onSubmit={submitMonitor}>
+              <div className="monitor-email-head">
+                <span>EMAIL ALERTS</span>
+                <strong>Where should we send important changes?</strong>
+              </div>
+
+              <div className="monitor-email-row">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    if (monitorError) setMonitorError("");
+                  }}
+                  placeholder="you@company.com"
+                  autoComplete="email"
+                  aria-label="Email for compliance alerts"
+                  required
+                />
+                <button type="submit" disabled={busy === "monitor"}>
+                  {busy === "monitor" ? "Enabling…" : "Enable monitoring"}
+                </button>
+              </div>
+
+              {monitorError ? (
+                <p className="monitor-email-error">{monitorError}</p>
+              ) : (
+                <p className="monitor-consent">
+                  By enabling monitoring, you agree to receive product-compliance alerts for this watch.
+                  No account required. Unsubscribe will be available from every alert.
+                </p>
+              )}
+            </form>
+          )}
+        </>
+      )}
     </div>
   );
 }
