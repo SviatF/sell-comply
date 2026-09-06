@@ -9,12 +9,39 @@ export type ResolvedProductInput = {
   note?: string;
 };
 
-function looksLikeUrl(value: string) {
+function isBlockedHost(hostname: string) {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (
+    host === "localhost" ||
+    host === "::1" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal")
+  ) return true;
+
+  if (/^127\./.test(host) || /^10\./.test(host) || /^169\.254\./.test(host) || /^192\.168\./.test(host)) {
+    return true;
+  }
+
+  const private172 = host.match(/^172\.(\d{1,3})\./);
+  if (private172) {
+    const second = Number(private172[1]);
+    if (second >= 16 && second <= 31) return true;
+  }
+
+  return false;
+}
+
+function parseSafeProductUrl(value: string) {
   try {
     const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    if (url.username || url.password) return null;
+    if (url.port && url.port !== "80" && url.port !== "443") return null;
+    if (isBlockedHost(url.hostname)) return null;
+    return url;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -62,7 +89,9 @@ function extractJsonLdProductName(html: string) {
 export async function resolveProductInput(input: string): Promise<ResolvedProductInput> {
   const original = input.trim();
 
-  if (!looksLikeUrl(original)) {
+  const safeUrl = parseSafeProductUrl(original);
+
+  if (!safeUrl) {
     return {
       original,
       resolvedText: original,
@@ -71,7 +100,7 @@ export async function resolveProductInput(input: string): Promise<ResolvedProduc
     };
   }
 
-  const url = new URL(original);
+  const url = safeUrl;
   const fallbackText = decodeURIComponent(
     [url.hostname.replace(/^www\./, ""), url.pathname, url.search].join(" ")
   )
@@ -83,7 +112,7 @@ export async function resolveProductInput(input: string): Promise<ResolvedProduc
   const timer = setTimeout(() => controller.abort(), 4500);
 
   try {
-    const response = await fetch(original, {
+    const response = await fetch(url.toString(), {
       signal: controller.signal,
       redirect: "follow",
       headers: {
@@ -98,7 +127,7 @@ export async function resolveProductInput(input: string): Promise<ResolvedProduc
         original,
         resolvedText: fallbackText,
         sourceType: "url",
-        sourceUrl: original,
+        sourceUrl: url.toString(),
         fetched: false,
         note: `Product page returned HTTP ${response.status}; URL text was used as a fallback.`,
       };
@@ -125,7 +154,7 @@ export async function resolveProductInput(input: string): Promise<ResolvedProduc
       original,
       resolvedText: resolvedText || fallbackText,
       sourceType: "url",
-      sourceUrl: original,
+      sourceUrl: url.toString(),
       title: title || undefined,
       description: description || undefined,
       fetched: true,
@@ -135,7 +164,7 @@ export async function resolveProductInput(input: string): Promise<ResolvedProduc
       original,
       resolvedText: fallbackText,
       sourceType: "url",
-      sourceUrl: original,
+      sourceUrl: url.toString(),
       fetched: false,
       note: "The product page could not be read automatically; URL text was used as a fallback.",
     };
