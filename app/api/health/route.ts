@@ -30,7 +30,7 @@ export async function GET() {
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "3" ? "ready" : "unknown",
+      schema: version?.value === "4" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
     });
