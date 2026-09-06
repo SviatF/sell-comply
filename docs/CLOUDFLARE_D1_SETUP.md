@@ -31,12 +31,14 @@ Expected healthy response:
   "ok": true,
   "d1": "connected",
   "schema": "ready",
-  "schemaVersion": "3",
-  "officialSources": 1
+  "schemaVersion": "4",
+  "officialSources": 9,
+  "monitoredProducts": 0,
+  "emailSubscribers": 0
 }
 ```
 
-The exact official source count can grow as markets are added.
+The exact official source count can grow as markets are added. Monitoring and subscriber counters contain totals only; the health endpoint never exposes email addresses.
 
 ## Historical migrations
 
