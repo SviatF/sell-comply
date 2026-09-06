@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { trackEvent } from "@/lib/analytics-client";
 import {
   getVisitorId,
   MONITORED_PRODUCTS_KEY,
@@ -98,6 +99,7 @@ export default function DashboardClient() {
   const [changes, setChanges] = useState<ChangeItem[]>([]);
 
   useEffect(() => {
+    trackEvent("dashboard_open");
     const localChecks = readLocalArray<SavedCheck>(SAVED_CHECKS_KEY).map(normalizeCheck);
     const localMonitors = readLocalArray<Monitor>(MONITORED_PRODUCTS_KEY).map(normalizeMonitor);
     setChecks(localChecks);
