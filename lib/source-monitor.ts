@@ -75,11 +75,10 @@ export async function monitorOfficialSources(db: SellComplyD1, limit = 12) {
         `UPDATE sources
          SET last_content_hash = COALESCE(?, last_content_hash),
              last_http_status = ?,
-             last_checked_at = CURRENT_TIMESTAMP,
-             last_verified_at = CASE WHEN ? BETWEEN 200 AND 299 THEN CURRENT_TIMESTAMP ELSE last_verified_at END
+             last_checked_at = CURRENT_TIMESTAMP
          WHERE id = ?`
       )
-      .bind(nextHash, status, status, source.id)
+      .bind(nextHash, status, source.id)
       .run();
 
     if (changed) {
