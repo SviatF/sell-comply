@@ -38,11 +38,11 @@
 .earth-visual{
   position:absolute;
   z-index:1;
-  width:760px;
+  width:775px;
   max-width:none;
-  right:-190px;
-  top:6px;
-  opacity:.79;
+  right:-230px;
+  top:8px;
+  opacity:.76;
   object-fit:contain;
   pointer-events:none;
   user-select:none;
@@ -54,25 +54,25 @@
 .platform-visual{
   position:absolute;
   z-index:2;
-  width:660px;
+  width:690px;
   max-width:none;
-  left:-100px;
-  bottom:-58px;
+  left:-112px;
+  bottom:-48px;
   opacity:.94;
   object-fit:contain;
   pointer-events:none;
   user-select:none;
-  filter:brightness(.68) contrast(1.12) saturate(.78) drop-shadow(0 34px 55px rgba(0,0,0,.8));
+  filter:brightness(.78) contrast(1.08) saturate(.82) drop-shadow(0 34px 55px rgba(0,0,0,.8));
   -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.98) 0%,#000 78%,transparent 100%);
   mask-image:linear-gradient(180deg,rgba(0,0,0,.98) 0%,#000 78%,transparent 100%);
 }
 
 .headphones{
-  width:455px;
+  width:468px;
   max-width:none;
   position:absolute;
-  left:-62px;
-  top:102px;
+  left:-72px;
+  top:96px;
   z-index:4;
   object-fit:contain;
   pointer-events:none;
@@ -99,7 +99,7 @@
   z-index:8;
   width:282px;
   min-height:84px;
-  padding:10px 12px;
+  padding:9px 11px;
   border-radius:14px;
   display:flex;
   gap:12px;
@@ -120,20 +120,20 @@
 
 .compliance-stack{
   position:absolute;
-  top:164px;
-  right:112px;
+  top:168px;
+  right:84px;
   left:auto;
   z-index:9;
-  width:270px;
+  width:250px;
   display:grid;
   gap:9px;
 }
 .compliance-item{
-  min-height:61px;
-  padding:10px 12px;
+  min-height:56px;
+  padding:9px 11px;
   border-radius:13px;
   display:grid;
-  grid-template-columns:40px 1fr auto;
+  grid-template-columns:36px 1fr auto;
   align-items:center;
   gap:10px;
 }
@@ -145,8 +145,8 @@
   background:linear-gradient(145deg,rgba(41,15,28,.74),rgba(9,9,12,.9));
 }
 .icon-box{
-  width:36px;
-  height:36px;
+  width:32px;
+  height:32px;
   display:grid!important;
   place-items:center;
   border-radius:9px;
@@ -158,8 +158,8 @@
   letter-spacing:-.04em;
 }
 .status-dot{
-  width:27px;
-  height:27px;
+  width:25px;
+  height:25px;
   display:grid!important;
   place-items:center;
   border-radius:50%;
@@ -212,28 +212,28 @@
 .geo-node div span{font-size:10px;color:#b7b7bf;margin-top:3px}
 .geo-flag{font-size:16px}
 
-.geo-us{right:10px;top:178px}
+.geo-us{right:-6px;top:176px}
 .geo-us::before{left:-5px;bottom:7px}
 .geo-us::after{width:64px;left:-64px;bottom:10px;transform:rotate(-18deg)}
 
-.geo-eu{right:-22px;top:96px}
+.geo-eu{right:-38px;top:90px}
 .geo-eu::before{left:-5px;bottom:7px}
 .geo-eu::after{width:76px;left:-76px;bottom:10px;transform:rotate(8deg)}
 
-.geo-uk{right:-26px;top:268px}
+.geo-uk{right:-42px;top:270px}
 .geo-uk::before{left:-5px;top:13px}
 .geo-uk::after{width:60px;left:-60px;top:16px;transform:rotate(18deg)}
 
-.geo-ca{right:2px;top:414px}
+.geo-ca{right:-12px;top:408px}
 .geo-ca::before{left:-5px;top:13px}
 .geo-ca::after{width:92px;left:-92px;top:16px;transform:rotate(-7deg)}
 
 .country-card{
   position:absolute;
   z-index:10;
-  width:345px;
-  left:252px;
-  bottom:6px;
+  width:338px;
+  left:260px;
+  bottom:24px;
   border-radius:15px;
   padding:16px 18px;
 }
