@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getOptionalDb } from "@/lib/cloudflare-db";
+import { ensureDatabaseSchema } from "@/lib/db-schema";
 
 type MonitorPayload = {
   visitorId?: string;
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    await ensureDatabaseSchema(db);
     const existing = await db
       .prepare(
         `SELECT id FROM monitoring_subscriptions
