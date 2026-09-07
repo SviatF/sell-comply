@@ -3,6 +3,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getOptionalDb } from "@/lib/cloudflare-db";
 import { ensureDatabaseSchema } from "@/lib/db-schema";
 import { seedOfficialSources } from "@/lib/source-bootstrap";
+import { syncRegulatoryKnowledgeBase } from "@/lib/regulatory-kb";
 
 function getSecret(name: string) {
   try {
@@ -29,8 +30,13 @@ export async function POST(request: Request) {
 
   try {
     await ensureDatabaseSchema(db);
-    const result = await seedOfficialSources(db);
-    return NextResponse.json({ ok: true, ...result });
+    const sources = await seedOfficialSources(db);
+    const regulatoryKnowledgeBase = await syncRegulatoryKnowledgeBase(db);
+    return NextResponse.json({
+      ok: true,
+      sources,
+      regulatoryKnowledgeBase,
+    });
   } catch (error) {
     return NextResponse.json(
       { ok: false, error: "BOOTSTRAP_FAILED", detail: error instanceof Error ? error.message : "Unknown error" },
