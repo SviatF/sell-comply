@@ -214,6 +214,30 @@ const statements = [
   `DROP INDEX IF EXISTS idx_regulatory_rule_hash_unique`,
   `CREATE INDEX IF NOT EXISTS idx_regulatory_rule_versions_hash ON regulatory_rule_versions(rule_key, content_hash)`,
   `CREATE INDEX IF NOT EXISTS idx_regulatory_rule_versions_rule ON regulatory_rule_versions(rule_key, version)`,
+  `CREATE TABLE IF NOT EXISTS regulatory_applicability (
+    id TEXT PRIMARY KEY,
+    rule_key TEXT NOT NULL,
+    rule_version INTEGER NOT NULL,
+    market_slug TEXT NOT NULL,
+    product_slug TEXT NOT NULL,
+    status TEXT NOT NULL,
+    feature_match_mode TEXT NOT NULL DEFAULT 'all',
+    is_current INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_regulatory_applicability_unique ON regulatory_applicability(rule_key, rule_version, market_slug, product_slug)`,
+  `CREATE INDEX IF NOT EXISTS idx_regulatory_applicability_lookup ON regulatory_applicability(market_slug, product_slug, is_current)`,
+  `CREATE INDEX IF NOT EXISTS idx_regulatory_applicability_rule ON regulatory_applicability(rule_key, rule_version, is_current)`,
+  `CREATE TABLE IF NOT EXISTS regulatory_applicability_features (
+    id TEXT PRIMARY KEY,
+    applicability_id TEXT NOT NULL,
+    feature_key TEXT NOT NULL,
+    required_value INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_regulatory_applicability_feature_unique ON regulatory_applicability_features(applicability_id, feature_key)`,
+  `CREATE INDEX IF NOT EXISTS idx_regulatory_applicability_feature_lookup ON regulatory_applicability_features(feature_key, required_value)`,
 ];
 
 export async function ensureDatabaseSchema(db: SellComplyD1) {
@@ -226,7 +250,7 @@ export async function ensureDatabaseSchema(db: SellComplyD1) {
   await db
     .prepare(
       `INSERT INTO schema_meta (key, value, updated_at)
-       VALUES ('schema_version', '6', CURRENT_TIMESTAMP)
+       VALUES ('schema_version', '7', CURRENT_TIMESTAMP)
        ON CONFLICT(key) DO UPDATE SET
          value = excluded.value,
          updated_at = CURRENT_TIMESTAMP`
