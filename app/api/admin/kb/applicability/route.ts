@@ -30,6 +30,8 @@ export async function GET(request: Request) {
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
+  const asOf = (url.searchParams.get("as_of") || "").trim() || undefined;
+  const includeNonApplicable = url.searchParams.get("include_all") === "1";
 
   if (!marketSlug || !productSlug) {
     return NextResponse.json(
@@ -54,6 +56,8 @@ export async function GET(request: Request) {
       marketSlug,
       productSlug,
       features,
+      asOf,
+      includeNonApplicable,
     });
 
     return NextResponse.json({
@@ -62,18 +66,24 @@ export async function GET(request: Request) {
         marketSlug,
         productSlug,
         features,
+        asOf: asOf || new Date().toISOString().slice(0, 10),
+        includeNonApplicable,
       },
       count: rules.length,
       rules,
     });
   } catch (error) {
+    const detail = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       {
         ok: false,
-        error: "APPLICABILITY_QUERY_FAILED",
-        detail: error instanceof Error ? error.message : "Unknown error",
+        error:
+          detail === "INVALID_AS_OF_DATE"
+            ? "INVALID_AS_OF_DATE"
+            : "APPLICABILITY_QUERY_FAILED",
+        detail,
       },
-      { status: 500 }
+      { status: detail === "INVALID_AS_OF_DATE" ? 400 : 500 }
     );
   }
 }
