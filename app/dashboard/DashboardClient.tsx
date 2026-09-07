@@ -286,14 +286,14 @@ export default function DashboardClient() {
 
       <section className="dashboard-upgrade">
         <div>
-          <span className="seo-kicker"><i /> COMING NEXT</span>
-          <h2>Turn monitoring into alerts.</h2>
-          <p>Once account-based persistence and rule-change ingestion are connected, monitored products can surface meaningful compliance changes automatically.</p>
+          <span className="seo-kicker"><i /> ALERT PIPELINE</span>
+          <h2>Monitoring is becoming actionable.</h2>
+          <p>Official-source monitoring, human review, alert queueing and unsubscribe handling are connected. Email delivery activates when the sender provider is configured.</p>
         </div>
         <div className="dashboard-upgrade-list">
           <span>✓ Change history</span>
-          <span>✓ Email alerts</span>
-          <span>✓ Team workspace</span>
+          <span>✓ Email alert queue</span>
+          <span>✓ Human review gate</span>
           <span>✓ Partner actions</span>
         </div>
       </section>
