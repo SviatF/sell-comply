@@ -19,6 +19,9 @@ const allowedEvents = new Set([
   "monitor_product",
   "dashboard_open",
   "market_compare",
+  "report_print",
+  "report_share",
+  "report_open",
 ]);
 
 export async function POST(request: Request) {
