@@ -1,5 +1,7 @@
 # SellComply Regulatory Knowledge Base
 
+Timing query status: production-ready.
+
 Current implementation status: applicability graph and regulatory timing are complete. Next phase: official source registry.
 
 ## Purpose
