@@ -58,10 +58,29 @@ export async function GET() {
       .prepare("SELECT COUNT(*) AS total FROM regulatory_rule_versions")
       .first<{ total: number }>();
 
+    const kbApplicabilityCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM regulatory_applicability WHERE is_current = 1")
+      .first<{ total: number }>();
+
+    const kbFeatureConditionCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM regulatory_applicability_features")
+      .first<{ total: number }>();
+
+    const kbCoveredPairCount = await db
+      .prepare(
+        `SELECT COUNT(*) AS total FROM (
+           SELECT market_slug, product_slug
+           FROM regulatory_applicability
+           WHERE is_current = 1
+           GROUP BY market_slug, product_slug
+         )`
+      )
+      .first<{ total: number }>();
+
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "6" ? "ready" : "unknown",
+      schema: version?.value === "7" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
       monitoredProducts: Number(monitorCount?.total || 0),
@@ -71,6 +90,9 @@ export async function GET() {
       sentAlerts: Number(sentAlertCount?.total || 0),
       regulatoryKbRules: Number(kbRuleCount?.total || 0),
       regulatoryKbVersions: Number(kbVersionCount?.total || 0),
+      regulatoryKbApplicability: Number(kbApplicabilityCount?.total || 0),
+      regulatoryKbFeatureConditions: Number(kbFeatureConditionCount?.total || 0),
+      regulatoryKbCoveredPairs: Number(kbCoveredPairCount?.total || 0),
       emailProvider: getEmailProviderState(),
     });
   } catch (error) {
