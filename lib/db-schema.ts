@@ -238,6 +238,21 @@ const statements = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_regulatory_applicability_feature_unique ON regulatory_applicability_features(applicability_id, feature_key)`,
   `CREATE INDEX IF NOT EXISTS idx_regulatory_applicability_feature_lookup ON regulatory_applicability_features(feature_key, required_value)`,
+  `CREATE TABLE IF NOT EXISTS regulatory_rule_timing (
+    id TEXT PRIMARY KEY,
+    rule_key TEXT NOT NULL,
+    rule_version INTEGER NOT NULL,
+    effective_from TEXT,
+    effective_to TEXT,
+    transition_start TEXT,
+    transition_end TEXT,
+    timing_note TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_regulatory_rule_timing_unique ON regulatory_rule_timing(rule_key, rule_version)`,
+  `CREATE INDEX IF NOT EXISTS idx_regulatory_rule_timing_effective ON regulatory_rule_timing(effective_from, effective_to)`,
+  `CREATE INDEX IF NOT EXISTS idx_regulatory_rule_timing_transition ON regulatory_rule_timing(transition_start, transition_end)`,
 ];
 
 export async function ensureDatabaseSchema(db: SellComplyD1) {
@@ -250,7 +265,7 @@ export async function ensureDatabaseSchema(db: SellComplyD1) {
   await db
     .prepare(
       `INSERT INTO schema_meta (key, value, updated_at)
-       VALUES ('schema_version', '7', CURRENT_TIMESTAMP)
+       VALUES ('schema_version', '8', CURRENT_TIMESTAMP)
        ON CONFLICT(key) DO UPDATE SET
          value = excluded.value,
          updated_at = CURRENT_TIMESTAMP`
