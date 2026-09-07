@@ -5,6 +5,10 @@ export type ResolvedProductInput = {
   sourceUrl?: string;
   title?: string;
   description?: string;
+  brand?: string;
+  sku?: string;
+  gtin?: string;
+  productCategory?: string;
   fetched: boolean;
   note?: string;
 };
@@ -95,28 +99,68 @@ async function readTextLimited(response: Response, maxBytes = 500_000) {
   return output;
 }
 
-function extractJsonLdProductName(html: string) {
-  const scripts = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+function extractJsonLdProduct(html: string) {
+  const scripts = [
+    ...html.matchAll(
+      /<script[^>]+type=["']application\\/ld\\+json["'][^>]*>([\\s\\S]*?)<\\/script>/gi
+    ),
+  ];
+
   for (const match of scripts.slice(0, 12)) {
     try {
       const parsed = JSON.parse(match[1]);
-      const nodes = Array.isArray(parsed) ? parsed : [parsed];
-      const queue = [...nodes];
+      const queue: any[] = Array.isArray(parsed) ? [...parsed] : [parsed];
+
       while (queue.length) {
         const node = queue.shift();
         if (!node || typeof node !== "object") continue;
+
         const type = node["@type"];
         const types = Array.isArray(type) ? type : [type];
-        if (types.includes("Product") && typeof node.name === "string") {
-          return node.name.trim();
+
+        if (types.includes("Product")) {
+          const brand =
+            typeof node.brand === "string"
+              ? node.brand
+              : typeof node.brand?.name === "string"
+                ? node.brand.name
+                : "";
+
+          const gtin =
+            node.gtin14 ||
+            node.gtin13 ||
+            node.gtin12 ||
+            node.gtin8 ||
+            node.gtin ||
+            "";
+
+          return {
+            name: typeof node.name === "string" ? node.name.trim() : "",
+            description:
+              typeof node.description === "string" ? node.description.trim() : "",
+            brand: typeof brand === "string" ? brand.trim() : "",
+            sku: typeof node.sku === "string" ? node.sku.trim() : "",
+            gtin: typeof gtin === "string" ? gtin.trim() : String(gtin || ""),
+            category:
+              typeof node.category === "string" ? node.category.trim() : "",
+          };
         }
+
         if (Array.isArray(node["@graph"])) queue.push(...node["@graph"]);
       }
     } catch {
       // Ignore malformed JSON-LD blocks.
     }
   }
-  return "";
+
+  return {
+    name: "",
+    description: "",
+    brand: "",
+    sku: "",
+    gtin: "",
+    category: "",
+  };
 }
 
 export async function resolveProductInput(input: string): Promise<ResolvedProductInput> {
@@ -179,21 +223,34 @@ export async function resolveProductInput(input: string): Promise<ResolvedProduc
     }
 
     const html = await readTextLimited(response, 450_000);
+    const jsonLdProduct = extractJsonLdProduct(html);
     const title =
-      extractJsonLdProductName(html) ||
+      jsonLdProduct.name ||
       pickMeta(html, [
         /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
         /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i,
         /<title[^>]*>([^<]+)<\/title>/i,
       ]);
 
-    const description = pickMeta(html, [
+    const description =
+      jsonLdProduct.description ||
+      pickMeta(html, [
       /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i,
       /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i,
       /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i,
     ]);
 
-    const resolvedText = [title, description, fallbackText].filter(Boolean).join(" ").slice(0, 1800);
+    const resolvedText = [
+      title,
+      description,
+      jsonLdProduct.brand,
+      jsonLdProduct.category,
+      jsonLdProduct.sku,
+      fallbackText,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .slice(0, 2200);
 
     return {
       original,
@@ -202,6 +259,10 @@ export async function resolveProductInput(input: string): Promise<ResolvedProduc
       sourceUrl: url.toString(),
       title: title || undefined,
       description: description || undefined,
+      brand: jsonLdProduct.brand || undefined,
+      sku: jsonLdProduct.sku || undefined,
+      gtin: jsonLdProduct.gtin || undefined,
+      productCategory: jsonLdProduct.category || undefined,
       fetched: true,
     };
   } catch {
