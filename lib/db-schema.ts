@@ -141,6 +141,39 @@ const statements = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_monitor_recipient_unique ON monitoring_recipients(monitor_id, subscriber_id, channel)`,
   `CREATE INDEX IF NOT EXISTS idx_monitor_recipients_monitor ON monitoring_recipients(monitor_id)`,
+  `CREATE TABLE IF NOT EXISTS change_reviews (
+    id TEXT PRIMARY KEY,
+    change_id TEXT NOT NULL UNIQUE,
+    decision TEXT NOT NULL,
+    review_note TEXT,
+    reviewed_by TEXT,
+    reviewed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_change_reviews_decision ON change_reviews(decision)`,
+  `CREATE TABLE IF NOT EXISTS unsubscribe_tokens (
+    id TEXT PRIMARY KEY,
+    subscriber_id TEXT NOT NULL UNIQUE,
+    token TEXT NOT NULL UNIQUE,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_unsubscribe_tokens_token ON unsubscribe_tokens(token)`,
+  `CREATE TABLE IF NOT EXISTS alert_jobs (
+    id TEXT PRIMARY KEY,
+    change_id TEXT NOT NULL,
+    monitor_id TEXT NOT NULL,
+    subscriber_id TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'queued',
+    subject TEXT NOT NULL,
+    payload_json TEXT,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    provider TEXT,
+    provider_message_id TEXT,
+    last_error TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    sent_at TEXT
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_alert_jobs_unique ON alert_jobs(change_id, monitor_id, subscriber_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_alert_jobs_status_created ON alert_jobs(status, created_at)`,
 ];
 
 export async function ensureDatabaseSchema(db: SellComplyD1) {
@@ -153,7 +186,7 @@ export async function ensureDatabaseSchema(db: SellComplyD1) {
   await db
     .prepare(
       `INSERT INTO schema_meta (key, value, updated_at)
-       VALUES ('schema_version', '4', CURRENT_TIMESTAMP)
+       VALUES ('schema_version', '5', CURRENT_TIMESTAMP)
        ON CONFLICT(key) DO UPDATE SET
          value = excluded.value,
          updated_at = CURRENT_TIMESTAMP`
