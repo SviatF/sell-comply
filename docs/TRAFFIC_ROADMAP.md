@@ -6,7 +6,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 
 ## P0 — Product and trust foundation
 
-### 1. Checker Quality — IN PROGRESS
+### 1. Checker Quality — DONE
 
 - [x] Product text classification
 - [x] Safe product URL fetch
@@ -25,9 +25,9 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Expand exact rule coverage across all current products/markets
 - [x] Product-specific risk scoring
 - [x] Shareable / printable report
-- [ ] Checker quality regression tests
+- [x] Checker quality regression tests
 
-### 2. Regulatory Knowledge Base — NEXT
+### 2. Regulatory Knowledge Base — NEXT / READY
 
 - [ ] Versioned rule records
 - [ ] Product × market × regulation applicability
