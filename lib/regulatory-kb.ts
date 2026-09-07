@@ -1,5 +1,7 @@
 import type { SellComplyD1 } from "@/lib/cloudflare-db";
 import { regulatoryRules, type RegulatoryRule } from "@/lib/regulatory-rules";
+import { products } from "@/lib/seo-data";
+import { syncRuleApplicability } from "@/lib/regulatory-applicability";
 
 type CurrentRuleRow = {
   rule_key: string;
@@ -52,7 +54,12 @@ async function knowledgeBaseHash() {
       }))
   );
 
-  return sha256(JSON.stringify(rows));
+  return sha256(
+    JSON.stringify({
+      rules: rows,
+      products: products.map((product) => product.slug).sort(),
+    })
+  );
 }
 
 export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
@@ -60,6 +67,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
   let createdVersions = 0;
   let unchanged = 0;
   let reactivated = 0;
+  let applicabilityRows = 0;
+  let featureConditions = 0;
 
   for (const rule of regulatoryRules) {
     const hash = await ruleHash(rule);
@@ -93,12 +102,23 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
         .run();
 
       await insertVersion(db, rule, 1, hash);
+      const applicability = await syncRuleApplicability(db, rule, 1);
+      applicabilityRows += applicability.applicabilityRows;
+      featureConditions += applicability.featureConditions;
       createdRules += 1;
       createdVersions += 1;
       continue;
     }
 
     if (current.current_hash === hash) {
+      const applicability = await syncRuleApplicability(
+        db,
+        rule,
+        Number(current.current_version)
+      );
+      applicabilityRows += applicability.applicabilityRows;
+      featureConditions += applicability.featureConditions;
+
       if (!current.is_active) {
         await db
           .prepare(
@@ -121,6 +141,9 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
 
     const nextVersion = Number(current.current_version || 0) + 1;
     await insertVersion(db, rule, nextVersion, hash);
+    const applicability = await syncRuleApplicability(db, rule, nextVersion);
+    applicabilityRows += applicability.applicabilityRows;
+    featureConditions += applicability.featureConditions;
 
     await db
       .prepare(
@@ -165,6 +188,17 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
       )
       .bind(row.rule_key)
       .run();
+
+    await db
+      .prepare(
+        `UPDATE regulatory_applicability
+         SET is_current = 0,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE rule_key = ?`
+      )
+      .bind(row.rule_key)
+      .run();
+
     deactivated += 1;
   }
 
@@ -187,6 +221,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
     unchanged,
     reactivated,
     deactivated,
+    applicabilityRows,
+    featureConditions,
     hash: syncHash,
   };
 }
