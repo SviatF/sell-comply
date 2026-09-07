@@ -15,7 +15,6 @@ type RecipientRow = {
   raw_product: string;
   market_name: string;
   marketplace_name: string | null;
-  email: string;
 };
 
 function safeJson(value: unknown) {
@@ -75,7 +74,6 @@ export async function approveChangeAndQueueAlerts(
          m.raw_product,
          m.market_name,
          m.marketplace_name,
-         es.email
        FROM monitoring_subscriptions m
        INNER JOIN monitoring_recipients mr
          ON mr.monitor_id = m.id
@@ -100,7 +98,6 @@ export async function approveChangeAndQueueAlerts(
       rawProduct: recipient.raw_product,
       marketName: recipient.market_name,
       marketplaceName: recipient.marketplace_name,
-      email: recipient.email,
       changeTitle: change.title,
       changeSummary: change.summary,
       sourceUrl: change.source_url,
