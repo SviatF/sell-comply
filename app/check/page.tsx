@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { buildComplianceReview, ProductFacts } from "@/lib/compliance-engine";
+import { buildComplianceReview } from "@/lib/compliance-engine";
 import { resolveProductInput } from "@/lib/product-resolver";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import CheckActions from "@/app/components/CheckActions";
 import TrackEvent from "@/app/components/TrackEvent";
 import CheckRefinementForm from "@/app/components/CheckRefinementForm";
+import ReportLauncher from "@/app/components/ReportLauncher";
+import { buildCheckParams, parseCheckFacts } from "@/lib/check-query";
 
 export const metadata: Metadata = {
   title: "Product Compliance Check Results",
@@ -39,19 +41,7 @@ export default async function CheckPage({
   const country = params.country || "Germany";
   const marketplace = params.marketplace || "Amazon";
 
-  const parseFact = (value?: string) =>
-    value === "yes" ? true : value === "no" ? false : undefined;
-
-  const allowedRoles = new Set(["manufacturer", "importer", "distributor", "seller"]);
-  const facts: ProductFacts = {
-    radio: parseFact(params.radio),
-    battery: parseFact(params.battery),
-    children: parseFact(params.children),
-    mains: parseFact(params.mains),
-    role: allowedRoles.has(params.role || "")
-      ? (params.role as ProductFacts["role"])
-      : undefined,
-  };
+  const facts = parseCheckFacts(params);
 
   const resolved = await resolveProductInput(rawProduct);
   const result = buildComplianceReview(
@@ -61,6 +51,13 @@ export default async function CheckPage({
     facts
   );
   const displayProduct = resolved.title || rawProduct;
+  const reportQuery = buildCheckParams({
+    product: rawProduct,
+    country,
+    marketplace,
+    facts,
+  });
+  const reportHref = `/report?${reportQuery.toString()}`;
 
   return (
     <div className="seo-page check-results-page">
@@ -179,6 +176,8 @@ export default async function CheckPage({
             )}
           </div>
         </section>
+
+        <ReportLauncher href={reportHref} />
 
         <CheckRefinementForm
           rawProduct={rawProduct}
