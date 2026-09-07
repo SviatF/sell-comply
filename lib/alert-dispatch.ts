@@ -6,13 +6,13 @@ type AlertJob = {
   subject: string;
   payload_json: string | null;
   subscriber_id: string;
+  email: string;
 };
 
 type Payload = {
   rawProduct?: string;
   marketName?: string;
   marketplaceName?: string | null;
-  email?: string;
   changeTitle?: string;
   changeSummary?: string | null;
   sourceUrl?: string | null;
@@ -97,10 +97,14 @@ function renderEmail(payload: Payload, unsubscribeUrl: string) {
 export async function dispatchQueuedAlerts(db: SellComplyD1, limit = 20) {
   const rows = await db
     .prepare(
-      `SELECT id, subject, payload_json, subscriber_id
-       FROM alert_jobs
-       WHERE status = 'queued'
-       ORDER BY created_at ASC
+      `SELECT
+         j.id, j.subject, j.payload_json, j.subscriber_id, es.email
+       FROM alert_jobs j
+       INNER JOIN email_subscribers es
+         ON es.id = j.subscriber_id
+        AND es.status = 'active'
+       WHERE j.status = 'queued'
+       ORDER BY j.created_at ASC
        LIMIT ?`
     )
     .bind(limit)
@@ -118,25 +122,12 @@ export async function dispatchQueuedAlerts(db: SellComplyD1, limit = 20) {
       payload = {};
     }
 
-    if (!payload.email) {
-      await db
-        .prepare(
-          `UPDATE alert_jobs
-           SET status = 'failed', attempts = attempts + 1, last_error = 'EMAIL_MISSING'
-           WHERE id = ?`
-        )
-        .bind(job.id)
-        .run();
-      failed += 1;
-      continue;
-    }
-
     const token = await getOrCreateUnsubscribeToken(db, job.subscriber_id);
     const unsubscribeUrl = `${getSiteUrl()}/unsubscribe/${token}`;
     const rendered = renderEmail(payload, unsubscribeUrl);
 
     const result = await sendEmail({
-      to: payload.email,
+      to: job.email,
       subject: job.subject,
       html: rendered.html,
       text: rendered.text,
