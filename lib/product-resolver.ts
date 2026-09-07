@@ -102,7 +102,7 @@ async function readTextLimited(response: Response, maxBytes = 500_000) {
 function extractJsonLdProduct(html: string) {
   const scripts = [
     ...html.matchAll(
-      /<script[^>]+type=["']application\\/ld\\+json["'][^>]*>([\\s\\S]*?)<\\/script>/gi
+      /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
     ),
   ];
 
