@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { databaseState, getOptionalDb } from "@/lib/cloudflare-db";
 import { ensureDatabaseSchema } from "@/lib/db-schema";
 import { ensureOfficialSources } from "@/lib/source-bootstrap";
+import { getEmailProviderState } from "@/lib/email-provider";
 
 export async function GET() {
   const db = getOptionalDb();
@@ -35,14 +36,30 @@ export async function GET() {
       .prepare("SELECT COUNT(*) AS total FROM email_subscribers WHERE status = 'active'")
       .first<{ total: number }>();
 
+    const pendingChangeCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM rule_changes WHERE review_status = 'needs_review'")
+      .first<{ total: number }>();
+
+    const queuedAlertCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM alert_jobs WHERE status = 'queued'")
+      .first<{ total: number }>();
+
+    const sentAlertCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM alert_jobs WHERE status = 'sent'")
+      .first<{ total: number }>();
+
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "4" ? "ready" : "unknown",
+      schema: version?.value === "5" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
       monitoredProducts: Number(monitorCount?.total || 0),
       emailSubscribers: Number(subscriberCount?.total || 0),
+      pendingChanges: Number(pendingChangeCount?.total || 0),
+      queuedAlerts: Number(queuedAlertCount?.total || 0),
+      sentAlerts: Number(sentAlertCount?.total || 0),
+      emailProvider: getEmailProviderState(),
     });
   } catch (error) {
     return NextResponse.json(
