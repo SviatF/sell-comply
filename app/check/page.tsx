@@ -135,6 +135,18 @@ export default async function CheckPage({
               reviewCount={result.reviewItems.length}
             />
 
+            {(resolved.brand || resolved.sku || resolved.gtin || resolved.productCategory) && (
+              <div className="side-card product-data-card">
+                <span className="side-card-label">DETECTED PRODUCT DATA</span>
+                <div className="product-data-list">
+                  {resolved.brand && <div><span>Brand</span><strong>{resolved.brand}</strong></div>}
+                  {resolved.productCategory && <div><span>Category</span><strong>{resolved.productCategory}</strong></div>}
+                  {resolved.sku && <div><span>SKU</span><strong>{resolved.sku}</strong></div>}
+                  {resolved.gtin && <div><span>GTIN</span><strong>{resolved.gtin}</strong></div>}
+                </div>
+              </div>
+            )}
+
             <div className="side-card">
               <span className="side-card-label">TARGET MARKET</span>
               <strong>{result.market.flag} {result.market.name}</strong>
