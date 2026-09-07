@@ -73,7 +73,7 @@ export async function approveChangeAndQueueAlerts(
          es.id AS subscriber_id,
          m.raw_product,
          m.market_name,
-         m.marketplace_name,
+         m.marketplace_name
        FROM monitoring_subscriptions m
        INNER JOIN monitoring_recipients mr
          ON mr.monitor_id = m.id
@@ -103,25 +103,35 @@ export async function approveChangeAndQueueAlerts(
       sourceUrl: change.source_url,
     };
 
-    await db
+    const existingJob = await db
       .prepare(
-        `INSERT INTO alert_jobs (
-          id, change_id, monitor_id, subscriber_id,
-          status, subject, payload_json, created_at
-        ) VALUES (?, ?, ?, ?, 'queued', ?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(change_id, monitor_id, subscriber_id) DO NOTHING`
+        `SELECT id FROM alert_jobs
+         WHERE change_id = ? AND monitor_id = ? AND subscriber_id = ?
+         LIMIT 1`
       )
-      .bind(
-        crypto.randomUUID(),
-        changeId,
-        recipient.monitor_id,
-        recipient.subscriber_id,
-        subject,
-        safeJson(payload)
-      )
-      .run();
+      .bind(changeId, recipient.monitor_id, recipient.subscriber_id)
+      .first<{ id: string }>();
 
-    queued += 1;
+    if (!existingJob?.id) {
+      await db
+        .prepare(
+          `INSERT INTO alert_jobs (
+            id, change_id, monitor_id, subscriber_id,
+            status, subject, payload_json, created_at
+          ) VALUES (?, ?, ?, ?, 'queued', ?, ?, CURRENT_TIMESTAMP)`
+        )
+        .bind(
+          crypto.randomUUID(),
+          changeId,
+          recipient.monitor_id,
+          recipient.subscriber_id,
+          subject,
+          safeJson(payload)
+        )
+        .run();
+
+      queued += 1;
+    }
   }
 
   return { queued };
