@@ -30,7 +30,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 ### 2. Regulatory Knowledge Base — IN PROGRESS
 
 - [x] Versioned rule records
-- [ ] Product × market × regulation applicability
+- [x] Product × market × regulation applicability
 - [ ] Effective dates / transition dates
 - [ ] Official source registry
 - [ ] Last reviewed / last verified metadata
