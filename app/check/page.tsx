@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { buildComplianceReview } from "@/lib/compliance-engine";
+import { buildComplianceReview, ProductFacts } from "@/lib/compliance-engine";
 import { resolveProductInput } from "@/lib/product-resolver";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import CheckActions from "@/app/components/CheckActions";
 import TrackEvent from "@/app/components/TrackEvent";
+import CheckRefinementForm from "@/app/components/CheckRefinementForm";
 
 export const metadata: Metadata = {
   title: "Product Compliance Check Results",
@@ -22,14 +23,43 @@ const statusLabel = {
 export default async function CheckPage({
   searchParams,
 }: {
-  searchParams: Promise<{ product?: string; country?: string; marketplace?: string }>;
+  searchParams: Promise<{
+    product?: string;
+    country?: string;
+    marketplace?: string;
+    radio?: string;
+    battery?: string;
+    children?: string;
+    mains?: string;
+    role?: string;
+  }>;
 }) {
   const params = await searchParams;
   const rawProduct = (params.product || "wireless headphones").slice(0, 500);
   const country = params.country || "Germany";
   const marketplace = params.marketplace || "Amazon";
+
+  const parseFact = (value?: string) =>
+    value === "yes" ? true : value === "no" ? false : undefined;
+
+  const allowedRoles = new Set(["manufacturer", "importer", "distributor", "seller"]);
+  const facts: ProductFacts = {
+    radio: parseFact(params.radio),
+    battery: parseFact(params.battery),
+    children: parseFact(params.children),
+    mains: parseFact(params.mains),
+    role: allowedRoles.has(params.role || "")
+      ? (params.role as ProductFacts["role"])
+      : undefined,
+  };
+
   const resolved = await resolveProductInput(rawProduct);
-  const result = buildComplianceReview(resolved.resolvedText, country, marketplace);
+  const result = buildComplianceReview(
+    resolved.resolvedText,
+    country,
+    marketplace,
+    facts
+  );
   const displayProduct = resolved.title || rawProduct;
 
   return (
@@ -88,6 +118,20 @@ export default async function CheckPage({
             </div>
           </div>
         </section>
+
+        <CheckRefinementForm
+          rawProduct={rawProduct}
+          country={country}
+          marketplace={marketplace}
+          inferredFeatures={result.classification.features}
+          initial={{
+            radio: params.radio,
+            battery: params.battery,
+            children: params.children,
+            mains: params.mains,
+            role: params.role,
+          }}
+        />
 
         <section className="check-layout">
           <div>
