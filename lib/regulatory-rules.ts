@@ -534,7 +534,678 @@ export const getRulesFor = ({
 }: {
   marketSlug: string;
   productSlug: string;
-  features: string[];
+  features: string[
+  {
+    id: "eu-jewelry-reach",
+    title: "EU REACH restrictions relevant to jewellery",
+    shortName: "REACH Annex XVII",
+    group: "environmental",
+    markets: ["germany", "france"],
+    products: ["jewelry"],
+    status: "required",
+    summary:
+      "Jewellery that comes into direct and prolonged contact with skin is subject to REACH Annex XVII restrictions, including nickel-release limits; other substance restrictions can also apply depending on materials.",
+    why:
+      "The detected product is jewellery intended for skin contact and is being placed on an EU market.",
+    documents: [
+      "Material composition declarations",
+      "Nickel-release test evidence where applicable",
+      "Supplier evidence for other restricted substances",
+    ],
+    labels: [
+      "Accurate material/composition claims",
+      "Traceable product/model identification",
+    ],
+    actions: [
+      "Confirm all metals, coatings and platings used in the final item.",
+      "Verify nickel release for parts intended for direct and prolonged skin contact.",
+      "Check whether additional REACH restrictions apply to the material set.",
+    ],
+    source: {
+      label: "EUR-Lex — REACH Regulation (EC) No 1907/2006",
+      url: "https://eur-lex.europa.eu/eli/reg/2006/1907/2024-06-06/eng",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "eu-led-emc",
+    title: "EU Electromagnetic Compatibility Directive",
+    shortName: "EMC 2014/30/EU",
+    group: "electrical",
+    markets: ["germany", "france"],
+    products: ["led-lights"],
+    requiresFeatures: ["electronic"],
+    status: "likely",
+    summary:
+      "Electronic lighting equipment commonly falls within the EU EMC framework for electromagnetic emissions and immunity, subject to exact design and exclusions.",
+    why:
+      "The detected LED product includes active electronic circuitry and is intended for an EU market.",
+    documents: [
+      "EMC test reports",
+      "Technical documentation",
+      "EU Declaration of Conformity where the directive applies",
+    ],
+    labels: [
+      "CE marking where the applicable conformity framework requires it",
+      "Manufacturer/model identification",
+    ],
+    actions: [
+      "Confirm whether the final luminaire/lamp is within EMC scope.",
+      "Match EMC evidence to the final driver/controller configuration.",
+    ],
+    source: {
+      label: "EUR-Lex — Directive 2014/30/EU",
+      url: "https://eur-lex.europa.eu/eli/dir/2014/30/oj",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "eu-led-lvd",
+    title: "EU Low Voltage Directive for mains-voltage electrical equipment",
+    shortName: "LVD 2014/35/EU",
+    group: "electrical",
+    markets: ["germany", "france"],
+    products: ["led-lights"],
+    requiresFeatures: ["mains"],
+    status: "required",
+    summary:
+      "Electrical equipment operating within the voltage limits of the Low Voltage Directive must meet its safety objectives and conformity-documentation requirements.",
+    why:
+      "You confirmed that the LED product connects directly to mains electricity.",
+    documents: [
+      "Electrical-safety test evidence",
+      "Technical documentation",
+      "EU Declaration of Conformity",
+    ],
+    labels: [
+      "CE marking",
+      "Manufacturer/model identification",
+      "Electrical ratings and safety information",
+    ],
+    actions: [
+      "Confirm rated input voltage and exact scope under the LVD.",
+      "Verify safety testing against the final enclosure, driver and wiring configuration.",
+    ],
+    source: {
+      label: "EUR-Lex — Directive 2014/35/EU",
+      url: "https://eur-lex.europa.eu/eli/dir/2014/35/oj",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "uk-general-product-safety",
+    title: "Great Britain General Product Safety Regulations 2005",
+    shortName: "GB GPSR 2005",
+    group: "product-safety",
+    markets: ["united-kingdom"],
+    excludesProducts: ["cosmetics", "toys"],
+    status: "likely",
+    summary:
+      "The General Product Safety Regulations 2005 provide the baseline consumer-product safety framework in Great Britain where product-specific legislation does not fully cover the relevant safety aspect.",
+    why:
+      "The selected market is the United Kingdom and this product is a consumer product not fully displaced by a more specific regime.",
+    documents: [
+      "Product safety/risk evidence",
+      "Producer/importer traceability records",
+      "Records supporting warnings and corrective-action readiness",
+    ],
+    labels: [
+      "Producer/importer identification",
+      "Product identification",
+      "Safety information and warnings where risks are not obvious",
+    ],
+    actions: [
+      "Confirm whether the sale is into Great Britain or Northern Ireland.",
+      "Map any product-specific legislation first, then apply the general safety baseline to remaining risks.",
+    ],
+    source: {
+      label: "GOV.UK — General Product Safety Regulations 2005: Great Britain",
+      url: "https://www.gov.uk/government/publications/general-product-safety-regulations-2005/general-product-safety-regulations-2005-great-britain",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "uk-emc",
+    title: "UK Electromagnetic Compatibility Regulations 2016",
+    shortName: "UK EMC",
+    group: "electrical",
+    markets: ["united-kingdom"],
+    products: ["power-banks", "led-lights"],
+    requiresFeatures: ["electronic"],
+    status: "likely",
+    summary:
+      "Electronic equipment supplied in Great Britain can fall within the Electromagnetic Compatibility Regulations 2016 and must meet applicable electromagnetic compatibility requirements.",
+    why:
+      "The detected product includes active electronic circuitry and is being supplied to the UK market.",
+    documents: [
+      "EMC test evidence",
+      "Technical documentation",
+      "Declaration of conformity where required",
+    ],
+    labels: [
+      "Applicable conformity marking and product identification",
+      "Manufacturer/importer information",
+    ],
+    actions: [
+      "Confirm scope for the final electronic configuration.",
+      "Match EMC testing to the final production hardware.",
+    ],
+    source: {
+      label: "GOV.UK — Electromagnetic Compatibility Regulations 2016",
+      url: "https://www.gov.uk/government/publications/electromagnetic-compatibility-regulations-2016",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "uk-electrical-safety",
+    title: "UK Electrical Equipment (Safety) Regulations 2016",
+    shortName: "UK Electrical Safety",
+    group: "electrical",
+    markets: ["united-kingdom"],
+    products: ["led-lights"],
+    requiresFeatures: ["mains"],
+    status: "required",
+    summary:
+      "Mains-voltage electrical equipment in Great Britain can fall within the Electrical Equipment (Safety) Regulations 2016 and must meet applicable safety objectives before being placed on the market.",
+    why:
+      "You confirmed that the selected LED product connects directly to mains electricity.",
+    documents: [
+      "Electrical-safety test evidence",
+      "Technical documentation",
+      "Declaration of conformity",
+    ],
+    labels: [
+      "Applicable conformity marking",
+      "Electrical ratings",
+      "Manufacturer/importer and model identification",
+    ],
+    actions: [
+      "Confirm the exact voltage range and product scope.",
+      "Verify safety evidence against the final product configuration.",
+    ],
+    source: {
+      label: "GOV.UK — Electrical Equipment (Safety) Regulations 2016",
+      url: "https://www.gov.uk/government/publications/electrical-equipment-safety-regulations-2016",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "uk-weee",
+    title: "UK WEEE producer-responsibility obligations",
+    shortName: "UK WEEE",
+    group: "environmental",
+    markets: ["united-kingdom"],
+    products: ["wireless-headphones", "bluetooth-speakers", "power-banks", "led-lights"],
+    status: "likely",
+    summary:
+      "Businesses that put electrical and electronic equipment on the UK market can have WEEE producer-registration, reporting, financing and product-marking duties.",
+    why:
+      "The detected product is electrical/electronic equipment supplied into the UK market.",
+    documents: [
+      "Producer registration/compliance-scheme records where applicable",
+      "EEE category and placed-on-market records",
+    ],
+    labels: [
+      "Crossed-out wheeled-bin symbol and date mark where applicable",
+    ],
+    actions: [
+      "Identify which legal entity is the UK WEEE producer.",
+      "Confirm registration/reporting route and EEE category before sale.",
+    ],
+    source: {
+      label: "GOV.UK — EEE producer responsibilities",
+      url: "https://www.gov.uk/guidance/electrical-and-electronic-equipment-eee-producer-responsibility",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "uk-batteries",
+    title: "UK battery placing-on-market and producer obligations",
+    shortName: "UK Batteries",
+    group: "battery",
+    markets: ["united-kingdom"],
+    requiresFeatures: ["battery"],
+    status: "likely",
+    summary:
+      "Batteries and battery-powered appliances supplied in the UK can trigger substance, marking, capacity and producer-responsibility obligations.",
+    why:
+      "The product contains or is itself a battery and is intended for the UK market.",
+    documents: [
+      "Battery chemistry and capacity records",
+      "Supplier compliance evidence",
+      "Producer-responsibility records where applicable",
+    ],
+    labels: [
+      "Battery markings and capacity information where required",
+      "Waste-battery collection marking where applicable",
+    ],
+    actions: [
+      "Identify the battery type and the obligated producer.",
+      "Check placing-on-market and waste-battery obligations separately.",
+    ],
+    source: {
+      label: "GOV.UK — Regulations: batteries and accumulators",
+      url: "https://www.gov.uk/guidance/batteries",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "uk-toys",
+    title: "UK Toys (Safety) Regulations 2011",
+    shortName: "UK Toy Safety",
+    group: "toy",
+    markets: ["united-kingdom"],
+    products: ["toys"],
+    status: "required",
+    summary:
+      "Toys placed on the Great Britain market must meet the essential safety requirements in the Toys (Safety) Regulations 2011; Northern Ireland follows a separate route.",
+    why:
+      "The detected product is a toy and the selected destination is the United Kingdom.",
+    documents: [
+      "Safety assessment",
+      "Technical documentation",
+      "Declaration of conformity",
+      "Relevant toy-safety test evidence",
+    ],
+    labels: [
+      "Applicable conformity marking",
+      "Age and safety warnings where applicable",
+      "Manufacturer/importer and traceability information",
+    ],
+    actions: [
+      "Confirm intended age group and foreseeable use.",
+      "Use the separate NI route if selling into Northern Ireland.",
+    ],
+    source: {
+      label: "GOV.UK — Toys (Safety) Regulations 2011",
+      url: "https://www.gov.uk/government/publications/toys-safety-regulations-2011",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "ca-ccpsa",
+    title: "Canada Consumer Product Safety Act baseline",
+    shortName: "CCPSA",
+    group: "product-safety",
+    markets: ["canada"],
+    excludesProducts: ["cosmetics"],
+    status: "likely",
+    summary:
+      "The CCPSA applies broadly to suppliers of consumer products in Canada and includes general safety, recordkeeping, incident-reporting, corrective-action and recall obligations.",
+    why:
+      "The product is a consumer product being manufactured, imported, advertised or sold in Canada.",
+    documents: [
+      "Supplier/manufacturer/importer records",
+      "Safety evidence for known product hazards",
+      "Incident and corrective-action records",
+    ],
+    labels: [
+      "Product identification and safety information appropriate to the product",
+    ],
+    actions: [
+      "Confirm whether a product-specific regulation under the CCPSA also applies.",
+      "Maintain required traceability records and incident-reporting readiness.",
+    ],
+    source: {
+      label: "Health Canada — CCPSA Quick Reference Guide",
+      url: "https://www.canada.ca/en/health-canada/services/consumer-product-safety/reports-publications/industry-professionals/canada-consumer-product-safety-act-guide.html",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "ca-toys",
+    title: "Canada Toys Regulations",
+    shortName: "Canada Toys Regulations",
+    group: "toy",
+    markets: ["canada"],
+    products: ["toys"],
+    status: "required",
+    summary:
+      "The Toys Regulations under the CCPSA set mandatory safety requirements for children's toys and related products sold in Canada.",
+    why:
+      "The detected product is a toy intended for children and is being sold in Canada.",
+    documents: [
+      "Applicable mechanical/physical/flammability/chemical test evidence",
+      "Product age-grading and hazard assessment",
+    ],
+    labels: [
+      "Warnings and safety information required for the specific toy hazard",
+      "Traceable product identification",
+    ],
+    actions: [
+      "Map the toy design to the specific Toys Regulations provisions that apply.",
+      "Confirm age grading and any small-parts, magnet, battery or flammability hazards.",
+    ],
+    source: {
+      label: "Health Canada — Toys Regulations FAQ",
+      url: "https://www.canada.ca/en/health-canada/corporate/about-health-canada/legislation-guidelines/acts-regulations/frequently-asked-questions-toys-regulations.html",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "ca-cosmetics",
+    title: "Canada Cosmetic Regulations and notification",
+    shortName: "Canada Cosmetics",
+    group: "cosmetics",
+    markets: ["canada"],
+    products: ["cosmetics"],
+    status: "required",
+    summary:
+      "Manufacturers and importers are responsible for compliance with Canada's Food and Drugs Act and Cosmetic Regulations and must submit the required cosmetic notification within the statutory timeline after first sale.",
+    why:
+      "The detected product is a cosmetic intended for sale in Canada.",
+    documents: [
+      "Cosmetic Notification Form information",
+      "Full ingredient/formulation records",
+      "Manufacturing/importing and label-contact records",
+    ],
+    labels: [
+      "Required cosmetic product identity and ingredient information",
+      "Required contact and warning information",
+    ],
+    actions: [
+      "Confirm the product is legally classified as a cosmetic rather than a drug or natural health product.",
+      "Prepare the Cosmetic Notification Form data and keep it current.",
+    ],
+    source: {
+      label: "Health Canada — Notification of Cosmetics",
+      url: "https://www.canada.ca/en/health-canada/services/consumer-product-safety/cosmetics/notification-cosmetics.html",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "ca-led-ices005",
+    title: "Canada ICES-005 lighting-equipment emissions requirements",
+    shortName: "ICES-005",
+    group: "electrical",
+    markets: ["canada"],
+    products: ["led-lights"],
+    requiresFeatures: ["electronic"],
+    status: "required",
+    summary:
+      "ICES-005 sets radiated/conducted radio-frequency emission limits and administrative requirements for in-scope lighting equipment with active or switching electronics.",
+    why:
+      "The detected product is electronic lighting equipment intended for the Canadian market.",
+    documents: [
+      "ICES-005 / ICES-Gen compliance test evidence",
+      "Technical records identifying the tested lighting model",
+    ],
+    labels: [
+      "Administrative/compliance information required by the applicable ISED standards",
+    ],
+    actions: [
+      "Confirm the final lamp/luminaire is within ICES-005 scope.",
+      "Match emission testing to the final driver and electronic configuration.",
+    ],
+    source: {
+      label: "ISED — ICES-005 Lighting Equipment",
+      url: "https://ised-isde.canada.ca/site/spectrum-management-telecommunications/en/devices-and-equipment/interference-causing-equipment-standards-ices/ices-005-lighting-equipment",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "ca-childrens-jewelry",
+    title: "Canada Children's Jewellery Regulations",
+    shortName: "Children's Jewellery Regulations",
+    group: "product-safety",
+    markets: ["canada"],
+    products: ["jewelry"],
+    requiresFeatures: ["children"],
+    status: "required",
+    summary:
+      "Jewellery that appeals primarily to children under 15 is subject to Canada's Children's Jewellery Regulations, including total lead and cadmium limits.",
+    why:
+      "You confirmed that the jewellery is designed or marketed for children.",
+    documents: [
+      "Lead and cadmium composition/test evidence",
+      "Material and coating specifications",
+    ],
+    labels: [
+      "Accurate age/product positioning and material claims",
+    ],
+    actions: [
+      "Confirm whether the item meets the legal definition of children's jewellery.",
+      "Verify regulated lead and cadmium limits for every relevant component.",
+    ],
+    source: {
+      label: "Health Canada — Industry Guide to Children's Jewellery",
+      url: "https://www.canada.ca/en/health-canada/services/consumer-product-safety/reports-publications/industry-professionals/guide-children-jewellery/guidance-document.html",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "us-cpsc-general",
+    title: "US CPSC consumer-product safety and reporting baseline",
+    shortName: "CPSA / CPSC",
+    group: "product-safety",
+    markets: ["united-states"],
+    excludesProducts: ["cosmetics"],
+    status: "likely",
+    summary:
+      "Many consumer products within CPSC jurisdiction are subject to federal safety prohibitions, product-specific rules where applicable, and mandatory reporting/corrective-action duties for substantial product hazards.",
+    why:
+      "The product is a consumer product being offered in the United States and is not primarily regulated as a cosmetic.",
+    documents: [
+      "Product safety and hazard-assessment records",
+      "Applicable CPSC test/certification evidence where a specific rule applies",
+      "Incident and corrective-action records",
+    ],
+    labels: [
+      "Warnings and identification required by any product-specific CPSC rule",
+    ],
+    actions: [
+      "Map the product to any specific CPSC rule, ban or mandatory standard.",
+      "Do not assume a general federal premarket certificate exists if no specific CPSC rule requires one.",
+    ],
+    source: {
+      label: "CPSC — Business & Manufacturing",
+      url: "https://www.cpsc.gov/Business--Manufacturing",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "us-lithium-transport",
+    title: "US lithium-battery transport test-summary requirements",
+    shortName: "UN 38.3 / PHMSA",
+    group: "battery",
+    markets: ["united-states"],
+    products: ["wireless-headphones", "bluetooth-speakers", "power-banks"],
+    requiresFeatures: ["battery"],
+    status: "likely",
+    summary:
+      "Lithium batteries must pass the UN Manual of Tests and Criteria 38.3 design-test series, and manufacturers/distributors must make the required lithium-battery test summary available for transport compliance.",
+    why:
+      "The product contains a lithium battery and will commonly need to be transported into or within the United States.",
+    documents: [
+      "UN 38.3 lithium-battery test summary",
+      "Battery-cell/pack transport classification data",
+      "Shipping documentation required for the selected transport mode",
+    ],
+    labels: [
+      "Transport marks/labels required by the battery configuration and shipping mode",
+    ],
+    actions: [
+      "Obtain the UN 38.3 test summary from the cell/pack manufacturer.",
+      "Verify shipping classification separately from product-market compliance.",
+    ],
+    source: {
+      label: "PHMSA — Lithium Battery Test Summaries",
+      url: "https://www.phmsa.dot.gov/training/hazmat/new-un-requirement-test-summaries",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "us-childrens-jewelry",
+    title: "US children's-product lead requirements for jewellery",
+    shortName: "CPSIA Lead / CPC",
+    group: "product-safety",
+    markets: ["united-states"],
+    products: ["jewelry"],
+    requiresFeatures: ["children"],
+    status: "required",
+    summary:
+      "Children's jewellery can be subject to federal children's-product lead-content requirements and certification/testing obligations enforced by CPSC.",
+    why:
+      "You confirmed that the jewellery is designed or marketed for children.",
+    documents: [
+      "Lead-content test evidence from an appropriate laboratory where required",
+      "Children's Product Certificate where the applicable rule requires certification",
+    ],
+    labels: [
+      "Children's-product tracking information where applicable",
+    ],
+    actions: [
+      "Confirm the item is a children's product under CPSC rules.",
+      "Check all applicable lead, surface-coating and small-parts requirements.",
+    ],
+    source: {
+      label: "CPSC — Total Lead Content",
+      url: "https://www.cpsc.gov/Business--Manufacturing/Business-Education/Lead/Total-Lead-Content",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "us-cosmetics-mocra",
+    title: "US MoCRA cosmetic facility registration and product listing",
+    shortName: "MoCRA",
+    group: "cosmetics",
+    markets: ["united-states"],
+    products: ["cosmetics"],
+    status: "verify",
+    summary:
+      "MoCRA created facility-registration and cosmetic-product listing duties, with exemptions for certain businesses/products. These are not FDA product approvals.",
+    why:
+      "The detected product is a cosmetic intended for the US market, so current MoCRA registration/listing duties and exemptions need to be checked.",
+    documents: [
+      "Facility registration record where applicable",
+      "Cosmetic product listing record where applicable",
+    ],
+    labels: [],
+    actions: [
+      "Determine whether the responsible person/facility is subject to MoCRA registration or listing.",
+      "Check current exemptions before treating either filing as mandatory.",
+    ],
+    source: {
+      label: "FDA — Cosmetic Product Facility Registration and Product Listing",
+      url: "https://www.fda.gov/cosmetics/registration-listing-cosmetic-product-facilities-and-products",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "au-consumer-product-safety",
+    title: "Australian Consumer Law product-safety baseline",
+    shortName: "ACL Product Safety",
+    group: "product-safety",
+    markets: ["australia"],
+    status: "likely",
+    summary:
+      "Suppliers in Australia must check whether mandatory product-safety standards, information standards or permanent/interim bans apply to the exact product before supply.",
+    why:
+      "The selected destination is Australia and the product is being supplied to consumers.",
+    documents: [
+      "Evidence of compliance with any applicable mandatory standard",
+      "Product/batch records supporting safety and recall readiness",
+    ],
+    labels: [
+      "Any mandatory information required by the applicable product standard",
+    ],
+    actions: [
+      "Search the ACCC mandatory-standards and bans register for the exact product category.",
+      "Do not assume every Australian consumer product has a mandatory standard.",
+    ],
+    source: {
+      label: "ACCC Product Safety — standards and how to comply",
+      url: "https://www.productsafety.gov.au/business/understand-product-safety-rules/product-safety-standards-and-how-to-comply",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "au-toys-under3",
+    title: "Australia mandatory standard for toys for children up to 36 months",
+    shortName: "AU Toys ≤36 months",
+    group: "toy",
+    markets: ["australia"],
+    products: ["toys"],
+    status: "verify",
+    summary:
+      "A mandatory Australian safety standard applies to toys manufactured, designed, labelled or marketed as playthings for children up to and including 36 months of age.",
+    why:
+      "The product is a toy, but the exact age grading has not yet been confirmed.",
+    documents: [
+      "Age-grading evidence",
+      "Test reports to an accepted toy-safety standard where the mandatory standard applies",
+    ],
+    labels: [
+      "Age/safety information consistent with the tested product and mandatory standard",
+    ],
+    actions: [
+      "Confirm whether the intended age group includes children 36 months or younger.",
+      "If yes, verify the current mandatory standard and accepted test-standard route.",
+    ],
+    source: {
+      label: "ACCC Product Safety — Toys for children up to 36 months",
+      url: "https://www.productsafety.gov.au/business/search-mandatory-standards/toys-for-children-up-to-and-including-36-months-of-age-mandatory-standard",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "au-cosmetics-label",
+    title: "Australia mandatory cosmetics ingredient-labelling standard",
+    shortName: "Cosmetics Information Standard",
+    group: "cosmetics",
+    markets: ["australia"],
+    products: ["cosmetics"],
+    status: "required",
+    summary:
+      "Cosmetic products supplied in Australia are subject to the mandatory cosmetics ingredient-information standard unless an exclusion applies.",
+    why:
+      "The detected product is a cosmetic intended for the Australian consumer market.",
+    documents: [
+      "Full final ingredient list",
+      "Records supporting product classification and ingredient order",
+    ],
+    labels: [
+      "Ingredient information at the required point of sale",
+      "Ingredients listed in the permitted order under the mandatory standard",
+    ],
+    actions: [
+      "Confirm the product is within the cosmetics information standard and not an excluded therapeutic good.",
+      "Match the ingredient list to the final formulation sold.",
+    ],
+    source: {
+      label: "ACCC Product Safety — Cosmetics ingredients labelling mandatory standard",
+      url: "https://www.productsafety.gov.au/business/search-mandatory-standards/cosmetics-ingredients-labelling-mandatory-standard",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
+    id: "au-candle-lead-wick",
+    title: "Australia permanent ban on candles with lead wicks",
+    shortName: "Lead-wick candle ban",
+    group: "product-safety",
+    markets: ["australia"],
+    products: ["candles"],
+    status: "required",
+    summary:
+      "Australia permanently bans candles and candle wicks with lead content above the permitted threshold in the wick.",
+    why:
+      "The detected product is a candle intended for supply in Australia.",
+    documents: [
+      "Wick material specification",
+      "Supplier declaration or test evidence showing compliant wick composition",
+    ],
+    labels: [],
+    actions: [
+      "Confirm the wick construction and supplier specification.",
+      "Do not supply candles using a prohibited lead-core wick.",
+    ],
+    source: {
+      label: "ACCC Product Safety — Candles with lead wicks ban",
+      url: "https://www.productsafety.gov.au/business/find-banned-products/candles-with-lead-wicks-ban",
+    },
+    lastVerified: "2026-09-07",
+  },
+];
 }) => {
   const featureSet = new Set(features);
 
