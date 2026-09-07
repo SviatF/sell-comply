@@ -6,7 +6,7 @@ The Regulatory Knowledge Base is the durable data layer behind SellComply's chec
 
 The checker currently continues to read the rule-pack source in code while the D1 knowledge layer is built and verified in parallel.
 
-## Schema version 6
+## Schema version 7
 
 ### regulatory_rules
 
@@ -73,12 +73,70 @@ No private seller data is exposed.
 
 The production database uses idempotent application-managed schema bootstrap. SQL migrations in `/migrations` remain historical documentation and should not be manually replayed against an already bootstrapped production database unless the migration strategy is intentionally changed.
 
-## Next normalization step
+### regulatory_applicability
 
-Raw scope is currently preserved inside each immutable rule version.
+Materialized, queryable product-market scope for the current rule graph:
 
-The next KB phase normalizes:
+- rule key
+- rule version
+- market slug
+- product slug
+- applicability status
+- feature match mode
+- current/inactive flag
 
-`rule/version × market × product × required feature × exclusion`
+Broad rules are expanded across the current SellComply product taxonomy. Explicit product scopes remain narrow. Excluded products are omitted.
 
-into queryable applicability records so the checker, SEO pages and coverage metrics can all use the same structured knowledge graph.
+### regulatory_applicability_features
+
+Normalized feature conditions attached to applicability rows:
+
+- applicability row
+- feature key
+- required value
+
+Example:
+
+`eu-red v1 × germany × wireless-headphones → required`
+
+with:
+
+`radio = true`
+
+## Applicability sync
+
+Every KB sync also materializes the current applicability graph.
+
+The KB fingerprint includes:
+
+- regulatory rule content
+- current product taxonomy
+- applicability-model version
+
+This means adding a new product category can expand broad regulatory rules without editing each rule manually.
+
+Old version-specific applicability rows remain available as history but are marked non-current when a new rule version becomes current.
+
+## Direct knowledge query
+
+The internal protected endpoint can query the D1 graph directly:
+
+`GET /api/admin/kb/applicability?market=germany&product=wireless-headphones&features=radio,battery`
+
+It requires `x-admin-token`.
+
+The response contains only current rules whose required feature conditions are satisfied.
+
+## Health coverage
+
+`GET /api/health` additionally reports:
+
+- `regulatoryKbApplicability`
+- `regulatoryKbFeatureConditions`
+- `regulatoryKbCoveredPairs`
+
+These counts describe the current normalized knowledge graph.
+
+## Next KB step
+
+Normalize regulatory effective dates and transition windows so applicability can be evaluated against time as well as product, market and features.
