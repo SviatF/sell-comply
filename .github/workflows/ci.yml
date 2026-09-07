@@ -18,5 +18,7 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm install
+      - name: Run checker regression tests
+        run: npm test
       - name: Build for Cloudflare
         run: npm run build:cloudflare
