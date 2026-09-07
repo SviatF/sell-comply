@@ -1,0 +1,256 @@
+import type { SellComplyD1 } from "@/lib/cloudflare-db";
+import { regulatoryRules, type RegulatoryRule } from "@/lib/regulatory-rules";
+
+type CurrentRuleRow = {
+  rule_key: string;
+  current_version: number;
+  current_hash: string;
+  is_active: number;
+};
+
+function stablePayload(rule: RegulatoryRule) {
+  return JSON.stringify({
+    id: rule.id,
+    title: rule.title,
+    shortName: rule.shortName,
+    group: rule.group,
+    markets: rule.markets,
+    products: rule.products ?? null,
+    requiresFeatures: rule.requiresFeatures ?? null,
+    excludesProducts: rule.excludesProducts ?? null,
+    status: rule.status,
+    summary: rule.summary,
+    why: rule.why,
+    documents: rule.documents,
+    labels: rule.labels,
+    actions: rule.actions,
+    source: rule.source,
+    lastVerified: rule.lastVerified,
+    effectiveNote: rule.effectiveNote ?? null,
+  });
+}
+
+async function sha256(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function ruleHash(rule: RegulatoryRule) {
+  return sha256(stablePayload(rule));
+}
+
+async function knowledgeBaseHash() {
+  const rows = await Promise.all(
+    [...regulatoryRules]
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map(async (rule) => ({
+        id: rule.id,
+        hash: await ruleHash(rule),
+      }))
+  );
+
+  return sha256(JSON.stringify(rows));
+}
+
+export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
+  let createdRules = 0;
+  let createdVersions = 0;
+  let unchanged = 0;
+  let reactivated = 0;
+
+  for (const rule of regulatoryRules) {
+    const hash = await ruleHash(rule);
+
+    const current = await db
+      .prepare(
+        `SELECT rule_key, current_version, current_hash, is_active
+         FROM regulatory_rules
+         WHERE rule_key = ?
+         LIMIT 1`
+      )
+      .bind(rule.id)
+      .first<CurrentRuleRow>();
+
+    if (!current) {
+      await db
+        .prepare(
+          `INSERT INTO regulatory_rules (
+             rule_key, title, short_name, rule_group,
+             current_version, current_hash, is_active,
+             created_at, updated_at
+           ) VALUES (?, ?, ?, ?, 1, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
+        )
+        .bind(
+          rule.id,
+          rule.title,
+          rule.shortName,
+          rule.group,
+          hash
+        )
+        .run();
+
+      await insertVersion(db, rule, 1, hash);
+      createdRules += 1;
+      createdVersions += 1;
+      continue;
+    }
+
+    if (current.current_hash === hash) {
+      if (!current.is_active) {
+        await db
+          .prepare(
+            `UPDATE regulatory_rules
+             SET is_active = 1,
+                 title = ?,
+                 short_name = ?,
+                 rule_group = ?,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE rule_key = ?`
+          )
+          .bind(rule.title, rule.shortName, rule.group, rule.id)
+          .run();
+        reactivated += 1;
+      } else {
+        unchanged += 1;
+      }
+      continue;
+    }
+
+    const nextVersion = Number(current.current_version || 0) + 1;
+    await insertVersion(db, rule, nextVersion, hash);
+
+    await db
+      .prepare(
+        `UPDATE regulatory_rules
+         SET title = ?,
+             short_name = ?,
+             rule_group = ?,
+             current_version = ?,
+             current_hash = ?,
+             is_active = 1,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE rule_key = ?`
+      )
+      .bind(
+        rule.title,
+        rule.shortName,
+        rule.group,
+        nextVersion,
+        hash,
+        rule.id
+      )
+      .run();
+
+    createdVersions += 1;
+  }
+
+  const currentKeys = new Set(regulatoryRules.map((rule) => rule.id));
+  const existing = await db
+    .prepare("SELECT rule_key FROM regulatory_rules WHERE is_active = 1")
+    .all<{ rule_key: string }>();
+
+  let deactivated = 0;
+  for (const row of existing.results || []) {
+    if (currentKeys.has(row.rule_key)) continue;
+
+    await db
+      .prepare(
+        `UPDATE regulatory_rules
+         SET is_active = 0,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE rule_key = ?`
+      )
+      .bind(row.rule_key)
+      .run();
+    deactivated += 1;
+  }
+
+  const syncHash = await knowledgeBaseHash();
+  await db
+    .prepare(
+      `INSERT INTO schema_meta (key, value, updated_at)
+       VALUES ('regulatory_kb_hash', ?, CURRENT_TIMESTAMP)
+       ON CONFLICT(key) DO UPDATE SET
+         value = excluded.value,
+         updated_at = CURRENT_TIMESTAMP`
+    )
+    .bind(syncHash)
+    .run();
+
+  return {
+    totalRules: regulatoryRules.length,
+    createdRules,
+    createdVersions,
+    unchanged,
+    reactivated,
+    deactivated,
+    hash: syncHash,
+  };
+}
+
+async function insertVersion(
+  db: SellComplyD1,
+  rule: RegulatoryRule,
+  version: number,
+  hash: string
+) {
+  await db
+    .prepare(
+      `INSERT INTO regulatory_rule_versions (
+         id, rule_key, version, content_hash, status,
+         summary, why_text, documents_json, labels_json, actions_json,
+         markets_json, products_json, required_features_json, excluded_products_json,
+         source_label, source_url, effective_from, effective_to,
+         transition_note, last_verified_at, created_at
+       ) VALUES (
+         ?, ?, ?, ?, ?,
+         ?, ?, ?, ?, ?,
+         ?, ?, ?, ?,
+         ?, ?, NULL, NULL,
+         ?, ?, CURRENT_TIMESTAMP
+       )`
+    )
+    .bind(
+      crypto.randomUUID(),
+      rule.id,
+      version,
+      hash,
+      rule.status,
+      rule.summary,
+      rule.why,
+      JSON.stringify(rule.documents),
+      JSON.stringify(rule.labels),
+      JSON.stringify(rule.actions),
+      JSON.stringify(rule.markets),
+      rule.products ? JSON.stringify(rule.products) : null,
+      rule.requiresFeatures ? JSON.stringify(rule.requiresFeatures) : null,
+      rule.excludesProducts ? JSON.stringify(rule.excludesProducts) : null,
+      rule.source.label,
+      rule.source.url,
+      rule.effectiveNote || null,
+      rule.lastVerified || null
+    )
+    .run();
+}
+
+let kbReady = false;
+
+export async function ensureRegulatoryKnowledgeBase(db: SellComplyD1) {
+  if (kbReady) return;
+
+  const expectedHash = await knowledgeBaseHash();
+  const stored = await db
+    .prepare(
+      "SELECT value FROM schema_meta WHERE key = 'regulatory_kb_hash' LIMIT 1"
+    )
+    .first<{ value: string }>();
+
+  if (stored?.value !== expectedHash) {
+    await syncRegulatoryKnowledgeBase(db);
+  }
+
+  kbReady = true;
+}
