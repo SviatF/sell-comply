@@ -63,7 +63,12 @@ export async function GET() {
       .first<{ total: number }>();
 
     const kbFeatureConditionCount = await db
-      .prepare("SELECT COUNT(*) AS total FROM regulatory_applicability_features")
+      .prepare(
+        `SELECT COUNT(*) AS total
+         FROM regulatory_applicability_features f
+         INNER JOIN regulatory_applicability a ON a.id = f.applicability_id
+         WHERE a.is_current = 1`
+      )
       .first<{ total: number }>();
 
     const kbCoveredPairCount = await db
