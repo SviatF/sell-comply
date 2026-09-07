@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS regulatory_rule_versions (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_regulatory_rule_version_unique
   ON regulatory_rule_versions(rule_key, version);
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_regulatory_rule_hash_unique
+CREATE INDEX IF NOT EXISTS idx_regulatory_rule_versions_hash
   ON regulatory_rule_versions(rule_key, content_hash);
 
 CREATE INDEX IF NOT EXISTS idx_regulatory_rule_versions_rule
