@@ -57,6 +57,14 @@ export function expandRuleApplicability(
   return rows;
 }
 
+export function matchesRequiredFeatures(
+  requiredFeatures: string[],
+  features: string[]
+) {
+  const featureSet = new Set(features);
+  return requiredFeatures.every((feature) => featureSet.has(feature));
+}
+
 export async function syncRuleApplicability(
   db: SellComplyD1,
   rule: RegulatoryRule,
@@ -206,9 +214,7 @@ export async function getApplicableKnowledgeRules(
     grouped.set(key, existing);
   }
 
-  const featureSet = new Set(features);
-
   return [...grouped.values()].filter((row) =>
-    row.requiredFeatures.every((feature) => featureSet.has(feature))
+    matchesRequiredFeatures(row.requiredFeatures, features)
   );
 }
