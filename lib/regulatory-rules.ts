@@ -462,6 +462,38 @@ export const regulatoryRules: RegulatoryRule[] = [
     lastVerified: "2026-09-07",
   },
   {
+    id: "au-radio-rcm",
+    title: "Australian radiocommunications / RCM supplier compliance",
+    shortName: "ACMA / RCM",
+    group: "radio",
+    markets: ["australia"],
+    products: ["wireless-headphones", "bluetooth-speakers"],
+    requiresFeatures: ["radio"],
+    status: "required",
+    summary:
+      "Wireless products supplied in Australia can be subject to ACMA radiocommunications, EMC, technical-standard, record-keeping and labelling rules, commonly including the Regulatory Compliance Mark (RCM).",
+    why:
+      "The detected product contains Bluetooth or another radio transmitter and is intended for supply in Australia.",
+    documents: [
+      "Applicable technical-standard test reports or accepted compliance evidence",
+      "Supplier declaration/records supporting compliance",
+      "Responsible supplier registration evidence where required",
+    ],
+    labels: [
+      "Regulatory Compliance Mark (RCM) or permitted compliance label where applicable",
+    ],
+    actions: [
+      "Use ACMA's supplier steps to identify every applicable radiocommunications, EMC and labelling rule.",
+      "Confirm the Australian supplier/responsible-supplier obligations before applying the RCM.",
+      "Do not assume CE/FCC markings alone demonstrate Australian compliance.",
+    ],
+    source: {
+      label: "ACMA — Step 1: check the rules to follow",
+      url: "https://www.acma.gov.au/step-1-check-rules-follow",
+    },
+    lastVerified: "2026-09-07",
+  },
+  {
     id: "ca-radio",
     title: "Canada radio apparatus certification requirements",
     shortName: "ISED RSS",
