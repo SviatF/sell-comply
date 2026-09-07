@@ -24,7 +24,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Interactive clarification questions for uncertain product facts
 - [x] Expand exact rule coverage across all current products/markets
 - [x] Product-specific risk scoring
-- [ ] Shareable / printable report
+- [x] Shareable / printable report
 - [ ] Checker quality regression tests
 
 ### 2. Regulatory Knowledge Base — NEXT
