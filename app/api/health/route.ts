@@ -3,6 +3,7 @@ import { databaseState, getOptionalDb } from "@/lib/cloudflare-db";
 import { ensureDatabaseSchema } from "@/lib/db-schema";
 import { ensureOfficialSources } from "@/lib/source-bootstrap";
 import { getEmailProviderState } from "@/lib/email-provider";
+import { ensureRegulatoryKnowledgeBase } from "@/lib/regulatory-kb";
 
 export async function GET() {
   const db = getOptionalDb();
@@ -19,6 +20,7 @@ export async function GET() {
   try {
     await ensureDatabaseSchema(db);
     await ensureOfficialSources(db);
+    await ensureRegulatoryKnowledgeBase(db);
 
     const version = await db
       .prepare("SELECT value FROM schema_meta WHERE key = 'schema_version' LIMIT 1")
@@ -48,10 +50,18 @@ export async function GET() {
       .prepare("SELECT COUNT(*) AS total FROM alert_jobs WHERE status = 'sent'")
       .first<{ total: number }>();
 
+    const kbRuleCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM regulatory_rules WHERE is_active = 1")
+      .first<{ total: number }>();
+
+    const kbVersionCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM regulatory_rule_versions")
+      .first<{ total: number }>();
+
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "5" ? "ready" : "unknown",
+      schema: version?.value === "6" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
       monitoredProducts: Number(monitorCount?.total || 0),
@@ -59,6 +69,8 @@ export async function GET() {
       pendingChanges: Number(pendingChangeCount?.total || 0),
       queuedAlerts: Number(queuedAlertCount?.total || 0),
       sentAlerts: Number(sentAlertCount?.total || 0),
+      regulatoryKbRules: Number(kbRuleCount?.total || 0),
+      regulatoryKbVersions: Number(kbVersionCount?.total || 0),
       emailProvider: getEmailProviderState(),
     });
   } catch (error) {
