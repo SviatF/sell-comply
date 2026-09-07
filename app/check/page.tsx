@@ -16,7 +16,7 @@ const statusLabel = {
   required: "REQUIRED",
   likely: "LIKELY RELEVANT",
   verify: "VERIFY",
-  marketplace: "PLATFORM",
+  platform: "PLATFORM",
 } as const;
 
 export default async function CheckPage({
