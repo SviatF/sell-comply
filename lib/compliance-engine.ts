@@ -1,9 +1,9 @@
-import { getMarket, getMarketplace, products, ProductSeo } from "@/lib/seo-data";
+import { getMarket, getMarketplace, products, ProductSeo } from "./seo-data";
 import {
   getRulesFor,
   RegulatoryRule,
   RuleStatus,
-} from "@/lib/regulatory-rules";
+} from "./regulatory-rules";
 
 export type ReviewStatus = RuleStatus;
 
