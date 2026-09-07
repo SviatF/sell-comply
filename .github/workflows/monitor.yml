@@ -9,14 +9,30 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
-      - name: Run SellComply monitoring
+      - name: Run SellComply monitoring and alerts
         env:
+          APP_URL: ${{ secrets.APP_URL }}
           MONITOR_URL: ${{ secrets.MONITOR_URL }}
           MONITOR_SECRET: ${{ secrets.MONITOR_SECRET }}
         run: |
-          if [ -z "$MONITOR_URL" ] || [ -z "$MONITOR_SECRET" ]; then
+          BASE_URL="$APP_URL"
+
+          if [ -z "$BASE_URL" ] && [ -n "$MONITOR_URL" ]; then
+            BASE_URL="${MONITOR_URL%/api/monitoring/run}"
+          fi
+
+          if [ -z "$BASE_URL" ] || [ -z "$MONITOR_SECRET" ]; then
             echo "Monitoring secrets are not configured yet; skipping safely."
             exit 0
           fi
 
-          curl --fail --silent --show-error             -X POST             -H "x-monitor-token: $MONITOR_SECRET"             "$MONITOR_URL"
+          BASE_URL="${BASE_URL%/}"
+
+          echo "Running regulatory source monitor..."
+          curl --fail --silent --show-error             -X POST             -H "x-monitor-token: $MONITOR_SECRET"             "$BASE_URL/api/monitoring/run"
+
+          echo
+          echo "Dispatching queued alerts..."
+          curl --fail --silent --show-error             -X POST             -H "x-monitor-token: $MONITOR_SECRET"             "$BASE_URL/api/alerts/run"
+
+          echo
