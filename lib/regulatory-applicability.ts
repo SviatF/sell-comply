@@ -1,6 +1,12 @@
 import type { SellComplyD1 } from "./cloudflare-db";
 import { products } from "./seo-data";
 import type { RegulatoryRule } from "./regulatory-rules";
+import {
+  getRegulatoryLifecycle,
+  isLifecycleApplicable,
+  normalizeAsOfDate,
+  type RegulatoryLifecycle,
+} from "./regulatory-timing";
 
 export type ApplicabilityRow = {
   id: string;
@@ -154,6 +160,11 @@ type ApplicabilityQueryRow = {
   rule_version: number;
   status: RegulatoryRule["status"];
   feature_key: string | null;
+  effective_from: string | null;
+  effective_to: string | null;
+  transition_start: string | null;
+  transition_end: string | null;
+  timing_note: string | null;
 };
 
 export async function getApplicableKnowledgeRules(
@@ -162,12 +173,17 @@ export async function getApplicableKnowledgeRules(
     marketSlug,
     productSlug,
     features,
+    asOf,
+    includeNonApplicable = false,
   }: {
     marketSlug: string;
     productSlug: string;
     features: string[];
+    asOf?: string;
+    includeNonApplicable?: boolean;
   }
 ) {
+  const asOfDate = normalizeAsOfDate(asOf);
   const result = await db
     .prepare(
       `SELECT
@@ -175,11 +191,19 @@ export async function getApplicableKnowledgeRules(
          a.rule_key,
          a.rule_version,
          a.status,
-         f.feature_key
+         f.feature_key,
+         t.effective_from,
+         t.effective_to,
+         t.transition_start,
+         t.transition_end,
+         t.timing_note
        FROM regulatory_applicability a
        LEFT JOIN regulatory_applicability_features f
          ON f.applicability_id = a.id
         AND f.required_value = 1
+       LEFT JOIN regulatory_rule_timing t
+         ON t.rule_key = a.rule_key
+        AND t.rule_version = a.rule_version
        WHERE a.market_slug = ?
          AND a.product_slug = ?
          AND a.is_current = 1
@@ -195,6 +219,12 @@ export async function getApplicableKnowledgeRules(
       ruleVersion: number;
       status: RegulatoryRule["status"];
       requiredFeatures: string[];
+      effectiveFrom: string | null;
+      effectiveTo: string | null;
+      transitionStart: string | null;
+      transitionEnd: string | null;
+      timingNote: string | null;
+      lifecycle: RegulatoryLifecycle;
     }
   >();
 
@@ -205,6 +235,21 @@ export async function getApplicableKnowledgeRules(
       ruleVersion: Number(row.rule_version),
       status: row.status,
       requiredFeatures: [],
+      effectiveFrom: row.effective_from,
+      effectiveTo: row.effective_to,
+      transitionStart: row.transition_start,
+      transitionEnd: row.transition_end,
+      timingNote: row.timing_note,
+      lifecycle: getRegulatoryLifecycle(
+        {
+          effectiveFrom: row.effective_from,
+          effectiveTo: row.effective_to,
+          transitionStart: row.transition_start,
+          transitionEnd: row.transition_end,
+          note: row.timing_note,
+        },
+        asOfDate
+      ),
     };
 
     if (row.feature_key && !existing.requiredFeatures.includes(row.feature_key)) {
@@ -214,7 +259,9 @@ export async function getApplicableKnowledgeRules(
     grouped.set(key, existing);
   }
 
-  return [...grouped.values()].filter((row) =>
-    matchesRequiredFeatures(row.requiredFeatures, features)
-  );
+  return [...grouped.values()].filter((row) => {
+    if (!matchesRequiredFeatures(row.requiredFeatures, features)) return false;
+    if (includeNonApplicable) return true;
+    return isLifecycleApplicable(row.lifecycle);
+  });
 }
