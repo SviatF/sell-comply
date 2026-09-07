@@ -525,16 +525,6 @@ export const regulatoryRules: RegulatoryRule[] = [
     },
     lastVerified: "2026-09-07",
   },
-];
-
-export const getRulesFor = ({
-  marketSlug,
-  productSlug,
-  features,
-}: {
-  marketSlug: string;
-  productSlug: string;
-  features: string[
   {
     id: "eu-jewelry-reach",
     title: "EU REACH restrictions relevant to jewellery",
@@ -1206,6 +1196,15 @@ export const getRulesFor = ({
     lastVerified: "2026-09-07",
   },
 ];
+
+export const getRulesFor = ({
+  marketSlug,
+  productSlug,
+  features,
+}: {
+  marketSlug: string;
+  productSlug: string;
+  features: string[];
 }) => {
   const featureSet = new Set(features);
 
