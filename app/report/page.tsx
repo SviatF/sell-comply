@@ -8,6 +8,7 @@ import {
   parseCheckFacts,
 } from "@/lib/check-query";
 import ReportToolbar from "./ReportToolbar";
+import TrackEvent from "@/app/components/TrackEvent";
 
 export const metadata: Metadata = {
   title: "Product Compliance Screening Report | SellComply",
@@ -71,6 +72,13 @@ export default async function ReportPage({
 
   return (
     <div className="report-page">
+      <TrackEvent
+        eventName="report_open"
+        productSlug={result.product.slug}
+        marketSlug={result.market.slug}
+        marketplaceSlug={result.marketplace?.slug}
+        metadata={{ riskScore: result.risk.score, riskLevel: result.risk.level }}
+      />
       <ReportToolbar checkHref={checkHref} />
 
       <main className="report-sheet">
