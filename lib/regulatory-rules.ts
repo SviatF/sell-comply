@@ -31,6 +31,12 @@ export type RegulatoryRule = {
   };
   lastVerified: string;
   effectiveNote?: string;
+  timing?: {
+    effectiveFrom?: string;
+    effectiveTo?: string;
+    transitionStart?: string;
+    transitionEnd?: string;
+  };
 };
 
 export const regulatoryRules: RegulatoryRule[] = [
@@ -68,6 +74,9 @@ export const regulatoryRules: RegulatoryRule[] = [
     },
     lastVerified: "2026-09-07",
     effectiveNote: "Applies from 13 December 2024.",
+    timing: {
+      effectiveFrom: "2024-12-13",
+    },
   },
   {
     id: "eu-red",
@@ -193,6 +202,11 @@ export const regulatoryRules: RegulatoryRule[] = [
     lastVerified: "2026-09-07",
     effectiveNote:
       "Applies in phases; the former Batteries Directive was repealed with effect from 18 August 2025, with transitional provisions.",
+    timing: {
+      effectiveFrom: "2024-02-18",
+      transitionStart: "2024-02-18",
+      transitionEnd: "2027-06-30",
+    },
   },
   {
     id: "eu-toy-current",
@@ -230,6 +244,11 @@ export const regulatoryRules: RegulatoryRule[] = [
     lastVerified: "2026-09-07",
     effectiveNote:
       "The new Toy Safety Regulation applies generally from 1 August 2030; transitional provisions apply.",
+    timing: {
+      effectiveTo: "2030-07-31",
+      transitionStart: "2030-08-01",
+      transitionEnd: "2031-02-01",
+    },
   },
   {
     id: "eu-toy-future",
@@ -255,6 +274,11 @@ export const regulatoryRules: RegulatoryRule[] = [
     },
     lastVerified: "2026-09-07",
     effectiveNote: "Applies generally from 1 August 2030.",
+    timing: {
+      effectiveFrom: "2030-08-01",
+      transitionStart: "2026-01-01",
+      transitionEnd: "2030-07-31",
+    },
   },
   {
     id: "eu-cosmetics",
