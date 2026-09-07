@@ -52,6 +52,17 @@ export async function POST(request: Request) {
       .bind(row.subscriber_id)
       .run();
 
+    await db
+      .prepare(
+        `UPDATE alert_jobs
+         SET status = 'cancelled',
+             last_error = 'UNSUBSCRIBED'
+         WHERE subscriber_id = ?
+           AND status IN ('queued', 'failed')`
+      )
+      .bind(row.subscriber_id)
+      .run();
+
     return NextResponse.json({ ok: true, unsubscribed: true });
   } catch {
     return NextResponse.json({ ok: false, error: "UNSUBSCRIBE_FAILED" }, { status: 500 });
