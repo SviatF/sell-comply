@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics-client";
 
 export default function ReportToolbar({ checkHref }: { checkHref: string }) {
   const [copied, setCopied] = useState(false);
@@ -10,6 +11,7 @@ export default function ReportToolbar({ checkHref }: { checkHref: string }) {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
+      trackEvent("report_share", { metadata: { method: "copy_link" } });
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -29,6 +31,7 @@ export default function ReportToolbar({ checkHref }: { checkHref: string }) {
         text: "Product compliance screening report",
         url: window.location.href,
       });
+      trackEvent("report_share", { metadata: { method: "native_share" } });
       setShared(true);
       window.setTimeout(() => setShared(false), 1800);
     } catch {
@@ -46,7 +49,14 @@ export default function ReportToolbar({ checkHref }: { checkHref: string }) {
         <button type="button" onClick={share}>
           {shared ? "Shared ✓" : "Share"}
         </button>
-        <button className="report-print-button" type="button" onClick={() => window.print()}>
+        <button
+          className="report-print-button"
+          type="button"
+          onClick={() => {
+            trackEvent("report_print");
+            window.print();
+          }}
+        >
           Print / Save PDF
         </button>
       </div>
