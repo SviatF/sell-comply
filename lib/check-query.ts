@@ -1,4 +1,4 @@
-import type { ProductFacts } from "@/lib/compliance-engine";
+import type { ProductFacts } from "./compliance-engine";
 
 export type CheckQueryInput = {
   product?: string;
