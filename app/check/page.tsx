@@ -69,7 +69,12 @@ export default async function CheckPage({
         productSlug={result.product.slug}
         marketSlug={result.market.slug}
         marketplaceSlug={result.marketplace?.slug}
-        metadata={{ sourceType: resolved.sourceType, fetchedProductPage: resolved.fetched }}
+        metadata={{
+          sourceType: resolved.sourceType,
+          fetchedProductPage: resolved.fetched,
+          riskScore: result.risk.score,
+          riskLevel: result.risk.level,
+        }}
       />
       <SeoHeader />
       <main className="check-main">
@@ -116,6 +121,62 @@ export default async function CheckPage({
               <span>Detected category</span>
               <b>{result.product.category}</b>
             </div>
+          </div>
+        </section>
+
+        <section className={`check-risk-section risk-${result.risk.level}`}>
+          <div className="risk-score-panel">
+            <span className="seo-kicker"><i /> SCREENING RISK SIGNAL</span>
+            <div className="risk-score-row">
+              <div className="risk-score-number">
+                <strong>{result.risk.score}</strong>
+                <span>/100</span>
+              </div>
+              <div>
+                <span className={`risk-level-badge ${result.risk.level}`}>
+                  {result.risk.label.toUpperCase()} RISK
+                </span>
+                <p>{result.risk.summary}</p>
+              </div>
+            </div>
+            <div className="risk-meter" aria-label={`Risk score ${result.risk.score} out of 100`}>
+              <i style={{ width: `${result.risk.score}%` }} />
+            </div>
+            <small>
+              This is a transparent screening-complexity signal, not a legal conclusion or probability of non-compliance.
+            </small>
+          </div>
+
+          <div className="risk-drivers-panel">
+            <div className="risk-panel-head">
+              <span>TOP RISK DRIVERS</span>
+              <strong>{result.risk.topDrivers.length}</strong>
+            </div>
+            <div className="risk-driver-list">
+              {result.risk.topDrivers.map((factor) => (
+                <div className="risk-driver-row" key={factor.id}>
+                  <div>
+                    <strong>{factor.label}</strong>
+                    <p>{factor.detail}</p>
+                  </div>
+                  <span>+{factor.points}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="risk-reducers-panel">
+            <div className="risk-panel-head">
+              <span>REDUCE UNCERTAINTY</span>
+              <strong>{result.risk.reducers.length}</strong>
+            </div>
+            {result.risk.reducers.length ? (
+              <ul>
+                {result.risk.reducers.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            ) : (
+              <p>Core product facts are already well defined for this screening.</p>
+            )}
           </div>
         </section>
 
