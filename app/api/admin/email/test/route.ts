@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(
-    { ok: result.ok, ...result },
+    result,
     { status: result.ok ? 200 : 502 }
   );
 }
