@@ -3,6 +3,8 @@ import { regulatoryRules, type RegulatoryRule } from "@/lib/regulatory-rules";
 import { products } from "@/lib/seo-data";
 import { syncRuleApplicability } from "@/lib/regulatory-applicability";
 
+const APPLICABILITY_MODEL_VERSION = 1;
+
 type CurrentRuleRow = {
   rule_key: string;
   current_version: number;
@@ -58,6 +60,7 @@ async function knowledgeBaseHash() {
     JSON.stringify({
       rules: rows,
       products: products.map((product) => product.slug).sort(),
+      applicabilityModelVersion: APPLICABILITY_MODEL_VERSION,
     })
   );
 }
