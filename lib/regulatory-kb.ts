@@ -2,6 +2,7 @@ import type { SellComplyD1 } from "@/lib/cloudflare-db";
 import { regulatoryRules, type RegulatoryRule } from "@/lib/regulatory-rules";
 import { products } from "@/lib/seo-data";
 import { syncRuleApplicability } from "@/lib/regulatory-applicability";
+import { syncRuleTiming } from "@/lib/regulatory-timing";
 
 const APPLICABILITY_MODEL_VERSION = 1;
 
@@ -31,6 +32,7 @@ function stablePayload(rule: RegulatoryRule) {
     source: rule.source,
     lastVerified: rule.lastVerified,
     effectiveNote: rule.effectiveNote ?? null,
+    ...(rule.timing ? { timing: rule.timing } : {}),
   });
 }
 
@@ -72,6 +74,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
   let reactivated = 0;
   let applicabilityRows = 0;
   let featureConditions = 0;
+  let timingRows = 0;
+  let structuredTimingRules = 0;
 
   for (const rule of regulatoryRules) {
     const hash = await ruleHash(rule);
@@ -105,6 +109,9 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
         .run();
 
       await insertVersion(db, rule, 1, hash);
+      const timing = await syncRuleTiming(db, rule, 1);
+      timingRows += 1;
+      if (timing.hasStructuredTiming) structuredTimingRules += 1;
       const applicability = await syncRuleApplicability(db, rule, 1);
       applicabilityRows += applicability.applicabilityRows;
       featureConditions += applicability.featureConditions;
@@ -114,6 +121,14 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
     }
 
     if (current.current_hash === hash) {
+      const timing = await syncRuleTiming(
+        db,
+        rule,
+        Number(current.current_version)
+      );
+      timingRows += 1;
+      if (timing.hasStructuredTiming) structuredTimingRules += 1;
+
       const applicability = await syncRuleApplicability(
         db,
         rule,
@@ -144,6 +159,9 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
 
     const nextVersion = Number(current.current_version || 0) + 1;
     await insertVersion(db, rule, nextVersion, hash);
+    const timing = await syncRuleTiming(db, rule, nextVersion);
+    timingRows += 1;
+    if (timing.hasStructuredTiming) structuredTimingRules += 1;
     const applicability = await syncRuleApplicability(db, rule, nextVersion);
     applicabilityRows += applicability.applicabilityRows;
     featureConditions += applicability.featureConditions;
@@ -226,6 +244,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
     deactivated,
     applicabilityRows,
     featureConditions,
+    timingRows,
+    structuredTimingRules,
     hash: syncHash,
   };
 }
@@ -248,7 +268,7 @@ async function insertVersion(
          ?, ?, ?, ?, ?,
          ?, ?, ?, ?, ?,
          ?, ?, ?, ?,
-         ?, ?, NULL, NULL,
+         ?, ?, ?, ?,
          ?, ?, CURRENT_TIMESTAMP
        )`
     )
@@ -269,6 +289,8 @@ async function insertVersion(
       rule.excludesProducts ? JSON.stringify(rule.excludesProducts) : null,
       rule.source.label,
       rule.source.url,
+      rule.timing?.effectiveFrom || null,
+      rule.timing?.effectiveTo || null,
       rule.effectiveNote || null,
       rule.lastVerified || null
     )
