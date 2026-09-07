@@ -20,6 +20,14 @@ export type ReviewItem = {
   effectiveNote?: string;
 };
 
+export type ProductFacts = {
+  radio?: boolean;
+  battery?: boolean;
+  children?: boolean;
+  mains?: boolean;
+  role?: "manufacturer" | "importer" | "distributor" | "seller";
+};
+
 export type ClassificationResult = {
   product: ProductSeo;
   confidence: "High" | "Medium" | "Low";
@@ -232,9 +240,20 @@ function ruleToReviewItem(rule: RegulatoryRule): ReviewItem {
 export function buildComplianceReview(
   input: string,
   countryName: string,
-  marketplaceName?: string
+  marketplaceName?: string,
+  facts: ProductFacts = {}
 ) {
   const classification = classifyProductDetailed(input);
+
+  for (const feature of ["radio", "battery", "children", "mains"] as const) {
+    const value = facts[feature];
+    if (value === true && !classification.features.includes(feature)) {
+      classification.features.push(feature);
+    }
+    if (value === false) {
+      classification.features = classification.features.filter((item) => item !== feature);
+    }
+  }
   const product = classification.product;
   const market = getMarket(countrySlugByName[countryName] ?? "germany");
   const marketplace = marketplaceName
@@ -312,13 +331,28 @@ export function buildComplianceReview(
 
   const evidenceGaps = unique([
     ...product.questions,
+    ...(facts.radio === undefined
+      ? ["Confirm whether the final product contains Bluetooth, Wi-Fi or another intentional radio transmitter"]
+      : []),
     ...(classification.features.includes("radio")
       ? ["Exact radio module/chipset, frequencies and authorization evidence"]
+      : []),
+    ...(facts.battery === undefined
+      ? ["Confirm whether the final product contains or includes a battery"]
       : []),
     ...(classification.features.includes("battery")
       ? ["Battery chemistry, capacity, transport/compliance evidence and producer role"]
       : []),
-  ]).slice(0, 8);
+    ...(facts.children === undefined && product.slug !== "toys"
+      ? ["Confirm whether the product is designed or marketed for children"]
+      : []),
+    ...(facts.mains === undefined && classification.features.includes("electronic")
+      ? ["Confirm whether the final product connects directly to mains electricity"]
+      : []),
+    ...(facts.role
+      ? []
+      : ["Confirm your supply-chain role: manufacturer, importer, distributor or seller"]),
+  ]).slice(0, 10);
 
   const officialSources = unique(
     matchedRules.map((rule) => JSON.stringify(rule.source))
@@ -351,6 +385,7 @@ export function buildComplianceReview(
     evidenceGaps,
     officialSources,
     actionPlan,
+    facts,
     summary: {
       required: requiredCount,
       likely: likelyCount,
