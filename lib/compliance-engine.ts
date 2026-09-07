@@ -28,6 +28,26 @@ export type ProductFacts = {
   role?: "manufacturer" | "importer" | "distributor" | "seller";
 };
 
+export type RiskLevel = "low" | "moderate" | "high" | "critical";
+
+export type RiskFactor = {
+  id: string;
+  label: string;
+  detail: string;
+  points: number;
+  kind: "product" | "rule" | "feature" | "uncertainty" | "marketplace";
+};
+
+export type RiskAssessment = {
+  score: number;
+  level: RiskLevel;
+  label: string;
+  summary: string;
+  factors: RiskFactor[];
+  topDrivers: RiskFactor[];
+  reducers: string[];
+};
+
 export type ClassificationResult = {
   product: ProductSeo;
   confidence: "High" | "Medium" | "Low";
@@ -237,6 +257,243 @@ function ruleToReviewItem(rule: RegulatoryRule): ReviewItem {
   };
 }
 
+function buildRiskAssessment({
+  productSlug,
+  classification,
+  matchedRules,
+  fallback,
+  marketplaceSelected,
+  facts,
+}: {
+  productSlug: string;
+  classification: ClassificationResult;
+  matchedRules: RegulatoryRule[];
+  fallback: boolean;
+  marketplaceSelected: boolean;
+  facts: ProductFacts;
+}): RiskAssessment {
+  const factors: RiskFactor[] = [];
+
+  const productBase: Record<string, { points: number; label: string }> = {
+    toys: { points: 22, label: "Children's product category" },
+    cosmetics: { points: 20, label: "Regulated cosmetic category" },
+    "power-banks": { points: 18, label: "Battery energy-storage product" },
+    "wireless-headphones": { points: 16, label: "Wireless electronic product" },
+    "bluetooth-speakers": { points: 16, label: "Wireless electronic product" },
+    "led-lights": { points: 12, label: "Electrical lighting product" },
+    jewelry: { points: 9, label: "Material/contact product" },
+    candles: { points: 8, label: "Fire-safety consumer product" },
+    "general-consumer-product": { points: 14, label: "Unclassified consumer product" },
+  };
+
+  const base = productBase[productSlug] ?? { points: 10, label: "Consumer product category" };
+  factors.push({
+    id: "product-base",
+    label: base.label,
+    detail: "Some product categories naturally trigger more regulatory layers, testing or documentation than others.",
+    points: base.points,
+    kind: "product",
+  });
+
+  const requiredRules = matchedRules.filter((rule) => rule.status === "required");
+  const likelyRules = matchedRules.filter((rule) => rule.status === "likely");
+  const verifyRules = matchedRules.filter((rule) => rule.status === "verify");
+
+  if (requiredRules.length) {
+    factors.push({
+      id: "required-rules",
+      label: `${requiredRules.length} required rule pack${requiredRules.length === 1 ? "" : "s"} matched`,
+      detail: requiredRules.slice(0, 3).map((rule) => rule.shortName).join(", "),
+      points: Math.min(30, requiredRules.length * 9),
+      kind: "rule",
+    });
+  }
+
+  if (likelyRules.length) {
+    factors.push({
+      id: "likely-rules",
+      label: `${likelyRules.length} likely-applicable rule pack${likelyRules.length === 1 ? "" : "s"}`,
+      detail: likelyRules.slice(0, 3).map((rule) => rule.shortName).join(", "),
+      points: Math.min(12, likelyRules.length * 3),
+      kind: "rule",
+    });
+  }
+
+  if (verifyRules.length) {
+    factors.push({
+      id: "verify-rules",
+      label: `${verifyRules.length} rule${verifyRules.length === 1 ? "" : "s"} still need applicability verification`,
+      detail: "Transition dates, exemptions or exact product characteristics still need confirmation.",
+      points: Math.min(8, verifyRules.length * 2),
+      kind: "uncertainty",
+    });
+  }
+
+  const featureWeights: Array<{
+    feature: "radio" | "battery" | "children" | "mains";
+    points: number;
+    label: string;
+    detail: string;
+  }> = [
+    {
+      feature: "radio",
+      points: 8,
+      label: "Radio / Bluetooth functionality",
+      detail: "Intentional transmitters commonly trigger separate equipment-authorization and technical-documentation layers.",
+    },
+    {
+      feature: "battery",
+      points: 8,
+      label: "Battery included",
+      detail: "Battery products can add safety, transport, labelling and producer-responsibility requirements.",
+    },
+    {
+      feature: "children",
+      points: 12,
+      label: "Children's use",
+      detail: "Children's products generally face tighter testing, material, warning and traceability requirements.",
+    },
+    {
+      feature: "mains",
+      points: 9,
+      label: "Mains-powered product",
+      detail: "Direct mains connection can trigger additional electrical-safety conformity obligations.",
+    },
+  ];
+
+  for (const item of featureWeights) {
+    if (classification.features.includes(item.feature)) {
+      factors.push({
+        id: `feature-${item.feature}`,
+        label: item.label,
+        detail: item.detail,
+        points: item.points,
+        kind: "feature",
+      });
+    }
+  }
+
+  const unknownFactCount = [
+    facts.radio,
+    facts.battery,
+    facts.children,
+    facts.mains,
+    facts.role,
+  ].filter((value) => value === undefined).length;
+
+  if (unknownFactCount >= 3) {
+    factors.push({
+      id: "unknown-facts",
+      label: "Several critical product facts are still unconfirmed",
+      detail: "Confirm the refinement questions to remove uncertainty from the screening result.",
+      points: 8,
+      kind: "uncertainty",
+    });
+  } else if (unknownFactCount > 0) {
+    factors.push({
+      id: "unknown-facts",
+      label: "Some product facts are still unconfirmed",
+      detail: "A small number of applicability questions remain open.",
+      points: 4,
+      kind: "uncertainty",
+    });
+  }
+
+  if (classification.confidence === "Low") {
+    factors.push({
+      id: "classification-low",
+      label: "Low product-classification confidence",
+      detail: "SellComply could not confidently map the supplied information to a specific product category.",
+      points: 10,
+      kind: "uncertainty",
+    });
+  } else if (classification.confidence === "Medium") {
+    factors.push({
+      id: "classification-medium",
+      label: "Medium product-classification confidence",
+      detail: "The product category looks plausible but should still be confirmed.",
+      points: 4,
+      kind: "uncertainty",
+    });
+  }
+
+  if (fallback) {
+    factors.push({
+      id: "fallback-coverage",
+      label: "Product-specific coverage is incomplete",
+      detail: "The result relies partly on broader market/product-safety review areas.",
+      points: 12,
+      kind: "uncertainty",
+    });
+  }
+
+  if (marketplaceSelected) {
+    factors.push({
+      id: "marketplace-layer",
+      label: "Marketplace compliance layer",
+      detail: "The selected marketplace can request evidence beyond the underlying legal requirements.",
+      points: 3,
+      kind: "marketplace",
+    });
+  }
+
+  const score = Math.min(100, factors.reduce((sum, factor) => sum + factor.points, 0));
+
+  const level: RiskLevel =
+    score >= 75
+      ? "critical"
+      : score >= 50
+        ? "high"
+        : score >= 28
+          ? "moderate"
+          : "low";
+
+  const labelMap: Record<RiskLevel, string> = {
+    low: "Low",
+    moderate: "Moderate",
+    high: "High",
+    critical: "Critical",
+  };
+
+  const summaryMap: Record<RiskLevel, string> = {
+    low: "Relatively few regulatory complexity signals were detected, but the exact requirements still need verification.",
+    moderate: "Multiple compliance layers or unresolved facts are present. Verify the main evidence before listing or importing.",
+    high: "This product-market combination has several strong regulatory triggers. Treat documentation and testing gaps as blockers before launch.",
+    critical: "This screening found a dense combination of high-scrutiny product features and required rules. Resolve the top drivers before relying on the product-market setup.",
+  };
+
+  const reducers = unique([
+    ...(unknownFactCount
+      ? ["Confirm the product facts in the accuracy-refinement section."]
+      : []),
+    ...(facts.role
+      ? []
+      : ["Confirm whether you act as manufacturer, importer, distributor or seller."]),
+    ...(classification.confidence !== "High"
+      ? ["Provide a more specific product description or product URL with structured product data."]
+      : []),
+    ...(requiredRules.length
+      ? ["Collect the required declarations, test evidence and technical documentation for the exact SKU/model."]
+      : []),
+    ...(classification.features.includes("radio")
+      ? ["Confirm the exact radio module, frequencies and market authorization evidence."]
+      : []),
+    ...(classification.features.includes("battery")
+      ? ["Confirm battery chemistry/capacity and battery transport/compliance evidence."]
+      : []),
+  ]).slice(0, 5);
+
+  return {
+    score,
+    level,
+    label: labelMap[level],
+    summary: summaryMap[level],
+    factors,
+    topDrivers: [...factors].sort((a, b) => b.points - a.points).slice(0, 5),
+    reducers,
+  };
+}
+
 export function buildComplianceReview(
   input: string,
   countryName: string,
@@ -372,6 +629,15 @@ export function buildComplianceReview(
     matchedRules.filter((rule) => rule.status === "verify").length +
     fallbackItems.length;
 
+  const risk = buildRiskAssessment({
+    productSlug: product.slug,
+    classification,
+    matchedRules,
+    fallback: matchedRules.length === 0,
+    marketplaceSelected: Boolean(marketplace),
+    facts,
+  });
+
   return {
     product,
     market,
@@ -386,6 +652,7 @@ export function buildComplianceReview(
     officialSources,
     actionPlan,
     facts,
+    risk,
     summary: {
       required: requiredCount,
       likely: likelyCount,
