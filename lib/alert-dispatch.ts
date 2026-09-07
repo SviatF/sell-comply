@@ -46,6 +46,16 @@ async function getOrCreateUnsubscribeToken(db: SellComplyD1, subscriberId: strin
   return created.token;
 }
 
+function safeExternalUrl(value?: string | null) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : "";
+  } catch {
+    return "";
+  }
+}
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -60,6 +70,7 @@ function renderEmail(payload: Payload, unsubscribeUrl: string) {
   const title = payload.changeTitle || "Compliance source updated";
   const summary = payload.changeSummary || "SellComply detected and reviewed a compliance-related update.";
   const marketplace = payload.marketplaceName ? ` · ${payload.marketplaceName}` : "";
+  const sourceUrl = safeExternalUrl(payload.sourceUrl);
 
   const text = [
     "SellComply compliance alert",
@@ -69,7 +80,7 @@ function renderEmail(payload: Payload, unsubscribeUrl: string) {
     title,
     summary,
     "",
-    payload.sourceUrl ? `Official source: ${payload.sourceUrl}` : "",
+    sourceUrl ? `Official source: ${sourceUrl}` : "",
     "",
     "This is compliance intelligence, not legal advice.",
     `Unsubscribe: ${unsubscribeUrl}`,
@@ -85,7 +96,7 @@ function renderEmail(payload: Payload, unsubscribeUrl: string) {
         <h2 style="font-size:18px;margin:0 0 10px">${escapeHtml(title)}</h2>
         <p style="color:#b7b7bf;line-height:1.65;margin:0">${escapeHtml(summary)}</p>
       </div>
-      ${payload.sourceUrl ? `<p><a href="${payload.sourceUrl}" style="color:#ff72b4">Open official source →</a></p>` : ""}
+      ${sourceUrl ? `<p><a href="${sourceUrl}" style="color:#ff72b4">Open official source →</a></p>` : ""}
       <p style="margin-top:30px;color:#666671;font-size:12px;line-height:1.6">SellComply provides compliance intelligence and workflow guidance, not legal advice or certification.</p>
       <p style="margin-top:18px"><a href="${unsubscribeUrl}" style="color:#777781;font-size:11px">Unsubscribe from SellComply alerts</a></p>
     </div>
