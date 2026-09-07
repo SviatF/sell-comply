@@ -23,7 +23,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Initial high-intent packs: EU, US, UK, Canada, Australia
 - [x] Interactive clarification questions for uncertain product facts
 - [x] Expand exact rule coverage across all current products/markets
-- [ ] Product-specific risk scoring
+- [x] Product-specific risk scoring
 - [ ] Shareable / printable report
 - [ ] Checker quality regression tests
 
