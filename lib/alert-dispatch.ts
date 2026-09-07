@@ -114,7 +114,10 @@ export async function dispatchQueuedAlerts(db: SellComplyD1, limit = 20) {
        INNER JOIN email_subscribers es
          ON es.id = j.subscriber_id
         AND es.status = 'active'
-       WHERE j.status = 'queued'
+       WHERE (
+         j.status = 'queued'
+         OR (j.status = 'failed' AND j.attempts < 3)
+       )
        ORDER BY j.created_at ASC
        LIMIT ?`
     )
