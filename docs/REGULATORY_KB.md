@@ -1,6 +1,6 @@
 # SellComply Regulatory Knowledge Base
 
-Current implementation status: applicability graph complete. Next phase: effective dates and transition windows.
+Current implementation status: applicability graph and regulatory timing are complete. Next phase: official source registry.
 
 ## Purpose
 
@@ -8,7 +8,7 @@ The Regulatory Knowledge Base is the durable data layer behind SellComply's chec
 
 The checker currently continues to read the rule-pack source in code while the D1 knowledge layer is built and verified in parallel.
 
-## Schema version 7
+## Schema version 8
 
 ### regulatory_rules
 
@@ -119,6 +119,48 @@ This means adding a new product category can expand broad regulatory rules witho
 
 Old version-specific applicability rows remain available as history but are marked non-current when a new rule version becomes current.
 
+### regulatory_rule_timing
+
+Structured timing metadata is version-specific and stored separately from applicability:
+
+- rule key
+- rule version
+- effective from
+- effective to
+- transition start
+- transition end
+- timing note
+
+SellComply derives a runtime lifecycle for any `as_of` date:
+
+- `future`
+- `active`
+- `transitional`
+- `expired`
+
+Only `active` and `transitional` rules are returned by default from applicability queries.
+
+Examples currently structured:
+
+- EU GPSR: effective from 2024-12-13
+- EU Batteries Regulation: effective from 2024-02-18 with phased transitional timing
+- current EU Toy Safety Directive: current through 2030-07-31, then transitional legacy treatment
+- Regulation (EU) 2025/2509: transition period before general application from 2030-08-01
+
+## Time-aware applicability queries
+
+The internal D1 query accepts:
+
+`as_of=YYYY-MM-DD`
+
+and evaluates the lifecycle for that date.
+
+Use:
+
+`include_all=1`
+
+to inspect future and expired rules as well as currently applicable ones.
+
 ## Direct knowledge query
 
 The internal protected endpoint can query the D1 graph directly:
@@ -141,4 +183,4 @@ These counts describe the current normalized knowledge graph.
 
 ## Next KB step
 
-Normalize regulatory effective dates and transition windows so applicability can be evaluated against time as well as product, market and features.
+Normalize the official source registry so every current rule version is linked to a canonical regulator/source record with verification and monitoring metadata.
