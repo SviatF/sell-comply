@@ -1,5 +1,7 @@
 # SellComply Regulatory Knowledge Base
 
+Current implementation status: applicability graph complete. Next phase: effective dates and transition windows.
+
 ## Purpose
 
 The Regulatory Knowledge Base is the durable data layer behind SellComply's checker and future programmatic SEO system.
