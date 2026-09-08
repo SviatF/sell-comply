@@ -27,7 +27,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Shareable / printable report
 - [x] Checker quality regression tests
 
-### 2. Regulatory Knowledge Base — IN PROGRESS
+### 2. Regulatory Knowledge Base — DONE
 
 - [x] Versioned rule records
 - [x] Product × market × regulation applicability
@@ -36,7 +36,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Last reviewed / last verified metadata
 - [x] Requirement change history
 - [x] Human-review state for regulatory updates
-- [ ] Knowledge-base coverage metrics
+- [x] Knowledge-base coverage metrics
 
 ### 3. Core UX — NEXT
 
