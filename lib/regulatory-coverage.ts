@@ -172,11 +172,9 @@ export async function syncKnowledgeCoverage(db: SellComplyD1) {
          COUNT(DISTINCT CASE
            WHEN st.last_verified_at IS NOT NULL
             AND st.last_verified_at >= datetime('now', '-180 days')
-            AND NOT (
-              st.verified_source_hash IS NOT NULL
-              AND vs.last_content_hash IS NOT NULL
-              AND st.verified_source_hash <> vs.last_content_hash
-            )
+            AND st.verified_source_hash IS NOT NULL
+            AND vs.last_content_hash IS NOT NULL
+            AND st.verified_source_hash = vs.last_content_hash
            THEN a.rule_key || ':' || a.rule_version
          END) AS verified_rules,
          COUNT(DISTINCT CASE
