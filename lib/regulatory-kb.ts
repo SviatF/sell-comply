@@ -9,6 +9,7 @@ import {
 } from "@/lib/regulatory-source-registry";
 import { ensureRuleReviewState } from "@/lib/regulatory-review";
 import { recordRuleVersionChange } from "@/lib/regulatory-change-history";
+import { syncKnowledgeCoverage } from "@/lib/regulatory-coverage";
 
 const APPLICABILITY_MODEL_VERSION = 1;
 const SOURCE_REGISTRY_MODEL_VERSION = 1;
@@ -269,6 +270,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
 
   const legacySources = await syncExistingOfficialSourcesToRegistry(db);
   registeredSources = legacySources.synced;
+
+  await syncKnowledgeCoverage(db);
 
   const syncHash = await knowledgeBaseHash();
   await db
