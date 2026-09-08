@@ -150,3 +150,169 @@
 .retention-dashboard-link:hover{border-color:rgba(255,79,163,.34);background:rgba(255,79,163,.08)}
 .retention-dashboard-link strong,.retention-dashboard-link small{display:block}.retention-dashboard-link strong{font-size:10px}.retention-dashboard-link small{font-size:8px;line-height:1.4;color:#73737d;margin-top:3px}.retention-dashboard-link b{font-size:9px;color:#ff7fba;white-space:nowrap}
 @media(max-width:520px){.retention-state-grid{grid-template-columns:1fr}.retention-dashboard-link{align-items:flex-start}.retention-dashboard-link b{margin-top:2px}}
+
+
+/* Mobile checker QA — 320px to tablet */
+@media(max-width:900px){
+  .check-result-hero{gap:30px}
+  .check-layout>*,
+  .check-result-hero>*,
+  .check-conversion-section>*,
+  .market-compare-grid>*{min-width:0}
+}
+
+@media(max-width:680px){
+  .check-main{width:calc(100% - 28px);padding:28px 0 72px}
+  .check-breadcrumbs{margin-bottom:24px;font-size:10px}
+  .check-result-hero{gap:22px;padding:12px 0 34px}
+  .check-result-hero h1{font-size:clamp(40px,13.8vw,50px);line-height:.96;margin:16px 0 14px}
+  .check-query{font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+  .check-target-row{gap:6px;margin-top:16px}
+  .check-target-row span{padding:8px 10px;font-size:10px;line-height:1.25}
+  .check-summary-card{padding:18px;border-radius:17px}
+  .check-summary-card>strong{font-size:26px}
+  .check-summary-card>p{font-size:12px;line-height:1.55}
+  .summary-product{align-items:flex-start;font-size:10px}
+  .summary-product b{max-width:65%;text-align:right;overflow-wrap:anywhere}
+  .check-summary-stats{gap:6px}
+  .check-summary-stats>div{padding:9px 8px}
+  .check-summary-stats span{font-size:8px}
+  .check-summary-stats b{font-size:19px}
+
+  .risk-score-panel,.risk-drivers-panel,.risk-reducers-panel{min-height:0;padding:16px}
+  .risk-score-row{gap:12px;margin-top:15px}
+  .risk-score-number strong{font-size:50px}
+  .risk-score-row p{font-size:11px;line-height:1.55}
+  .risk-driver-row{padding:11px 0}
+  .risk-driver-row strong{font-size:11px}
+  .risk-driver-row p{font-size:9px;line-height:1.5}
+  .risk-reducers-panel li,.risk-reducers-panel>p{font-size:10px;line-height:1.55}
+
+  .check-conversion-section{margin-top:16px}
+  .conversion-priority-panel,.conversion-actions-panel{padding:15px;border-radius:17px}
+  .conversion-priority-head h2{font-size:27px;line-height:1.05}
+  .conversion-priority-head p,.conversion-actions-copy>p{font-size:10px;line-height:1.6}
+  .conversion-actions-copy>strong{font-size:19px}
+  .conversion-step{grid-template-columns:30px minmax(0,1fr);min-height:66px;padding:13px;gap:10px}
+  .conversion-step strong{font-size:12px}
+  .conversion-step p{font-size:10px;line-height:1.5}
+  .conversion-step b{grid-column:2;font-size:10px}
+  .save-check-button,.monitor-button{min-height:68px;padding:15px}
+  .save-check-button strong,.monitor-button strong{font-size:13px}
+  .save-check-button small,.monitor-button small{font-size:10px;line-height:1.45}
+  .retention-state-grid{grid-template-columns:1fr}
+  .retention-state{min-height:54px;padding:10px 12px}
+  .retention-state strong{font-size:10px}
+  .retention-state small{font-size:8px}
+  .retention-dashboard-link{min-height:60px}
+  .retention-dashboard-link strong{font-size:11px}
+  .retention-dashboard-link small{font-size:9px}
+  .monitor-email-form{padding:14px}
+  .monitor-email-head strong{font-size:13px}
+  .monitor-email-row{grid-template-columns:1fr}
+  .monitor-email-row input{height:48px;font-size:16px}
+  .monitor-email-row button{height:48px;width:100%;font-size:11px}
+  .monitor-consent,.monitor-email-error{font-size:10px}
+
+  .check-refine-card{margin-top:26px;padding:15px;border-radius:17px}
+  .check-refine-head{gap:10px;padding-bottom:15px}
+  .check-refine-head h2{font-size:25px;line-height:1.08}
+  .check-refine-head>p{font-size:10px;line-height:1.6}
+  .check-refine-grid{gap:8px;margin-top:12px}
+  .refine-field{padding:13px;gap:12px}
+  .refine-field-copy>span{font-size:8px}
+  .refine-field-copy>strong{font-size:12px}
+  .refine-field-copy>small{font-size:9px}
+  .refine-toggle{width:100%;gap:6px}
+  .refine-toggle button{height:44px;min-height:44px;padding:0 10px;font-size:11px}
+  .role-field select{width:100%;min-width:0;height:48px;font-size:16px}
+  .check-refine-footer{gap:12px;margin-top:12px}
+  .check-refine-footer>span{font-size:9px}
+  .check-refine-footer>button{width:100%;height:48px;font-size:10px}
+
+  .report-launcher{margin-top:12px;padding:15px;gap:16px;border-radius:16px}
+  .report-launcher>div:first-child>strong{font-size:14px;line-height:1.4}
+  .report-launcher>div:first-child>p{font-size:10px}
+  .report-launcher-actions{width:100%;grid-template-columns:1fr}
+  .report-launcher-actions button,.report-launcher-actions a{width:100%;height:46px;font-size:10px}
+
+  .check-layout{margin-top:52px;gap:20px}
+  .check-section-head{margin-bottom:16px}
+  .check-section-head>div{gap:9px}
+  .check-section-head h2{font-size:25px;line-height:1.08}
+  .check-section-head>p{font-size:11px;line-height:1.55}
+  .review-row{grid-template-columns:28px minmax(0,1fr);gap:10px;padding:15px 14px}
+  .review-index{font-size:9px}
+  .review-row h3{font-size:14px;line-height:1.35}
+  .review-row p{font-size:11px;line-height:1.55}
+  .review-why{font-size:10px;line-height:1.55}
+  .review-status{grid-column:2;min-height:30px;display:inline-flex;align-items:center;padding:7px 9px;font-size:8px}
+  .review-rule-meta{gap:6px}
+  .review-rule-meta span,.review-rule-meta a{min-height:30px;display:inline-flex;align-items:center;font-size:9px;padding:6px 8px}
+  .check-side{grid-template-columns:1fr;gap:10px}
+  .side-card{padding:16px}
+  .side-card strong{font-size:16px}
+  .side-card p{font-size:11px}
+  .product-data-list>div{align-items:flex-start}
+  .product-data-list span{font-size:9px}
+  .product-data-list strong{min-width:0;max-width:62%;white-space:normal;overflow-wrap:anywhere;font-size:10px}
+
+  .check-evidence-section,.check-action-section,.check-sources-section{margin-top:54px}
+  .check-evidence-grid{grid-template-columns:1fr}
+  .evidence-panel{min-height:0;padding:16px}
+  .evidence-panel li,.evidence-panel>p{font-size:11px;line-height:1.55}
+  .action-plan-grid{grid-template-columns:1fr;gap:10px}
+  .action-plan-card{min-height:0;padding:16px}
+  .action-plan-card p{font-size:12px;line-height:1.55;margin:20px 0 0}
+  .check-source-list{grid-template-columns:1fr;gap:9px}
+  .check-source-list a{min-height:64px;padding:14px}
+  .check-source-list strong{font-size:11px;line-height:1.45;overflow-wrap:anywhere}
+
+  .market-compare-section{margin-top:58px}
+  .market-compare-head{gap:18px;margin-bottom:14px}
+  .market-compare-head h2{font-size:31px;line-height:1.05;margin:13px 0 9px}
+  .market-compare-head>div:first-child>p{font-size:11px;line-height:1.6}
+  .market-compare-summary{grid-template-columns:1fr;gap:7px}
+  .market-compare-summary>div{padding:11px}
+  .market-compare-summary span{font-size:8px}
+  .market-compare-summary strong{font-size:10px}
+  .market-compare-summary b{font-size:18px}
+  .market-compare-grid{grid-template-columns:1fr;gap:10px}
+  .market-compare-card{min-height:0;padding:15px;border-radius:16px}
+  .market-compare-card-head{gap:10px}
+  .market-compare-card h3{font-size:17px}
+  .market-risk-score{flex:0 0 auto}
+  .market-risk-score strong{font-size:30px}
+  .market-delta-row{align-items:flex-start}
+  .market-delta-row span{font-size:8px}
+  .market-delta-row b{max-width:54%;font-size:9px;line-height:1.35;text-align:right}
+  .market-metric-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .market-metric-grid>div{padding:9px 6px}
+  .market-metric-grid span{font-size:7px}
+  .market-metric-grid strong{font-size:16px}
+  .market-rule-diff{min-height:0;margin-bottom:14px}
+  .market-rule-diff-head span{font-size:8px}
+  .market-rule-diff-head strong{font-size:9px}
+  .market-rule-chip-list span{font-size:8px;padding:7px 8px}
+  .market-rule-empty,.market-rule-diff>small{font-size:9px}
+  .market-compare-card>a,.market-current-cta{height:auto;min-height:48px;padding:10px 12px;font-size:10px;text-align:center}
+
+  .check-legal{margin-top:30px;font-size:11px;line-height:1.65}
+  .check-action-buttons button,
+  .check-action-buttons a,
+  .conversion-step,
+  .review-rule-meta a,
+  .check-source-list a,
+  .market-compare-card>a{touch-action:manipulation}
+}
+
+@media(max-width:360px){
+  .check-main{width:calc(100% - 24px)}
+  .check-result-hero h1{font-size:clamp(38px,13vw,46px)}
+  .check-summary-card{padding:16px}
+  .check-summary-stats>div{padding:8px 6px}
+  .conversion-priority-panel,.conversion-actions-panel{padding:14px}
+  .review-row{padding:14px 12px}
+  .market-compare-card{padding:14px}
+  .market-complexity-badge{font-size:7px;letter-spacing:.06em}
+}

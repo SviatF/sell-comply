@@ -44,7 +44,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Result-page conversion audit
 - [x] Compare-market UX
 - [x] Save/monitor UX cleanup
-- [ ] Mobile checker QA
+- [x] Mobile checker QA
 - [ ] No forced signup
 
 ### 4. Trust / editorial architecture — NEXT
