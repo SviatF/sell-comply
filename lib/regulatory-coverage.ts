@@ -243,7 +243,14 @@ export async function syncKnowledgeCoverage(db: SellComplyD1) {
         AND i.impact_phase = 'detected'
        LEFT JOIN regulatory_update_reviews ur
          ON ur.change_id = e.legacy_change_id
+       LEFT JOIN rule_changes legacy
+         ON legacy.id = e.legacy_change_id
        WHERE e.event_type = 'source_fingerprint_changed'
+         AND (
+           ur.id IS NOT NULL
+           OR legacy.review_status = 'needs_review'
+           OR legacy.review_status IS NULL
+         )
        GROUP BY i.market_slug, i.product_slug`
     )
     .all<UpdateGapRow>();
@@ -370,16 +377,20 @@ export async function ensureKnowledgeCoverage(db: SellComplyD1) {
     .prepare(
       `SELECT
          COUNT(*) AS total,
-         MIN(computed_at) AS oldest
+         SUM(
+           CASE
+             WHEN computed_at < datetime('now', '-1 hour') THEN 1
+             ELSE 0
+           END
+         ) AS stale
        FROM regulatory_coverage_snapshots`
     )
-    .first<{ total: number; oldest: string | null }>();
+    .first<{ total: number; stale: number | null }>();
 
-  const stale = !state?.oldest
-    ? true
-    : Date.now() - new Date(state.oldest).getTime() > 60 * 60 * 1000;
-
-  if (Number(state?.total || 0) !== expectedPairs || stale) {
+  if (
+    Number(state?.total || 0) !== expectedPairs ||
+    Number(state?.stale || 0) > 0
+  ) {
     await syncKnowledgeCoverage(db);
   }
 }
