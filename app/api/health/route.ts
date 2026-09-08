@@ -110,10 +110,30 @@ export async function GET() {
       )
       .first<{ total: number }>();
 
+    const sourceRegistryCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM regulatory_source_registry")
+      .first<{ total: number }>();
+
+    const currentRuleSourceLinkCount = await db
+      .prepare(
+        `SELECT COUNT(*) AS total
+         FROM regulatory_rule_sources rs
+         INNER JOIN regulatory_rules r
+           ON r.rule_key = rs.rule_key
+          AND r.current_version = rs.rule_version
+         WHERE rs.is_current = 1
+           AND r.is_active = 1`
+      )
+      .first<{ total: number }>();
+
+    const sourceMarketLinkCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM regulatory_source_markets")
+      .first<{ total: number }>();
+
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "8" ? "ready" : "unknown",
+      schema: version?.value === "9" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
       monitoredProducts: Number(monitorCount?.total || 0),
@@ -128,6 +148,9 @@ export async function GET() {
       regulatoryKbCoveredPairs: Number(kbCoveredPairCount?.total || 0),
       regulatoryKbTimingRows: Number(kbTimingCount?.total || 0),
       regulatoryKbStructuredTiming: Number(kbStructuredTimingCount?.total || 0),
+      regulatorySourceRegistry: Number(sourceRegistryCount?.total || 0),
+      regulatoryRuleSourceLinks: Number(currentRuleSourceLinkCount?.total || 0),
+      regulatorySourceMarketLinks: Number(sourceMarketLinkCount?.total || 0),
       emailProvider: getEmailProviderState(),
     });
   } catch (error) {
