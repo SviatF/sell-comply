@@ -38,9 +38,9 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Human-review state for regulatory updates
 - [x] Knowledge-base coverage metrics
 
-### 3. Core UX — NEXT
+### 3. Core UX — IN PROGRESS
 
-- [ ] Homepage checker clarity audit
+- [x] Homepage checker clarity audit
 - [ ] Result-page conversion audit
 - [ ] Compare-market UX
 - [ ] Save/monitor UX cleanup
