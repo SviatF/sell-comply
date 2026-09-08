@@ -4,7 +4,7 @@ Official source registry status: production-ready.
 
 Timing query status: production-ready.
 
-Current implementation status: applicability, timing, source provenance, and explicit review/verification metadata are complete. Next phase: requirement change history.
+Current implementation status: applicability, timing, source provenance, review/verification metadata, and requirement change history are complete. Next phase: human-review state for regulatory updates.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ The Regulatory Knowledge Base is the durable data layer behind SellComply's chec
 
 The checker currently continues to read the rule-pack source in code while the D1 knowledge layer is built and verified in parallel.
 
-## Schema version 10
+## Schema version 11
 
 ### regulatory_rules
 
@@ -319,6 +319,113 @@ All endpoints require `x-admin-token`.
 
 These metrics never treat a simple HTTP fetch as human verification.
 
+### regulatory_change_events
+
+SellComply stores a durable regulatory change timeline rather than reconstructing history from logs.
+
+Event types currently include:
+
+- `source_fingerprint_changed`
+- `rule_version_created`
+
+A source-change event stores:
+
+- source id
+- previous source fingerprint
+- new source fingerprint
+- detection timestamp
+- review decision / reviewer / note when reviewed
+
+A rule-version event stores:
+
+- rule key
+- from version
+- to version
+- changed fields
+- effective-from date for the new version
+- canonical source link
+
+Source fingerprint changes remain explicitly described as source-content changes until human review confirms regulatory significance.
+
+### regulatory_change_impacts
+
+Each change event snapshots affected applicability rows:
+
+- rule key
+- rule version
+- market
+- product
+- applicability status
+- required feature conditions
+- phase
+
+Impact phases:
+
+- `detected` — current applicability when a source change was detected
+- `before` — applicability before a rule-version change
+- `after` — applicability after a rule-version change
+
+This lets SellComply answer which product-market combinations were affected at the time of a change even if the current KB changes later.
+
+## Version diffs
+
+When a rule changes from `vN → vN+1`, SellComply records exactly which structured fields changed, including:
+
+- status
+- summary
+- rationale
+- documents
+- labels
+- actions
+- markets
+- products
+- feature conditions
+- exclusions
+- official source
+- effective dates
+- transition notes
+
+## Change review linkage
+
+The existing source-change review workflow remains compatible.
+
+Approve/reject decisions are written back to the matching history event with:
+
+- decision
+- reviewed by
+- review note
+- reviewed at
+
+This preserves one connected timeline from detection through review.
+
+## Protected change-history query
+
+Internal endpoint:
+
+`GET /api/admin/kb/history`
+
+Supported filters:
+
+- `rule=<rule-key>`
+- `source=<source-id>`
+- `market=<market-slug>`
+- `product=<product-slug>`
+- `event_type=<event-type>`
+- `decision=approved|rejected`
+- `limit=1..100`
+
+The response includes source/rule metadata, hashes, version transition, changed fields, effective date, review state, affected markets/products, and impact count.
+
+## Change-history health
+
+`GET /api/health` reports:
+
+- `regulatoryKbChangeEvents`
+- `regulatoryKbSourceChangeEvents`
+- `regulatoryKbRuleVersionChangeEvents`
+- `regulatoryKbChangeImpacts`
+- `regulatoryKbReviewedChangeEvents`
+
 ## Direct knowledge query
 
 The internal protected endpoint can query the D1 graph directly:
@@ -341,4 +448,4 @@ These counts describe the current normalized knowledge graph.
 
 ## Next KB step
 
-Build requirement change history so SellComply can connect detected source changes, reviewed regulatory updates, rule versions, effective dates and affected product-market applicability over time.
+Build explicit human-review state for regulatory updates so a detected source change can be triaged as non-regulatory, informational, requirement-changing, or requiring a new rule version before any seller-facing claim is made.
