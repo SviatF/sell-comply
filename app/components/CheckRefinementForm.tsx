@@ -144,6 +144,7 @@ export default function CheckRefinementForm({
                 <button
                   type="button"
                   className={selected === "yes" ? "active" : ""}
+                  aria-pressed={selected === "yes"}
                   onClick={() =>
                     setValues((current) => ({ ...current, [option.key]: "yes" }))
                   }
@@ -153,6 +154,7 @@ export default function CheckRefinementForm({
                 <button
                   type="button"
                   className={selected === "no" ? "active" : ""}
+                  aria-pressed={selected === "no"}
                   onClick={() =>
                     setValues((current) => ({ ...current, [option.key]: "no" }))
                   }
@@ -162,6 +164,7 @@ export default function CheckRefinementForm({
                 <button
                   type="button"
                   className={!selected ? "active muted" : ""}
+                  aria-pressed={!selected}
                   onClick={() =>
                     setValues((current) => ({ ...current, [option.key]: "" }))
                   }
