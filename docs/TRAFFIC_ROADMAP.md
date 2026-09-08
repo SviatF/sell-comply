@@ -35,7 +35,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Official source registry
 - [x] Last reviewed / last verified metadata
 - [x] Requirement change history
-- [ ] Human-review state for regulatory updates
+- [x] Human-review state for regulatory updates
 - [ ] Knowledge-base coverage metrics
 
 ### 3. Core UX — NEXT
