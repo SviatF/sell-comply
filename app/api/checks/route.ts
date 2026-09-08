@@ -27,10 +27,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, persisted: false, reason: "D1_NOT_CONFIGURED" });
   }
 
-  const id = crypto.randomUUID();
-
   try {
     await ensureDatabaseSchema(db);
+
+    if (body.visitorId) {
+      const existing = await db
+        .prepare(
+          `SELECT id FROM checks
+           WHERE visitor_id = ? AND raw_product = ? AND market_slug = ?
+           AND COALESCE(marketplace_slug, '') = COALESCE(?, '')
+           ORDER BY created_at DESC
+           LIMIT 1`
+        )
+        .bind(
+          body.visitorId,
+          body.rawProduct,
+          body.marketSlug,
+          body.marketplaceSlug || null
+        )
+        .first<{ id: string }>();
+
+      if (existing?.id) {
+        return NextResponse.json({
+          ok: true,
+          persisted: true,
+          id: existing.id,
+          existing: true,
+        });
+      }
+    }
+
+    const id = crypto.randomUUID();
+
     await db
       .prepare(
         `INSERT INTO checks (
@@ -55,7 +83,7 @@ export async function POST(request: Request) {
       )
       .run();
 
-    return NextResponse.json({ ok: true, persisted: true, id });
+    return NextResponse.json({ ok: true, persisted: true, id, existing: false });
   } catch {
     return NextResponse.json({ ok: true, persisted: false, reason: "D1_SCHEMA_NOT_READY" });
   }
