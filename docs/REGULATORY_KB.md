@@ -1,5 +1,7 @@
 # SellComply Regulatory Knowledge Base
 
+Coverage quality gate status: production-ready.
+
 Requirement change history status: production-ready.
 
 Official source registry status: production-ready.
