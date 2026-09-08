@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
 import {
+  buildRetentionCheckHref,
+  retentionKey,
+} from "@/lib/retention";
+import {
   getVisitorId,
   MONITORED_PRODUCTS_KEY,
   readLocalArray,
@@ -122,16 +126,8 @@ export default function DashboardClient() {
         if (checkResult.persisted || monitorResult.persisted || changeResult.persisted) setSyncState("cloud");
         if (Array.isArray(changeResult.items)) setChanges(changeResult.items);
 
-        setChecks(
-          uniqueByKey([...cloudChecks, ...localChecks], (item) =>
-            `${item.rawProduct}::${item.marketSlug || item.marketName}::${item.marketplaceSlug || item.marketplaceName || ""}`
-          )
-        );
-        setMonitors(
-          uniqueByKey([...cloudMonitors, ...localMonitors], (item) =>
-            `${item.rawProduct}::${item.marketSlug || item.marketName}::${item.marketplaceSlug || item.marketplaceName || ""}`
-          )
-        );
+        setChecks(uniqueByKey([...cloudChecks, ...localChecks], (item) => retentionKey(item)));
+        setMonitors(uniqueByKey([...cloudMonitors, ...localMonitors], (item) => retentionKey(item)));
       })
       .catch(() => {
         setSyncState("local");
@@ -139,18 +135,18 @@ export default function DashboardClient() {
   }, []);
 
   const markets = useMemo(
-    () => new Set(checks.map((item) => item.marketName).filter(Boolean)).size,
-    [checks]
+    () =>
+      new Set(
+        [
+          ...checks.map((item) => item.marketName),
+          ...monitors.map((item) => item.marketName),
+        ].filter(Boolean)
+      ).size,
+    [checks, monitors]
   );
 
   const monitoredKeys = useMemo(
-    () =>
-      new Set(
-        monitors.map(
-          (item) =>
-            `${item.rawProduct}::${item.marketSlug || item.marketName}::${item.marketplaceSlug || item.marketplaceName || ""}`
-        )
-      ),
+    () => new Set(monitors.map((item) => retentionKey(item))),
     [monitors]
   );
 
@@ -160,13 +156,17 @@ export default function DashboardClient() {
         <div>
           <span className="seo-kicker"><i /> COMPLIANCE WORKSPACE</span>
           <h1>Your products.<br /><em>Your markets.</em></h1>
-          <p>Save checks, monitor product-market combinations and build a single place to manage compliance work.</p>
+          <p>Saved checks, monitored product-market combinations and regulatory changes in one workspace — without a signup wall.</p>
         </div>
         <div className="dashboard-sync">
           <span className={syncState === "cloud" ? "sync-dot cloud" : "sync-dot"} />
           <div>
-            <strong>{syncState === "cloud" ? "Cloud persistence connected" : "Local workspace active"}</strong>
-            <small>{syncState === "cloud" ? "Checks are syncing through SellComply." : "D1 can be connected later without changing your workflow."}</small>
+            <strong>{syncState === "cloud" ? "Cloud sync active" : "Browser workspace active"}</strong>
+            <small>
+              {syncState === "cloud"
+                ? "Saved checks and monitoring are synced for this browser identity."
+                : "Saved checks stay available on this browser. No account is required."}
+            </small>
           </div>
         </div>
       </section>
@@ -188,20 +188,22 @@ export default function DashboardClient() {
         {monitors.length ? (
           <div className="dashboard-product-grid">
             {monitors.map((item) => {
-              const key = `${item.rawProduct}::${item.marketSlug || item.marketName}::${item.marketplaceSlug || item.marketplaceName || ""}`;
+              const key = retentionKey(item);
               return (
                 <article className="dashboard-product-card" key={key}>
                   <div className="dashboard-product-top">
                     <span className="monitor-live">MONITORING</span>
-                    <span className="dashboard-more">•••</span>
+                    <span className={item.emailReady ? "monitor-email-state ready" : "monitor-email-state"}>
+                      {item.emailReady ? "EMAIL ON" : "EMAIL PENDING"}
+                    </span>
                   </div>
                   <h3>{item.rawProduct}</h3>
                   <p>{item.marketName || "Market"}{item.marketplaceName ? ` · ${item.marketplaceName}` : ""}</p>
                   <div className="dashboard-product-status">
-                    <span>{item.emailReady ? "Email attached" : "No email attached"}</span>
-                    <strong>{item.next_check_at ? "Scheduled" : "Monitoring queue"}</strong>
+                    <span>{item.emailReady ? "Email alerts attached" : "Email not attached"}</span>
+                    <strong>{item.next_check_at ? "Next check scheduled" : "Watch active"}</strong>
                   </div>
-                  <Link href={`/check?product=${encodeURIComponent(item.rawProduct)}&country=${encodeURIComponent(item.marketName || "Germany")}&marketplace=${encodeURIComponent(item.marketplaceName || "Amazon")}`}>
+                  <Link href={buildRetentionCheckHref(item)}>
                     Open review →
                   </Link>
                 </article>
@@ -212,7 +214,7 @@ export default function DashboardClient() {
           <div className="dashboard-empty">
             <span>◎</span>
             <h3>No monitored products yet</h3>
-            <p>Run a compliance check and choose “Monitor this product” to create your first monitoring item.</p>
+            <p>Run a compliance check and choose “Monitor this product”. That action also saves the review automatically.</p>
             <Link className="button button-accent" href="/#checker">Check a product</Link>
           </div>
         )}
@@ -227,7 +229,7 @@ export default function DashboardClient() {
         {checks.length ? (
           <div className="dashboard-check-list">
             {checks.map((item) => {
-              const key = `${item.rawProduct}::${item.marketSlug || item.marketName}::${item.marketplaceSlug || item.marketplaceName || ""}`;
+              const key = retentionKey(item);
               const monitored = monitoredKeys.has(key);
               return (
                 <article className="dashboard-check-row" key={key}>
@@ -238,9 +240,10 @@ export default function DashboardClient() {
                   </div>
                   <div className="dashboard-check-meta">
                     <span>{item.reviewCount ?? "—"} review areas</span>
-                    <span>{monitored ? "● Monitored" : "Needs review"}</span>
+                    <span>✓ Saved</span>
+                    <span>{monitored ? "● Monitoring" : "Monitoring off"}</span>
                   </div>
-                  <Link href={`/check?product=${encodeURIComponent(item.rawProduct)}&country=${encodeURIComponent(item.marketName)}&marketplace=${encodeURIComponent(item.marketplaceName || "Amazon")}`}>Open →</Link>
+                  <Link href={buildRetentionCheckHref(item)}>Open →</Link>
                 </article>
               );
             })}
@@ -248,7 +251,7 @@ export default function DashboardClient() {
         ) : (
           <div className="dashboard-empty compact">
             <h3>Your saved checks will appear here.</h3>
-            <p>Save useful product-market reviews so you can return to them without starting over.</p>
+            <p>Save useful product-market reviews so you can return to the same result without starting over.</p>
           </div>
         )}
       </section>
@@ -279,22 +282,22 @@ export default function DashboardClient() {
         ) : (
           <div className="dashboard-empty compact">
             <h3>No official-source changes detected yet.</h3>
-            <p>Once D1 and the scheduled monitor are connected, SellComply will surface source changes here for review.</p>
+            <p>When a monitored rule changes, SellComply will surface the reviewed change here and connect it back to your watched products.</p>
           </div>
         )}
       </section>
 
       <section className="dashboard-upgrade">
         <div>
-          <span className="seo-kicker"><i /> ALERT PIPELINE</span>
-          <h2>Monitoring is becoming actionable.</h2>
-          <p>Official-source monitoring, human review, alert queueing and unsubscribe handling are connected. Email delivery activates when the sender provider is configured.</p>
+          <span className="seo-kicker"><i /> RETENTION FLOW</span>
+          <h2>Save first. Add alerts only when they matter.</h2>
+          <p>A check can live in your browser workspace with no account. Monitoring adds an email relationship to that exact product-market watch without forcing registration.</p>
         </div>
         <div className="dashboard-upgrade-list">
-          <span>✓ Change history</span>
-          <span>✓ Email alert queue</span>
-          <span>✓ Human review gate</span>
-          <span>✓ Partner actions</span>
+          <span>✓ Saved result state</span>
+          <span>✓ Email monitoring</span>
+          <span>✓ Official-source changes</span>
+          <span>✓ Unsubscribe controls</span>
         </div>
       </section>
     </>
