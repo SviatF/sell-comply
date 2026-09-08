@@ -373,6 +373,34 @@ const statements = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_regulatory_update_review_rule_unique ON regulatory_update_review_rules(review_id, rule_key, relation_type)`,
   `CREATE INDEX IF NOT EXISTS idx_regulatory_update_review_rule_lookup ON regulatory_update_review_rules(rule_key, relation_type)`,
+  `CREATE TABLE IF NOT EXISTS regulatory_coverage_snapshots (
+    id TEXT PRIMARY KEY,
+    product_slug TEXT NOT NULL,
+    market_slug TEXT NOT NULL,
+    rule_count INTEGER NOT NULL DEFAULT 0,
+    source_covered_rules INTEGER NOT NULL DEFAULT 0,
+    timing_covered_rules INTEGER NOT NULL DEFAULT 0,
+    structured_timing_rules INTEGER NOT NULL DEFAULT 0,
+    reviewed_rules INTEGER NOT NULL DEFAULT 0,
+    manually_reviewed_rules INTEGER NOT NULL DEFAULT 0,
+    verified_rules INTEGER NOT NULL DEFAULT 0,
+    stale_verified_rules INTEGER NOT NULL DEFAULT 0,
+    untriaged_updates INTEGER NOT NULL DEFAULT 0,
+    needs_rule_update INTEGER NOT NULL DEFAULT 0,
+    source_coverage REAL NOT NULL DEFAULT 0,
+    timing_coverage REAL NOT NULL DEFAULT 0,
+    review_coverage REAL NOT NULL DEFAULT 0,
+    verification_coverage REAL NOT NULL DEFAULT 0,
+    quality_score INTEGER NOT NULL DEFAULT 0,
+    readiness TEXT NOT NULL DEFAULT 'blocked',
+    is_indexable INTEGER NOT NULL DEFAULT 0,
+    gaps_json TEXT NOT NULL DEFAULT '[]',
+    computed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_regulatory_coverage_pair ON regulatory_coverage_snapshots(product_slug, market_slug)`,
+  `CREATE INDEX IF NOT EXISTS idx_regulatory_coverage_readiness ON regulatory_coverage_snapshots(readiness, quality_score)`,
+  `CREATE INDEX IF NOT EXISTS idx_regulatory_coverage_market ON regulatory_coverage_snapshots(market_slug, readiness)`,
+  `CREATE INDEX IF NOT EXISTS idx_regulatory_coverage_product ON regulatory_coverage_snapshots(product_slug, readiness)`,
 ];
 
 export async function ensureDatabaseSchema(db: SellComplyD1) {
@@ -385,7 +413,7 @@ export async function ensureDatabaseSchema(db: SellComplyD1) {
   await db
     .prepare(
       `INSERT INTO schema_meta (key, value, updated_at)
-       VALUES ('schema_version', '12', CURRENT_TIMESTAMP)
+       VALUES ('schema_version', '13', CURRENT_TIMESTAMP)
        ON CONFLICT(key) DO UPDATE SET
          value = excluded.value,
          updated_at = CURRENT_TIMESTAMP`
