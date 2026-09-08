@@ -15,6 +15,7 @@ type EventPayload = {
 const allowedEvents = new Set([
   "checker_started",
   "checker_completed",
+  "checker_refined",
   "save_check",
   "monitor_product",
   "dashboard_open",
