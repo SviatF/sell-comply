@@ -381,3 +381,30 @@ describe("report/check query reproducibility", () => {
     expect(facts.role).toBeUndefined();
   });
 });
+
+
+describe("marketplace selection semantics", () => {
+  it("keeps marketplace-specific review layers absent when no marketplace is selected", () => {
+    const result = buildComplianceReview(
+      "Bluetooth wireless headphones with rechargeable lithium battery",
+      "Germany",
+      ""
+    );
+
+    expect(result.marketplace).toBeUndefined();
+    expect(result.reviewItems.some((item) => item.source === "marketplace")).toBe(false);
+    expect(result.risk.factors.some((factor) => factor.id === "marketplace-layer")).toBe(false);
+  });
+
+  it("adds marketplace-specific review layers only when a marketplace is selected", () => {
+    const result = buildComplianceReview(
+      "Bluetooth wireless headphones with rechargeable lithium battery",
+      "Germany",
+      "Amazon"
+    );
+
+    expect(result.marketplace?.slug).toBe("amazon");
+    expect(result.reviewItems.some((item) => item.source === "marketplace")).toBe(true);
+    expect(result.risk.factors.some((factor) => factor.id === "marketplace-layer")).toBe(true);
+  });
+});
