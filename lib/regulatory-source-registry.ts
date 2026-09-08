@@ -210,7 +210,6 @@ async function findOrCreateSource(
     title,
     url,
     markets,
-    lastVerified,
   }: {
     title: string;
     url: string;
@@ -256,8 +255,8 @@ async function findOrCreateSource(
         .prepare(
           `INSERT INTO sources (
              id, jurisdiction, market_slug, regulator, title, url,
-             source_type, last_verified_at, created_at
-           ) VALUES (?, ?, ?, ?, ?, ?, 'official', ?, CURRENT_TIMESTAMP)`
+             source_type, created_at
+           ) VALUES (?, ?, ?, ?, ?, ?, 'official', CURRENT_TIMESTAMP)`
         )
         .bind(
           sourceId,
@@ -265,8 +264,7 @@ async function findOrCreateSource(
           metadata.marketSlugs[0] || null,
           metadata.authorityName,
           title,
-          metadata.canonicalUrl,
-          lastVerified || null
+          metadata.canonicalUrl
         )
         .run();
     }
@@ -279,13 +277,7 @@ async function findOrCreateSource(
            market_slug = COALESCE(market_slug, ?),
            regulator = ?,
            title = ?,
-           source_type = 'official',
-           last_verified_at = CASE
-             WHEN ? IS NULL THEN last_verified_at
-             WHEN last_verified_at IS NULL THEN ?
-             WHEN last_verified_at < ? THEN ?
-             ELSE last_verified_at
-           END
+           source_type = 'official'
        WHERE id = ?`
     )
     .bind(
@@ -293,10 +285,6 @@ async function findOrCreateSource(
       metadata.marketSlugs[0] || null,
       metadata.authorityName,
       title,
-      lastVerified || null,
-      lastVerified || null,
-      lastVerified || null,
-      lastVerified || null,
       sourceId
     )
     .run();
