@@ -41,7 +41,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 ### 3. Core UX — IN PROGRESS
 
 - [x] Homepage checker clarity audit
-- [ ] Result-page conversion audit
+- [x] Result-page conversion audit
 - [ ] Compare-market UX
 - [ ] Save/monitor UX cleanup
 - [ ] Mobile checker QA
