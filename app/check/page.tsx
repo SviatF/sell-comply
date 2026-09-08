@@ -7,8 +7,10 @@ import CheckActions from "@/app/components/CheckActions";
 import TrackEvent from "@/app/components/TrackEvent";
 import CheckRefinementForm from "@/app/components/CheckRefinementForm";
 import ReportLauncher from "@/app/components/ReportLauncher";
-import MarketCompareLinks from "@/app/components/MarketCompareLinks";
+import MarketComparisonGrid from "@/app/components/MarketComparisonGrid";
 import { buildCheckParams, parseCheckFacts } from "@/lib/check-query";
+import { getComparisonSummary } from "@/lib/market-comparison";
+import { markets } from "@/lib/seo-data";
 
 export const metadata: Metadata = {
   title: "Product Compliance Check Results",
@@ -59,6 +61,52 @@ export default async function CheckPage({
     facts,
   });
   const reportHref = `/report?${reportQuery.toString()}`;
+
+  const marketComparisons = markets
+    .map((market) => {
+      const marketReview =
+        market.slug === result.market.slug
+          ? result
+          : buildComplianceReview(
+              resolved.resolvedText,
+              market.name,
+              marketplace,
+              facts
+            );
+
+      const comparison = getComparisonSummary(result, marketReview);
+      const checkQuery = buildCheckParams({
+        product: rawProduct,
+        country: market.name,
+        marketplace,
+        facts,
+      });
+
+      return {
+        slug: market.slug,
+        name: market.name,
+        flag: market.flag,
+        href: `/check?${checkQuery.toString()}`,
+        isCurrent: market.slug === result.market.slug,
+        riskScore: marketReview.risk.score,
+        riskLevel: marketReview.risk.level,
+        complexity: comparison.complexity,
+        scoreDelta: comparison.scoreDelta,
+        required: comparison.required,
+        likely: comparison.likely,
+        verify: comparison.verify,
+        rulesMatched: comparison.rulesMatched,
+        documents: comparison.documents,
+        labels: comparison.labels,
+        additionalRules: comparison.additionalRules,
+        removedRules: comparison.removedRules,
+      };
+    })
+    .sort((a, b) => {
+      if (a.isCurrent) return -1;
+      if (b.isCurrent) return 1;
+      return a.riskScore - b.riskScore;
+    });
 
   return (
     <div className="seo-page check-results-page">
@@ -412,21 +460,12 @@ export default async function CheckPage({
           </div>
         </section>
 
-        <section className="check-next">
-          <div>
-            <span className="seo-kicker"><i /> NEXT CHECK</span>
-            <h2>Compare another market.</h2>
-            <p>Keep the product the same and see how the review changes across markets.</p>
-          </div>
-          <MarketCompareLinks
-            rawProduct={rawProduct}
-            currentMarket={result.market.name}
-            marketplace={marketplace}
-            productSlug={result.product.slug}
-            currentMarketSlug={result.market.slug}
-            marketplaceSlug={result.marketplace?.slug}
-          />
-        </section>
+        <MarketComparisonGrid
+          cards={marketComparisons}
+          productSlug={result.product.slug}
+          currentMarketSlug={result.market.slug}
+          marketplaceSlug={result.marketplace?.slug}
+        />
 
         <p className="check-legal">
           SellComply provides compliance intelligence and workflow guidance, not legal advice or certification. Product rules change and may depend on technical characteristics, claims, supply-chain role, jurisdiction and current regulator guidance.
