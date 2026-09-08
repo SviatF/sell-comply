@@ -189,10 +189,36 @@ export async function GET() {
       )
       .first<{ total: number }>();
 
+    const changeEventCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM regulatory_change_events")
+      .first<{ total: number }>();
+
+    const sourceChangeEventCount = await db
+      .prepare(
+        "SELECT COUNT(*) AS total FROM regulatory_change_events WHERE event_type = 'source_fingerprint_changed'"
+      )
+      .first<{ total: number }>();
+
+    const ruleVersionChangeEventCount = await db
+      .prepare(
+        "SELECT COUNT(*) AS total FROM regulatory_change_events WHERE event_type = 'rule_version_created'"
+      )
+      .first<{ total: number }>();
+
+    const changeImpactCount = await db
+      .prepare("SELECT COUNT(*) AS total FROM regulatory_change_impacts")
+      .first<{ total: number }>();
+
+    const reviewedChangeEventCount = await db
+      .prepare(
+        "SELECT COUNT(*) AS total FROM regulatory_change_events WHERE decision IS NOT NULL"
+      )
+      .first<{ total: number }>();
+
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "10" ? "ready" : "unknown",
+      schema: version?.value === "11" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
       monitoredProducts: Number(monitorCount?.total || 0),
@@ -214,6 +240,11 @@ export async function GET() {
       regulatoryKbManuallyReviewedRules: Number(manuallyReviewedRuleCount?.total || 0),
       regulatoryKbVerifiedRules: Number(verifiedRuleCount?.total || 0),
       regulatoryKbStaleVerifiedRules: Number(staleVerifiedRuleCount?.total || 0),
+      regulatoryKbChangeEvents: Number(changeEventCount?.total || 0),
+      regulatoryKbSourceChangeEvents: Number(sourceChangeEventCount?.total || 0),
+      regulatoryKbRuleVersionChangeEvents: Number(ruleVersionChangeEventCount?.total || 0),
+      regulatoryKbChangeImpacts: Number(changeImpactCount?.total || 0),
+      regulatoryKbReviewedChangeEvents: Number(reviewedChangeEventCount?.total || 0),
       emailProvider: getEmailProviderState(),
     });
   } catch (error) {
