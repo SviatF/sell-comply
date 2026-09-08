@@ -1,5 +1,7 @@
 # SellComply Regulatory Knowledge Base
 
+Official source registry status: production-ready.
+
 Timing query status: production-ready.
 
 Current implementation status: applicability graph, regulatory timing, and official source registry are complete. Next phase: reviewed / verified metadata.
