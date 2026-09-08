@@ -6,7 +6,7 @@ Official source registry status: production-ready.
 
 Timing query status: production-ready.
 
-Current implementation status: applicability, timing, source provenance, review/verification metadata, and requirement change history are complete. Next phase: human-review state for regulatory updates.
+Current implementation status: applicability, timing, source provenance, review/verification metadata, change history, and human regulatory triage are complete. Next phase: knowledge-base coverage metrics.
 
 ## Purpose
 
@@ -14,7 +14,7 @@ The Regulatory Knowledge Base is the durable data layer behind SellComply's chec
 
 The checker currently continues to read the rule-pack source in code while the D1 knowledge layer is built and verified in parallel.
 
-## Schema version 11
+## Schema version 12
 
 ### regulatory_rules
 
@@ -428,6 +428,80 @@ The response includes source/rule metadata, hashes, version transition, changed 
 - `regulatoryKbChangeImpacts`
 - `regulatoryKbReviewedChangeEvents`
 
+### regulatory_update_reviews
+
+Detected source changes now use an explicit human regulatory triage workflow instead of binary approve/reject.
+
+Supported outcomes:
+
+- `no_regulatory_change`
+- `informational`
+- `requirement_changed`
+- `needs_rule_update`
+
+Stored review metadata includes:
+
+- triage outcome
+- seller-alert eligibility
+- requires-rule-update flag
+- reviewer note
+- reviewed by
+- reviewed at
+
+Only `requirement_changed` is seller-alert eligible.
+
+`needs_rule_update` explicitly blocks alerts until the knowledge-base rule is updated and reviewed again.
+
+### regulatory_update_review_rules
+
+Human review can confirm the exact rule keys affected by a detected source update.
+
+Rule relations include:
+
+- `reviewed_no_change`
+- `informational`
+- `confirmed_affected`
+- `update_required`
+
+Seller alerts for confirmed requirement changes are scoped to the reviewer-confirmed rule impacts rather than every rule linked to the source.
+
+## Operations triage console
+
+`/ops/review` now provides:
+
+- affected rule selection
+- regulatory outcome
+- reviewer note
+- explicit alert consequence
+- rule-update blocking state
+- previous review metadata
+
+A source fingerprint change is never presented as proof of a legal requirement change.
+
+## Backward compatibility
+
+Legacy API requests using:
+
+- `approved`
+- `rejected`
+
+are mapped to:
+
+- `requirement_changed`
+- `no_regulatory_change`
+
+The new operations UI uses only the explicit four-state regulatory model.
+
+## Triage health
+
+`GET /api/health` reports:
+
+- `regulatoryKbUntriagedUpdates`
+- `regulatoryKbNoRegulatoryChange`
+- `regulatoryKbInformationalUpdates`
+- `regulatoryKbRequirementChanges`
+- `regulatoryKbNeedsRuleUpdate`
+
 ## Direct knowledge query
 
 The internal protected endpoint can query the D1 graph directly:
@@ -450,4 +524,4 @@ These counts describe the current normalized knowledge graph.
 
 ## Next KB step
 
-Build explicit human-review state for regulatory updates so a detected source change can be triaged as non-regulatory, informational, requirement-changing, or requiring a new rule version before any seller-facing claim is made.
+Build knowledge-base coverage metrics so SellComply can quantify regulatory coverage, source provenance, timing completeness, review freshness, verification quality, and product-market gaps before scaling SEO pages.
