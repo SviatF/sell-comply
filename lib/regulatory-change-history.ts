@@ -443,7 +443,13 @@ export async function syncChangeReviewDecision(
     reviewNote,
   }: {
     legacyChangeId: string;
-    decision: "approved" | "rejected";
+    decision:
+      | "approved"
+      | "rejected"
+      | "no_regulatory_change"
+      | "informational"
+      | "requirement_changed"
+      | "needs_rule_update";
     reviewedBy?: string | null;
     reviewNote?: string | null;
   }
