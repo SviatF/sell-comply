@@ -23,17 +23,18 @@ import {
   X,
 } from "lucide-react";
 
-type Mode = "link" | "describe" | "upload";
+type Mode = "link" | "describe";
 
 const countries = [
   { value: "Germany", flag: "🇩🇪", market: "EU" },
+  { value: "France", flag: "🇫🇷", market: "EU" },
   { value: "United States", flag: "🇺🇸", market: "US" },
   { value: "United Kingdom", flag: "🇬🇧", market: "UK" },
   { value: "Canada", flag: "🇨🇦", market: "CA" },
   { value: "Australia", flag: "🇦🇺", market: "AU" },
 ];
 
-const marketplaces = ["Amazon", "Shopify", "Etsy", "eBay", "TikTok Shop"];
+const marketplaces = ["Not selected", "Amazon", "Shopify", "Etsy", "eBay", "TikTok Shop"];
 
 const requirementSets: Record<string, string[]> = {
   Germany: [
@@ -41,6 +42,12 @@ const requirementSets: Record<string, string[]> = {
     "CE marking check",
     "EU Responsible Person",
     "Labeling & warnings",
+  ],
+  France: [
+    "GPSR applicability",
+    "CE marking check",
+    "EU Responsible Person",
+    "French labeling review",
   ],
   "United States": [
     "Federal product rules",
@@ -68,12 +75,18 @@ const requirementSets: Record<string, string[]> = {
   ],
 };
 
+const productExamples = [
+  "Bluetooth headphones with rechargeable battery",
+  "Children's plush toy for ages 3+",
+  "Face serum cosmetic, 30 ml",
+];
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("link");
   const [product, setProduct] = useState("");
   const [country, setCountry] = useState("Germany");
-  const [marketplace, setMarketplace] = useState("Amazon");
+  const [marketplace, setMarketplace] = useState("Not selected");
   const [checked, setChecked] = useState(false);
   const [inputError, setInputError] = useState("");
 
@@ -83,13 +96,9 @@ export default function Home() {
   );
 
   const requirements = requirementSets[country] ?? requirementSets.Germany;
+  const marketplaceLabel = marketplace === "Not selected" ? "No marketplace selected" : marketplace;
 
   const runCheck = () => {
-    if (mode === "upload") {
-      setInputError("Image analysis is not connected yet. Use a product link or description for this MVP check.");
-      return;
-    }
-
     const value = product.trim();
     if (!value) {
       setInputError("Add a product URL or describe the product first.");
@@ -101,7 +110,10 @@ export default function Home() {
 
     trackEvent("checker_started", {
       marketSlug: country.toLowerCase().replace(/\s+/g, "-"),
-      marketplaceSlug: marketplace.toLowerCase().replace(/\s+/g, "-"),
+      marketplaceSlug:
+        marketplace === "Not selected"
+          ? undefined
+          : marketplace.toLowerCase().replace(/\s+/g, "-"),
       metadata: { inputMode: mode },
     });
 
@@ -141,9 +153,8 @@ export default function Home() {
           <button className="language-button" aria-label="Change language">
             <Globe2 size={16} /> EN <ChevronDown size={14} />
           </button>
-          <a className="login-link" href="#login">Log in</a>
           <a className="button button-light header-cta" href="#checker">
-            Get started free <ArrowRight size={16} />
+            Check a product <ArrowRight size={16} />
           </a>
           <button
             className="menu-button"
@@ -168,65 +179,96 @@ export default function Home() {
           </h1>
 
           <p className="hero-description">
-            Check product regulations, marketplace requirements and compliance
-            risks in seconds. Sell anywhere, with more confidence.
+            Add a product, choose the market and get a structured compliance screening:
+            relevant rules, documents, labels, risk signals and official sources.
           </p>
 
-          <div className="checker-card" id="checker">
+          <div className="checker-card checker-card-clarified" id="checker">
+            <div className="checker-clarity-head">
+              <div>
+                <span>FREE PRODUCT COMPLIANCE SCREENING</span>
+                <strong>Product → market → optional sales channel</strong>
+              </div>
+              <small>No account required</small>
+            </div>
+
             <div className="checker-tabs" role="tablist" aria-label="Product input method">
               <button
                 className={mode === "link" ? "active" : ""}
-                onClick={() => setMode("link")}
+                onClick={() => {
+                  setMode("link");
+                  setInputError("");
+                }}
               >
                 <Link2 size={16} /> Product link
               </button>
               <button
                 className={mode === "describe" ? "active" : ""}
-                onClick={() => setMode("describe")}
+                onClick={() => {
+                  setMode("describe");
+                  setInputError("");
+                }}
               >
                 <FileText size={16} /> Describe product
               </button>
-              <button
-                className={mode === "upload" ? "active" : ""}
-                onClick={() => setMode("upload")}
-              >
-                <Upload size={16} /> Upload image
+              <button className="checker-tab-soon" type="button" disabled title="Image analysis is coming later">
+                <Upload size={16} /> Image <small>Soon</small>
               </button>
             </div>
 
+            <p className="checker-mode-hint">
+              {mode === "link"
+                ? "Paste a public product page. SellComply will extract product details when the page allows it."
+                : "For better accuracy include material, battery/power, Bluetooth or radio, and whether it is for children."}
+            </p>
+
+            <div className="checker-step-label"><b>01</b> PRODUCT</div>
             <div className="product-input-row">
-              {mode === "upload" ? (
-                <label className="upload-zone">
-                  <Upload size={18} />
-                  <span>Choose a product image</span>
-                  <input type="file" accept="image/*" />
-                </label>
-              ) : (
-                <div className="input-shell">
-                  {mode === "link" ? <Link2 size={18} /> : <Search size={18} />}
-                  <input
-                    value={product}
-                    onChange={(event) => {
-                      setProduct(event.target.value);
-                      if (inputError) setInputError("");
-                    }}
-                    placeholder={
-                      mode === "link"
-                        ? "Paste product URL (Amazon, Shopify, etc.)"
-                        : "e.g. wireless headphones with Bluetooth"
-                    }
-                    aria-label="Product"
-                  />
-                </div>
-              )}
+              <div className="input-shell">
+                {mode === "link" ? <Link2 size={18} /> : <Search size={18} />}
+                <input
+                  value={product}
+                  onChange={(event) => {
+                    setProduct(event.target.value);
+                    if (inputError) setInputError("");
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") runCheck();
+                  }}
+                  placeholder={
+                    mode === "link"
+                      ? "Paste product URL (Amazon, Shopify, store page…)"
+                      : "e.g. wireless headphones with Bluetooth and battery"
+                  }
+                  aria-label="Product"
+                />
+              </div>
               <button className="button button-accent check-button" onClick={runCheck}>
                 Check for free <ArrowRight size={16} />
               </button>
             </div>
 
+            {mode === "describe" && (
+              <div className="checker-examples" aria-label="Product description examples">
+                <span>Try an example:</span>
+                {productExamples.map((example) => (
+                  <button
+                    type="button"
+                    key={example}
+                    onClick={() => {
+                      setProduct(example);
+                      setInputError("");
+                    }}
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="select-row">
               <label>
-                <span>Sell in</span>
+                <span><b>02</b> Sell in</span>
                 <div className="select-shell">
                   <span>{selectedCountry.flag}</span>
                   <select value={country} onChange={(event) => setCountry(event.target.value)}>
@@ -241,7 +283,7 @@ export default function Home() {
               </label>
 
               <label>
-                <span>Marketplace (optional)</span>
+                <span><b>03</b> Marketplace <em>optional</em></span>
                 <div className="select-shell">
                   <Store size={16} />
                   <select
@@ -249,7 +291,9 @@ export default function Home() {
                     onChange={(event) => setMarketplace(event.target.value)}
                   >
                     {marketplaces.map((item) => (
-                      <option key={item}>{item}</option>
+                      <option key={item} value={item}>
+                        {item === "Not selected" ? "No marketplace / not sure" : item}
+                      </option>
                     ))}
                   </select>
                   <ChevronDown size={16} />
@@ -257,16 +301,22 @@ export default function Home() {
               </label>
             </div>
 
+            <div className="checker-output-preview" aria-label="What SellComply checks">
+              {["Applicable rules", "Documents", "Labels", "Risk signal", "Official sources"].map((item) => (
+                <span key={item}><Check size={12} /> {item}</span>
+              ))}
+            </div>
+
             <div className={inputError ? "checker-note checker-error" : "checker-note"}>
               <LockKeyhole size={13} />
-              {inputError || "Free check. No credit card required."}
+              {inputError || "Free screening · no account · no credit card · not legal certification."}
             </div>
           </div>
 
           <div className="trust-row">
-            <span>Built for sellers, brands and agencies using</span>
+            <span>Marketplace layer available for</span>
             <div className="marketplace-list" aria-label="Supported marketplaces">
-              {["amazon", "shopify", "Etsy", "ebay", "TikTok Shop", "Walmart"].map((name) => (
+              {["amazon", "shopify", "Etsy", "ebay", "TikTok Shop"].map((name) => (
                 <strong key={name}>{name}</strong>
               ))}
             </div>
@@ -308,13 +358,13 @@ export default function Home() {
           <div className="compliance-stack" aria-label="Example compliance requirements">
             <div className="glass-card compliance-item">
               <span className="icon-box icon-symbol">CE</span>
-              <div><strong>CE Marking</strong><span>Required in EU</span></div>
+              <div><strong>CE applicability</strong><span>Review for EU</span></div>
               <span className="status-dot status-ok"><Check size={14} /></span>
             </div>
 
             <div className="glass-card compliance-item">
               <span className="icon-box icon-symbol">FCC</span>
-              <div><strong>FCC Certification</strong><span>Required in US</span></div>
+              <div><strong>FCC authorization</strong><span>Review for US</span></div>
               <span className="status-dot status-ok"><Check size={14} /></span>
             </div>
 
@@ -326,7 +376,7 @@ export default function Home() {
 
             <div className="glass-card compliance-item">
               <FileCheck2 size={20} />
-              <div><strong>Product Documentation</strong><span>Required</span></div>
+              <div><strong>Product Documentation</strong><span>Evidence review</span></div>
               <ArrowRight size={16} />
             </div>
           </div>
@@ -352,19 +402,18 @@ export default function Home() {
           </div>
 
           <div className="country-card glass-card">
-            <strong>Compliant in 32+ countries</strong>
+            <strong>6 launch markets in the current checker</strong>
             <div className="flag-row">
               {[
-                { flag: "🇪🇺", label: "European Union" },
+                { flag: "🇩🇪", label: "Germany" },
+                { flag: "🇫🇷", label: "France" },
                 { flag: "🇺🇸", label: "United States" },
                 { flag: "🇬🇧", label: "United Kingdom" },
                 { flag: "🇨🇦", label: "Canada" },
                 { flag: "🇦🇺", label: "Australia" },
-                { flag: "🇯🇵", label: "Japan" },
               ].map((item) => (
                 <span key={item.label} title={item.label}>{item.flag}</span>
               ))}
-              <span className="more-flag">+25</span>
             </div>
           </div>
 
@@ -375,11 +424,11 @@ export default function Home() {
 
       <section className="feature-strip" id="solutions">
         {[
-          { icon: Globe2, title: "Global regulations", text: "Country-specific regulatory checks for global sellers." },
-          { icon: Store, title: "Marketplace rules", text: "Requirements across Amazon, eBay, Shopify, TikTok Shop and more." },
-          { icon: Bell, title: "Real-time updates", text: "Stay aware when monitored requirements change." },
-          { icon: FileCheck2, title: "Compliance documents", text: "Organize checklists, evidence and product documentation." },
-          { icon: ShieldCheck, title: "Trusted partners", text: "Connect with qualified testing and compliance specialists." },
+          { icon: Globe2, title: "Global regulations", text: "Country-specific regulatory checks for supported markets." },
+          { icon: Store, title: "Marketplace rules", text: "Review additional platform requirements for Amazon, eBay, Shopify, TikTok Shop and Etsy." },
+          { icon: Bell, title: "Change monitoring", text: "Monitor official regulatory sources and review meaningful requirement updates." },
+          { icon: FileCheck2, title: "Compliance documents", text: "See documents, labels, evidence gaps and action items for the product-market combination." },
+          { icon: ShieldCheck, title: "Official sources", text: "Trace regulatory review areas back to regulator and official-source pages." },
         ].map(({ icon: Icon, title, text }) => (
           <article className="feature-item" key={title}>
             <Icon size={24} />
@@ -404,7 +453,7 @@ export default function Home() {
             <div>
               <span className="result-kicker">Example result</span>
               <h3>{product || "Wireless headphones"}</h3>
-              <p>{selectedCountry.flag} {country} · {marketplace}</p>
+              <p>{selectedCountry.flag} {country} · {marketplaceLabel}</p>
             </div>
             <div className="result-score">
               <span>REVIEW</span>
@@ -437,7 +486,13 @@ export default function Home() {
             <div>
               <Languages size={18} />
               <span>Market language</span>
-              <strong>{country === "Germany" ? "German" : "Market-specific"}</strong>
+              <strong>
+                {country === "Germany"
+                  ? "German"
+                  : country === "France"
+                    ? "French"
+                    : "Market-specific"}
+              </strong>
             </div>
           </div>
 
@@ -455,9 +510,9 @@ export default function Home() {
         </div>
         <div className="steps-grid">
           {[
-            { number: "01", icon: Link2, title: "Add your product", text: "Paste a product link, describe it, or upload an image." },
-            { number: "02", icon: Search, title: "Get compliance results", text: "See relevant rule areas, restrictions and documents for your target market." },
-            { number: "03", icon: Bell, title: "Monitor what changes", text: "Save products and stay aware of important requirement updates." },
+            { number: "01", icon: Link2, title: "Add your product", text: "Paste a product page or describe the item with its important technical characteristics." },
+            { number: "02", icon: Search, title: "Get compliance results", text: "See relevant rule areas, documents, labels, evidence gaps and official sources for the target market." },
+            { number: "03", icon: Bell, title: "Monitor what changes", text: "Save products and monitor reviewed regulatory-source changes over time." },
           ].map(({ number, icon: Icon, title, text }) => (
             <article className="step-card" key={number}>
               <span className="step-number">{number}</span>
