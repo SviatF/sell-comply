@@ -51,13 +51,6 @@ let sourcesReady = false;
 export async function ensureOfficialSources(db: SellComplyD1) {
   if (sourcesReady) return;
 
-  const existing = await db
-    .prepare("SELECT id FROM sources WHERE source_type = 'official' LIMIT 1")
-    .first<{ id: string }>();
-
-  if (!existing?.id) {
-    await seedOfficialSources(db);
-  }
-
+  await seedOfficialSources(db);
   sourcesReady = true;
 }
