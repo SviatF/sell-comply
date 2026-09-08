@@ -40,7 +40,7 @@ export default async function CheckPage({
   const params = await searchParams;
   const rawProduct = (params.product || "wireless headphones").slice(0, 500);
   const country = params.country || "Germany";
-  const marketplace = params.marketplace || "Amazon";
+  const marketplace = params.marketplace || "";
 
   const facts = parseCheckFacts(params);
 
