@@ -1,5 +1,7 @@
 # SellComply Regulatory Knowledge Base
 
+Requirement change history status: production-ready.
+
 Official source registry status: production-ready.
 
 Timing query status: production-ready.
