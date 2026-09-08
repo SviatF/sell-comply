@@ -130,10 +130,69 @@ export async function GET() {
       .prepare("SELECT COUNT(*) AS total FROM regulatory_source_markets")
       .first<{ total: number }>();
 
+    const reviewedRuleCount = await db
+      .prepare(
+        `SELECT COUNT(*) AS total
+         FROM regulatory_rules r
+         INNER JOIN regulatory_rule_review_state st
+           ON st.rule_key = r.rule_key
+          AND st.rule_version = r.current_version
+         WHERE r.is_active = 1
+           AND st.last_reviewed_at IS NOT NULL`
+      )
+      .first<{ total: number }>();
+
+    const manuallyReviewedRuleCount = await db
+      .prepare(
+        `SELECT COUNT(*) AS total
+         FROM regulatory_rules r
+         INNER JOIN regulatory_rule_review_state st
+           ON st.rule_key = r.rule_key
+          AND st.rule_version = r.current_version
+         WHERE r.is_active = 1
+           AND st.last_reviewed_at IS NOT NULL
+           AND st.review_origin = 'manual'`
+      )
+      .first<{ total: number }>();
+
+    const verifiedRuleCount = await db
+      .prepare(
+        `SELECT COUNT(*) AS total
+         FROM regulatory_rules r
+         INNER JOIN regulatory_rule_review_state st
+           ON st.rule_key = r.rule_key
+          AND st.rule_version = r.current_version
+         LEFT JOIN sources s ON s.id = st.verified_source_id
+         WHERE r.is_active = 1
+           AND st.last_verified_at IS NOT NULL
+           AND NOT (
+             st.verified_source_hash IS NOT NULL
+             AND s.last_content_hash IS NOT NULL
+             AND st.verified_source_hash <> s.last_content_hash
+           )`
+      )
+      .first<{ total: number }>();
+
+    const staleVerifiedRuleCount = await db
+      .prepare(
+        `SELECT COUNT(*) AS total
+         FROM regulatory_rules r
+         INNER JOIN regulatory_rule_review_state st
+           ON st.rule_key = r.rule_key
+          AND st.rule_version = r.current_version
+         INNER JOIN sources s ON s.id = st.verified_source_id
+         WHERE r.is_active = 1
+           AND st.last_verified_at IS NOT NULL
+           AND st.verified_source_hash IS NOT NULL
+           AND s.last_content_hash IS NOT NULL
+           AND st.verified_source_hash <> s.last_content_hash`
+      )
+      .first<{ total: number }>();
+
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "9" ? "ready" : "unknown",
+      schema: version?.value === "10" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
       monitoredProducts: Number(monitorCount?.total || 0),
@@ -151,6 +210,10 @@ export async function GET() {
       regulatorySourceRegistry: Number(sourceRegistryCount?.total || 0),
       regulatoryRuleSourceLinks: Number(currentRuleSourceLinkCount?.total || 0),
       regulatorySourceMarketLinks: Number(sourceMarketLinkCount?.total || 0),
+      regulatoryKbReviewedRules: Number(reviewedRuleCount?.total || 0),
+      regulatoryKbManuallyReviewedRules: Number(manuallyReviewedRuleCount?.total || 0),
+      regulatoryKbVerifiedRules: Number(verifiedRuleCount?.total || 0),
+      regulatoryKbStaleVerifiedRules: Number(staleVerifiedRuleCount?.total || 0),
       emailProvider: getEmailProviderState(),
     });
   } catch (error) {
