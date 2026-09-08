@@ -215,10 +215,44 @@ export async function GET() {
       )
       .first<{ total: number }>();
 
+    const untriagedUpdateCount = await db
+      .prepare(
+        `SELECT COUNT(*) AS total
+         FROM rule_changes c
+         LEFT JOIN regulatory_update_reviews ur ON ur.change_id = c.id
+         WHERE c.change_type = 'source_updated'
+           AND ur.id IS NULL`
+      )
+      .first<{ total: number }>();
+
+    const noRegulatoryChangeCount = await db
+      .prepare(
+        "SELECT COUNT(*) AS total FROM regulatory_update_reviews WHERE triage_outcome = 'no_regulatory_change'"
+      )
+      .first<{ total: number }>();
+
+    const informationalUpdateCount = await db
+      .prepare(
+        "SELECT COUNT(*) AS total FROM regulatory_update_reviews WHERE triage_outcome = 'informational'"
+      )
+      .first<{ total: number }>();
+
+    const requirementChangedCount = await db
+      .prepare(
+        "SELECT COUNT(*) AS total FROM regulatory_update_reviews WHERE triage_outcome = 'requirement_changed'"
+      )
+      .first<{ total: number }>();
+
+    const needsRuleUpdateCount = await db
+      .prepare(
+        "SELECT COUNT(*) AS total FROM regulatory_update_reviews WHERE triage_outcome = 'needs_rule_update'"
+      )
+      .first<{ total: number }>();
+
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "11" ? "ready" : "unknown",
+      schema: version?.value === "12" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
       monitoredProducts: Number(monitorCount?.total || 0),
@@ -245,6 +279,11 @@ export async function GET() {
       regulatoryKbRuleVersionChangeEvents: Number(ruleVersionChangeEventCount?.total || 0),
       regulatoryKbChangeImpacts: Number(changeImpactCount?.total || 0),
       regulatoryKbReviewedChangeEvents: Number(reviewedChangeEventCount?.total || 0),
+      regulatoryKbUntriagedUpdates: Number(untriagedUpdateCount?.total || 0),
+      regulatoryKbNoRegulatoryChange: Number(noRegulatoryChangeCount?.total || 0),
+      regulatoryKbInformationalUpdates: Number(informationalUpdateCount?.total || 0),
+      regulatoryKbRequirementChanges: Number(requirementChangedCount?.total || 0),
+      regulatoryKbNeedsRuleUpdate: Number(needsRuleUpdateCount?.total || 0),
       emailProvider: getEmailProviderState(),
     });
   } catch (error) {
