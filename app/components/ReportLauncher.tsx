@@ -2,14 +2,31 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics-client";
 
-export default function ReportLauncher({ href }: { href: string }) {
+export default function ReportLauncher({
+  href,
+  productSlug,
+  marketSlug,
+  marketplaceSlug,
+}: {
+  href: string;
+  productSlug?: string;
+  marketSlug?: string;
+  marketplaceSlug?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
     try {
       const url = new URL(href, window.location.origin).toString();
       await navigator.clipboard.writeText(url);
+      trackEvent("report_share", {
+        productSlug,
+        marketSlug,
+        marketplaceSlug,
+        metadata: { method: "copy_link" },
+      });
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -28,7 +45,18 @@ export default function ReportLauncher({ href }: { href: string }) {
         <button type="button" onClick={copy}>
           {copied ? "Link copied ✓" : "Copy report link"}
         </button>
-        <Link href={href}>Open report →</Link>
+        <Link
+          href={href}
+          onClick={() =>
+            trackEvent("report_open", {
+              productSlug,
+              marketSlug,
+              marketplaceSlug,
+            })
+          }
+        >
+          Open report →
+        </Link>
       </div>
     </div>
   );
