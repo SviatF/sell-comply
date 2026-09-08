@@ -28,7 +28,8 @@ function safeJson(value: unknown) {
 
 export async function queueAlertsForChange(
   db: SellComplyD1,
-  changeId: string
+  changeId: string,
+  options: { ruleKeys?: string[] } = {}
 ) {
   const change = await db
     .prepare(
@@ -56,6 +57,11 @@ export async function queueAlertsForChange(
   let recipients;
 
   if (historyEvent?.id) {
+    const selectedRules = [...new Set(options.ruleKeys || [])].filter(Boolean);
+    const ruleFilter = selectedRules.length
+      ? ` AND i.rule_key IN (${selectedRules.map(() => "?").join(",")})`
+      : "";
+
     recipients = await db
       .prepare(
         `SELECT DISTINCT
@@ -77,9 +83,10 @@ export async function queueAlertsForChange(
           AND i.impact_phase = 'detected'
           AND i.market_slug = m.market_slug
           AND i.product_slug = m.product_slug
-         WHERE m.is_active = 1`
+         WHERE m.is_active = 1
+         ${ruleFilter}`
       )
-      .bind(historyEvent.id)
+      .bind(historyEvent.id, ...selectedRules)
       .all<RecipientRow>();
   } else {
     recipients = await db
