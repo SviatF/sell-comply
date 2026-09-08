@@ -1,4 +1,5 @@
 import { SellComplyD1 } from "@/lib/cloudflare-db";
+import { recordSourceFingerprintChange } from "@/lib/regulatory-change-history";
 
 type SourceRow = {
   id: string;
@@ -70,6 +71,21 @@ export async function monitorOfficialSources(db: SellComplyD1, limit = 12) {
         nextHash !== source.last_content_hash
     );
 
+    if (
+      changed &&
+      source.last_content_hash &&
+      nextHash
+    ) {
+      await recordSourceFingerprintChange(db, {
+        sourceId: source.id,
+        marketSlug: source.market_slug,
+        sourceTitle: source.title,
+        sourceUrl: source.url,
+        previousHash: source.last_content_hash,
+        newHash: nextHash,
+      });
+    }
+
     await db
       .prepare(
         `UPDATE sources
@@ -80,25 +96,6 @@ export async function monitorOfficialSources(db: SellComplyD1, limit = 12) {
       )
       .bind(nextHash, status, source.id)
       .run();
-
-    if (changed) {
-      await db
-        .prepare(
-          `INSERT INTO rule_changes (
-             id, market_slug, change_type, title, summary,
-             detected_at, source_url, source_id, review_status
-           ) VALUES (?, ?, 'source_updated', ?, ?, CURRENT_TIMESTAMP, ?, ?, 'needs_review')`
-        )
-        .bind(
-          crypto.randomUUID(),
-          source.market_slug || "global",
-          `Official source updated: ${source.title}`,
-          "SellComply detected a meaningful content fingerprint change on an official regulatory source. The change requires review before it is treated as a regulatory requirement change.",
-          source.url,
-          source.id
-        )
-        .run();
-    }
 
     outcomes.push({ id: source.id, changed, status });
   }
