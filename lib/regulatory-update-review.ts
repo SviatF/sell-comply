@@ -1,6 +1,7 @@
 import type { SellComplyD1 } from "./cloudflare-db";
 import { queueAlertsForChange } from "./alert-queue";
 import { syncChangeReviewDecision } from "./regulatory-change-history";
+import { syncKnowledgeCoverage } from "./regulatory-coverage";
 
 export type RegulatoryTriageOutcome =
   | "no_regulatory_change"
@@ -232,6 +233,8 @@ export async function triageRegulatoryChange(
     });
     queued = result.queued;
   }
+
+  await syncKnowledgeCoverage(db);
 
   return {
     outcome,
