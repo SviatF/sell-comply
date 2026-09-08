@@ -1,5 +1,6 @@
 import { SellComplyD1 } from "@/lib/cloudflare-db";
 import { recordSourceFingerprintChange } from "@/lib/regulatory-change-history";
+import { syncKnowledgeCoverage } from "@/lib/regulatory-coverage";
 
 type SourceRow = {
   id: string;
@@ -99,6 +100,8 @@ export async function monitorOfficialSources(db: SellComplyD1, limit = 12) {
 
     outcomes.push({ id: source.id, changed, status });
   }
+
+  await syncKnowledgeCoverage(db);
 
   await db
     .prepare(
