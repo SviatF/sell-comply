@@ -19,3 +19,8 @@
 @media(max-width:1050px){.dashboard-stats{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.dashboard-change-row{grid-template-columns:1fr}.change-meta{justify-content:flex-start}}
 @media(max-width:580px){.dashboard-stats{grid-template-columns:1fr 1fr}.change-stat{grid-column:1/-1}}
+
+.monitor-email-state{font-size:7px;font-weight:900;letter-spacing:.09em;color:#777781;border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:6px 7px;background:rgba(255,255,255,.03)}
+.monitor-email-state.ready{color:#9cebb8;border-color:rgba(156,235,184,.14);background:rgba(156,235,184,.06)}
+.dashboard-check-meta span:nth-child(2){color:#b8b8c0}
+.dashboard-check-meta span:nth-child(3){color:#8e8e98}

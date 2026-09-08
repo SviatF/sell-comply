@@ -137,3 +137,16 @@
 @media(max-width:1080px){.market-compare-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.market-compare-head{grid-template-columns:1fr}.market-compare-summary{max-width:660px}}
 @media(max-width:680px){.market-compare-section{margin-top:68px}.market-compare-head h2{font-size:34px}.market-compare-summary{grid-template-columns:1fr}.market-compare-grid{grid-template-columns:1fr}.market-compare-card{min-height:0}.market-metric-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.market-rule-diff{min-height:0;margin-bottom:16px}}
 @media(max-width:420px){.market-metric-grid{grid-template-columns:repeat(3,1fr)}}
+
+
+/* Save / monitor retention flow */
+.retention-state-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.retention-state{min-height:58px;border:1px solid rgba(255,255,255,.07);border-radius:12px;background:#0a0a0d;padding:10px;display:flex;gap:8px;align-items:center}
+.retention-state>span{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.04);color:#666670;font-size:7px;font-weight:900}
+.retention-state strong,.retention-state small{display:block}.retention-state strong{font-size:9px}.retention-state small{font-size:7px;color:#62626c;margin-top:3px;line-height:1.3}
+.retention-state.active{border-color:rgba(255,79,163,.18);background:rgba(255,79,163,.045)}.retention-state.active>span{background:rgba(255,79,163,.12);color:#ff86bf}.retention-state.active small{color:#8a8a94}
+.save-check-button:disabled{cursor:default}
+.retention-dashboard-link{border:1px solid rgba(255,79,163,.18);border-radius:14px;background:rgba(255,79,163,.055);padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:16px;transition:border-color .2s ease,background .2s ease}
+.retention-dashboard-link:hover{border-color:rgba(255,79,163,.34);background:rgba(255,79,163,.08)}
+.retention-dashboard-link strong,.retention-dashboard-link small{display:block}.retention-dashboard-link strong{font-size:10px}.retention-dashboard-link small{font-size:8px;line-height:1.4;color:#73737d;margin-top:3px}.retention-dashboard-link b{font-size:9px;color:#ff7fba;white-space:nowrap}
+@media(max-width:520px){.retention-state-grid{grid-template-columns:1fr}.retention-dashboard-link{align-items:flex-start}.retention-dashboard-link b{margin-top:2px}}

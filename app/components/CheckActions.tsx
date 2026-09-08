@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
+import { sameRetentionTarget } from "@/lib/retention";
 import {
   getVisitorId,
   MONITORED_PRODUCTS_KEY,
@@ -59,16 +61,32 @@ export default function CheckActions(props: Props) {
   const [monitorError, setMonitorError] = useState("");
   const [busy, setBusy] = useState<"save" | "monitor" | null>(null);
 
+  const target = {
+    rawProduct: props.rawProduct,
+    marketSlug: props.marketSlug,
+    marketName: props.marketName,
+    marketplaceSlug: props.marketplaceSlug,
+    marketplaceName: props.marketplaceName,
+  };
+
   useEffect(() => {
     const rememberedEmail = localStorage.getItem(EMAIL_KEY) || "";
     if (rememberedEmail) setEmail(rememberedEmail);
-  }, []);
 
-  const saveCheck = async () => {
-    if (saved || busy) return;
-    setBusy("save");
+    const localChecks = readLocalArray<LocalCheck>(SAVED_CHECKS_KEY);
+    const localMonitors = readLocalArray<LocalMonitor>(MONITORED_PRODUCTS_KEY);
 
-    const visitorId = getVisitorId();
+    setSaved(localChecks.some((item) => sameRetentionTarget(item, target)));
+    setMonitored(localMonitors.some((item) => sameRetentionTarget(item, target)));
+  }, [
+    props.rawProduct,
+    props.marketSlug,
+    props.marketName,
+    props.marketplaceSlug,
+    props.marketplaceName,
+  ]);
+
+  const persistSavedCheck = async (visitorId: string) => {
     const local: LocalCheck = {
       id: crypto.randomUUID(),
       rawProduct: props.rawProduct,
@@ -85,13 +103,10 @@ export default function CheckActions(props: Props) {
     };
 
     const current = readLocalArray<LocalCheck>(SAVED_CHECKS_KEY);
-    const duplicate = current.some(
-      (item) =>
-        item.rawProduct === local.rawProduct &&
-        item.marketSlug === local.marketSlug &&
-        (item.marketplaceSlug || "") === (local.marketplaceSlug || "")
-    );
-    if (!duplicate) writeLocalArray(SAVED_CHECKS_KEY, [local, ...current].slice(0, 100));
+    if (!current.some((item) => sameRetentionTarget(item, local))) {
+      writeLocalArray(SAVED_CHECKS_KEY, [local, ...current].slice(0, 100));
+    }
+    setSaved(true);
 
     try {
       await fetch("/api/checks", {
@@ -112,8 +127,16 @@ export default function CheckActions(props: Props) {
         }),
       });
     } catch {
-      // Local storage remains a fallback for saved checks.
+      // Local storage remains the fallback for saved checks.
     }
+  };
+
+  const saveCheck = async () => {
+    if (saved || busy) return;
+    setBusy("save");
+
+    const visitorId = getVisitorId();
+    await persistSavedCheck(visitorId);
 
     trackEvent("save_check", {
       productSlug: props.productSlug,
@@ -121,7 +144,6 @@ export default function CheckActions(props: Props) {
       marketplaceSlug: props.marketplaceSlug,
     });
 
-    setSaved(true);
     setBusy(null);
   };
 
@@ -175,25 +197,21 @@ export default function CheckActions(props: Props) {
       };
 
       const current = readLocalArray<LocalMonitor>(MONITORED_PRODUCTS_KEY);
-      const filtered = current.filter(
-        (item) =>
-          !(
-            item.rawProduct === local.rawProduct &&
-            item.marketSlug === local.marketSlug &&
-            (item.marketplaceSlug || "") === (local.marketplaceSlug || "")
-          )
-      );
+      const filtered = current.filter((item) => !sameRetentionTarget(item, local));
 
       writeLocalArray(MONITORED_PRODUCTS_KEY, [local, ...filtered].slice(0, 100));
       localStorage.setItem(EMAIL_KEY, normalizedEmail);
+
+      if (!saved) await persistSavedCheck(visitorId);
 
       trackEvent("monitor_product", {
         productSlug: props.productSlug,
         marketSlug: props.marketSlug,
         marketplaceSlug: props.marketplaceSlug,
-        metadata: { emailCaptured: true },
+        metadata: { emailCaptured: true, savedWithMonitor: !saved },
       });
 
+      setSaved(true);
       setMonitored(true);
       setMonitorOpen(false);
     } catch {
@@ -205,11 +223,31 @@ export default function CheckActions(props: Props) {
 
   return (
     <div className="check-action-buttons">
-      <button className={saved ? "save-check-button saved" : "save-check-button"} onClick={saveCheck}>
+      <div className="retention-state-grid" aria-live="polite">
+        <div className={saved ? "retention-state active" : "retention-state"}>
+          <span>{saved ? "✓" : "01"}</span>
+          <div><strong>Saved</strong><small>{saved ? "In your dashboard" : "Not saved yet"}</small></div>
+        </div>
+        <div className={monitored ? "retention-state active" : "retention-state"}>
+          <span>{monitored ? "✓" : "02"}</span>
+          <div><strong>Monitoring</strong><small>{monitored ? "Watch is active" : "Off"}</small></div>
+        </div>
+        <div className={monitored ? "retention-state active" : "retention-state"}>
+          <span>{monitored ? "✓" : "03"}</span>
+          <div><strong>Email attached</strong><small>{monitored ? "Alerts connected" : "Attach when monitoring"}</small></div>
+        </div>
+      </div>
+
+      <button
+        className={saved ? "save-check-button saved" : "save-check-button"}
+        onClick={saveCheck}
+        disabled={saved || busy === "save"}
+        type="button"
+      >
         <span>{saved ? "✓" : "＋"}</span>
         <div>
           <strong>{saved ? "Check saved" : busy === "save" ? "Saving…" : "Save this check"}</strong>
-          <small>Keep this product-market result in your dashboard.</small>
+          <small>{saved ? "Available from your dashboard on this browser." : "Keep this exact product-market result for later."}</small>
         </div>
       </button>
 
@@ -218,7 +256,7 @@ export default function CheckActions(props: Props) {
           <span>✓</span>
           <div>
             <strong>Monitoring enabled</strong>
-            <small>Email attached to this product-market watch.</small>
+            <small>This review is saved and its compliance watch has email alerts attached.</small>
           </div>
         </div>
       ) : (
@@ -226,7 +264,17 @@ export default function CheckActions(props: Props) {
           <button
             className={monitorOpen ? "monitor-button active" : "monitor-button"}
             onClick={() => {
-              setMonitorOpen((value) => !value);
+              setMonitorOpen((value) => {
+                const next = !value;
+                if (next) {
+                  trackEvent("monitor_form_open", {
+                    productSlug: props.productSlug,
+                    marketSlug: props.marketSlug,
+                    marketplaceSlug: props.marketplaceSlug,
+                  });
+                }
+                return next;
+              });
               setMonitorError("");
             }}
             type="button"
@@ -234,7 +282,7 @@ export default function CheckActions(props: Props) {
             <span>◎</span>
             <div>
               <strong>Monitor this product</strong>
-              <small>Get ready for compliance-change alerts without creating an account.</small>
+              <small>Monitoring also saves this review. No account required.</small>
             </div>
           </button>
 
@@ -242,7 +290,7 @@ export default function CheckActions(props: Props) {
             <form className="monitor-email-form" onSubmit={submitMonitor}>
               <div className="monitor-email-head">
                 <span>EMAIL ALERTS</span>
-                <strong>Where should we send important changes?</strong>
+                <strong>Where should we send important compliance changes?</strong>
               </div>
 
               <div className="monitor-email-row">
@@ -259,7 +307,7 @@ export default function CheckActions(props: Props) {
                   required
                 />
                 <button type="submit" disabled={busy === "monitor"}>
-                  {busy === "monitor" ? "Enabling…" : "Enable monitoring"}
+                  {busy === "monitor" ? "Enabling…" : "Save + monitor"}
                 </button>
               </div>
 
@@ -267,13 +315,33 @@ export default function CheckActions(props: Props) {
                 <p className="monitor-email-error">{monitorError}</p>
               ) : (
                 <p className="monitor-consent">
-                  By enabling monitoring, you agree to receive product-compliance alerts for this watch.
+                  One action saves this check and enables product-compliance monitoring.
                   No account required. Unsubscribe will be available from every alert.
                 </p>
               )}
             </form>
           )}
         </>
+      )}
+
+      {(saved || monitored) && (
+        <Link
+          className="retention-dashboard-link"
+          href="/dashboard"
+          onClick={() =>
+            trackEvent("dashboard_cta", {
+              productSlug: props.productSlug,
+              marketSlug: props.marketSlug,
+              marketplaceSlug: props.marketplaceSlug,
+            })
+          }
+        >
+          <span>
+            <strong>Open compliance dashboard</strong>
+            <small>Saved checks and monitored products in one workspace.</small>
+          </span>
+          <b>Dashboard →</b>
+        </Link>
       )}
     </div>
   );
