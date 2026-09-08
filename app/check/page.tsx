@@ -7,6 +7,7 @@ import CheckActions from "@/app/components/CheckActions";
 import TrackEvent from "@/app/components/TrackEvent";
 import CheckRefinementForm from "@/app/components/CheckRefinementForm";
 import ReportLauncher from "@/app/components/ReportLauncher";
+import MarketCompareLinks from "@/app/components/MarketCompareLinks";
 import { buildCheckParams, parseCheckFacts } from "@/lib/check-query";
 
 export const metadata: Metadata = {
@@ -177,9 +178,82 @@ export default async function CheckPage({
           </div>
         </section>
 
-        <ReportLauncher href={reportHref} />
+        <section className="check-conversion-section" id="next-actions">
+          <div className="conversion-priority-panel">
+            <div className="conversion-priority-head">
+              <span className="seo-kicker"><i /> YOUR NEXT MOVE</span>
+              <h2>Turn the screening into action.</h2>
+              <p>
+                Start with the highest-leverage step, then save the result so you can
+                come back to the same product-market review.
+              </p>
+            </div>
 
-        <CheckRefinementForm
+            <div className="conversion-step-list">
+              <a href="#refine-review" className="conversion-step">
+                <span>01</span>
+                <div>
+                  <strong>Confirm uncertain product facts</strong>
+                  <p>
+                    {result.risk.reducers.length
+                      ? result.risk.reducers.length + " clarification point(s) can reduce screening uncertainty."
+                      : "Core facts are already fairly well defined; confirm them before relying on the review."}
+                  </p>
+                </div>
+                <b>Start here →</b>
+              </a>
+
+              <a href="#requirements" className="conversion-step">
+                <span>02</span>
+                <div>
+                  <strong>Resolve the highest-priority requirements</strong>
+                  <p>
+                    {result.summary.required} required and {result.summary.verify} verification item(s)
+                    are currently in this screening.
+                  </p>
+                </div>
+                <b>Review rules →</b>
+              </a>
+
+              <a href="#action-plan" className="conversion-step">
+                <span>03</span>
+                <div>
+                  <strong>Work through the action plan</strong>
+                  <p>
+                    Follow the ordered checklist and keep evidence tied to this exact
+                    product model or SKU.
+                  </p>
+                </div>
+                <b>Open plan →</b>
+              </a>
+            </div>
+          </div>
+
+          <div className="conversion-actions-panel" id="conversion-actions">
+            <div className="conversion-actions-copy">
+              <span className="side-card-label">KEEP THIS REVIEW</span>
+              <strong>Save it now. Monitor it when it matters.</strong>
+              <p>
+                No account required. Your saved check stays available in the local
+                dashboard, and monitoring can attach an email to this product-market watch.
+              </p>
+            </div>
+            <CheckActions
+              rawProduct={displayProduct}
+              productSlug={result.product.slug}
+              category={result.product.category}
+              marketSlug={result.market.slug}
+              marketName={result.market.name}
+              marketplaceSlug={result.marketplace?.slug}
+              marketplaceName={result.marketplace?.name}
+              certainty={result.certainty}
+              reviewCount={result.reviewItems.length}
+            />
+          </div>
+        </section>
+
+        <div id="refine-review">
+          <CheckRefinementForm
           rawProduct={rawProduct}
           country={country}
           marketplace={marketplace}
@@ -192,8 +266,16 @@ export default async function CheckPage({
             role: params.role,
           }}
         />
+        </div>
 
-        <section className="check-layout">
+        <ReportLauncher
+          href={reportHref}
+          productSlug={result.product.slug}
+          marketSlug={result.market.slug}
+          marketplaceSlug={result.marketplace?.slug}
+        />
+
+        <section className="check-layout" id="requirements">
           <div>
             <div className="check-section-head">
               <div>
@@ -227,18 +309,6 @@ export default async function CheckPage({
           </div>
 
           <aside className="check-side">
-            <CheckActions
-              rawProduct={displayProduct}
-              productSlug={result.product.slug}
-              category={result.product.category}
-              marketSlug={result.market.slug}
-              marketName={result.market.name}
-              marketplaceSlug={result.marketplace?.slug}
-              marketplaceName={result.marketplace?.name}
-              certainty={result.certainty}
-              reviewCount={result.reviewItems.length}
-            />
-
             {(resolved.brand || resolved.sku || resolved.gtin || resolved.productCategory) && (
               <div className="side-card product-data-card">
                 <span className="side-card-label">DETECTED PRODUCT DATA</span>
@@ -312,7 +382,7 @@ export default async function CheckPage({
           </div>
         </section>
 
-        <section className="check-action-section">
+        <section className="check-action-section" id="action-plan">
           <div className="check-section-head">
             <div><span>03</span><h2>Recommended action plan</h2></div>
             <p>Work through the list in order and keep evidence tied to the exact SKU or product model.</p>
@@ -348,18 +418,14 @@ export default async function CheckPage({
             <h2>Compare another market.</h2>
             <p>Keep the product the same and see how the review changes across markets.</p>
           </div>
-          <div className="check-market-links">
-            {["Germany", "United States", "United Kingdom", "Canada", "Australia"]
-              .filter((item) => item !== result.market.name)
-              .map((item) => (
-                <Link
-                  key={item}
-                  href={`/check?product=${encodeURIComponent(rawProduct)}&country=${encodeURIComponent(item)}&marketplace=${encodeURIComponent(marketplace)}`}
-                >
-                  {item} →
-                </Link>
-              ))}
-          </div>
+          <MarketCompareLinks
+            rawProduct={rawProduct}
+            currentMarket={result.market.name}
+            marketplace={marketplace}
+            productSlug={result.product.slug}
+            currentMarketSlug={result.market.slug}
+            marketplaceSlug={result.marketplace?.slug}
+          />
         </section>
 
         <p className="check-legal">
