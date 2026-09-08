@@ -33,7 +33,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Product × market × regulation applicability
 - [x] Effective dates / transition dates
 - [x] Official source registry
-- [ ] Last reviewed / last verified metadata
+- [x] Last reviewed / last verified metadata
 - [ ] Requirement change history
 - [ ] Human-review state for regulatory updates
 - [ ] Knowledge-base coverage metrics
