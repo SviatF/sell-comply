@@ -1,5 +1,5 @@
-import type { SellComplyD1 } from "@/lib/cloudflare-db";
-import { syncChangeReviewDecision } from "@/lib/regulatory-change-history";
+import type { SellComplyD1 } from "./cloudflare-db";
+import { syncChangeReviewDecision } from "./regulatory-change-history";
 
 type ChangeRow = {
   id: string;
