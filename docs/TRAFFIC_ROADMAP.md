@@ -42,7 +42,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 
 - [x] Homepage checker clarity audit
 - [x] Result-page conversion audit
-- [ ] Compare-market UX
+- [x] Compare-market UX
 - [ ] Save/monitor UX cleanup
 - [ ] Mobile checker QA
 - [ ] No forced signup
