@@ -7,6 +7,7 @@ import {
   syncExistingOfficialSourcesToRegistry,
   syncRuleSourceRegistry,
 } from "@/lib/regulatory-source-registry";
+import { ensureRuleReviewState } from "@/lib/regulatory-review";
 
 const APPLICABILITY_MODEL_VERSION = 1;
 const SOURCE_REGISTRY_MODEL_VERSION = 1;
@@ -121,6 +122,7 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
       timingRows += 1;
       if (timing.hasStructuredTiming) structuredTimingRules += 1;
       await syncRuleSourceRegistry(db, rule, 1);
+      await ensureRuleReviewState(db, rule, 1);
       ruleSourceLinks += 1;
       const applicability = await syncRuleApplicability(db, rule, 1);
       applicabilityRows += applicability.applicabilityRows;
@@ -140,6 +142,11 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
       if (timing.hasStructuredTiming) structuredTimingRules += 1;
 
       await syncRuleSourceRegistry(
+        db,
+        rule,
+        Number(current.current_version)
+      );
+      await ensureRuleReviewState(
         db,
         rule,
         Number(current.current_version)
@@ -180,6 +187,7 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
     timingRows += 1;
     if (timing.hasStructuredTiming) structuredTimingRules += 1;
     await syncRuleSourceRegistry(db, rule, nextVersion);
+    await ensureRuleReviewState(db, rule, nextVersion);
     ruleSourceLinks += 1;
     const applicability = await syncRuleApplicability(db, rule, nextVersion);
     applicabilityRows += applicability.applicabilityRows;
