@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics-client";
 
 type TriState = "" | "yes" | "no";
 
@@ -82,8 +83,9 @@ export default function CheckRefinementForm({
     const params = new URLSearchParams({
       product: rawProduct,
       country,
-      marketplace,
     });
+
+    if (marketplace) params.set("marketplace", marketplace);
 
     for (const key of ["radio", "battery", "children", "mains"]) {
       if (values[key] === "yes" || values[key] === "no") {
@@ -92,6 +94,17 @@ export default function CheckRefinementForm({
     }
 
     if (values.role) params.set("role", values.role);
+
+    trackEvent("checker_refined", {
+      metadata: {
+        country,
+        marketplace: marketplace || null,
+        confirmedFacts: ["radio", "battery", "children", "mains"].filter(
+          (key) => values[key] === "yes" || values[key] === "no"
+        ).length,
+        roleConfirmed: Boolean(values.role),
+      },
+    });
 
     router.push(`/check?${params.toString()}`);
   };
