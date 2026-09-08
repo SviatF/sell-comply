@@ -3,10 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
-import {
-  buildRetentionCheckHref,
-  sameRetentionTarget,
-} from "@/lib/retention";
+import { sameRetentionTarget } from "@/lib/retention";
 import {
   getVisitorId,
   MONITORED_PRODUCTS_KEY,
@@ -346,10 +343,6 @@ export default function CheckActions(props: Props) {
           <b>Dashboard →</b>
         </Link>
       )}
-
-      <a className="retention-return-link" href={buildRetentionCheckHref(target)} aria-hidden="true" tabIndex={-1}>
-        Current review
-      </a>
     </div>
   );
 }
