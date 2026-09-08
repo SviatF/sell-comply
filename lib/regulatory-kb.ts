@@ -8,6 +8,7 @@ import {
   syncRuleSourceRegistry,
 } from "@/lib/regulatory-source-registry";
 import { ensureRuleReviewState } from "@/lib/regulatory-review";
+import { recordRuleVersionChange } from "@/lib/regulatory-change-history";
 
 const APPLICABILITY_MODEL_VERSION = 1;
 const SOURCE_REGISTRY_MODEL_VERSION = 1;
@@ -214,6 +215,12 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
         rule.id
       )
       .run();
+
+    await recordRuleVersionChange(db, {
+      ruleKey: rule.id,
+      fromVersion: Number(current.current_version),
+      toVersion: nextVersion,
+    });
 
     createdVersions += 1;
   }
