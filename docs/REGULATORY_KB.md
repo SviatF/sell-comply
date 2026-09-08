@@ -4,7 +4,7 @@ Official source registry status: production-ready.
 
 Timing query status: production-ready.
 
-Current implementation status: applicability graph, regulatory timing, and official source registry are complete. Next phase: reviewed / verified metadata.
+Current implementation status: applicability, timing, source provenance, and explicit review/verification metadata are complete. Next phase: requirement change history.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ The Regulatory Knowledge Base is the durable data layer behind SellComply's chec
 
 The checker currently continues to read the rule-pack source in code while the D1 knowledge layer is built and verified in parallel.
 
-## Schema version 9
+## Schema version 10
 
 ### regulatory_rules
 
@@ -246,6 +246,79 @@ Optional filters:
 
 The response includes source authority, source kind, market scope, last checked, last verified, content hash, HTTP status, and current rule-link count.
 
+### regulatory_rule_review_state
+
+Review and verification are explicit version-specific metadata.
+
+SellComply deliberately separates:
+
+1. automated source check
+2. rule review
+3. rule verification
+
+Stored fields include:
+
+- last reviewed at
+- reviewed by
+- review origin
+- last verified at
+- verified by
+- verified source id
+- verified source content hash
+- verification note
+
+A newly created rule version is never automatically marked verified.
+
+Existing curated rule-pack dates are imported only as curation/review metadata, not as human verification.
+
+## Verification freshness
+
+When a rule is explicitly verified, SellComply captures the current official-source content fingerprint.
+
+Derived states:
+
+- `unreviewed`
+- `reviewed`
+- `verified`
+- `stale`
+
+A verified rule becomes `stale` automatically when the monitored canonical source later has a different content fingerprint.
+
+A routine source check with the same fingerprint does not invalidate verification.
+
+## Protected review APIs
+
+List current rule review states:
+
+`GET /api/admin/kb/reviews`
+
+Optional filter:
+
+`?status=unreviewed|reviewed|verified|stale`
+
+Mark the current version of a rule reviewed or verified:
+
+`POST /api/admin/kb/rules/<rule-key>/review`
+
+Supported actions:
+
+- `reviewed`
+- `verified`
+- `reset_verification`
+
+All endpoints require `x-admin-token`.
+
+## Health verification coverage
+
+`GET /api/health` reports:
+
+- `regulatoryKbReviewedRules`
+- `regulatoryKbManuallyReviewedRules`
+- `regulatoryKbVerifiedRules`
+- `regulatoryKbStaleVerifiedRules`
+
+These metrics never treat a simple HTTP fetch as human verification.
+
 ## Direct knowledge query
 
 The internal protected endpoint can query the D1 graph directly:
@@ -268,4 +341,4 @@ These counts describe the current normalized knowledge graph.
 
 ## Next KB step
 
-Add explicit last-reviewed and last-verified metadata for rule versions and source evidence so SellComply can distinguish automated source checks from human regulatory verification.
+Build requirement change history so SellComply can connect detected source changes, reviewed regulatory updates, rule versions, effective dates and affected product-market applicability over time.
