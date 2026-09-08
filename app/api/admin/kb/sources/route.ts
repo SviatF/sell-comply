@@ -51,7 +51,6 @@ export async function GET(request: Request) {
            sr.jurisdiction_slug,
            sr.source_kind,
            s.title,
-           s.last_verified_at,
            s.last_checked_at,
            s.last_http_status,
            s.last_content_hash,
@@ -80,7 +79,6 @@ export async function GET(request: Request) {
            sr.jurisdiction_slug,
            sr.source_kind,
            s.title,
-           s.last_verified_at,
            s.last_checked_at,
            s.last_http_status,
            s.last_content_hash
