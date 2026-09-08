@@ -1,5 +1,6 @@
 import type { SellComplyD1 } from "./cloudflare-db";
 import type { RegulatoryRule } from "./regulatory-rules";
+import { syncKnowledgeCoverage } from "./regulatory-coverage";
 
 export type RuleReviewStatus =
   | "unreviewed"
@@ -154,6 +155,7 @@ export async function markRuleReviewed(
     .bind(reviewedBy, note || null, ruleKey, ruleVersion)
     .run();
 
+  await syncKnowledgeCoverage(db);
   return { reviewed: true };
 }
 
@@ -211,6 +213,8 @@ export async function markRuleVerified(
     )
     .run();
 
+  await syncKnowledgeCoverage(db);
+
   return {
     verified: true,
     sourceId: source.source_id,
@@ -238,5 +242,6 @@ export async function resetRuleVerification(
     .bind(ruleKey, ruleVersion)
     .run();
 
+  await syncKnowledgeCoverage(db);
   return { reset: true };
 }
