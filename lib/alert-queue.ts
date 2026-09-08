@@ -1,4 +1,5 @@
 import type { SellComplyD1 } from "@/lib/cloudflare-db";
+import { syncChangeReviewDecision } from "@/lib/regulatory-change-history";
 
 type ChangeRow = {
   id: string;
@@ -65,6 +66,13 @@ export async function approveChangeAndQueueAlerts(
     .prepare("UPDATE rule_changes SET review_status = 'approved' WHERE id = ?")
     .bind(changeId)
     .run();
+
+  await syncChangeReviewDecision(db, {
+    legacyChangeId: changeId,
+    decision: "approved",
+    reviewedBy: options.reviewedBy,
+    reviewNote: options.note,
+  });
 
   const recipients = await db
     .prepare(
@@ -172,6 +180,13 @@ export async function rejectChange(
     .prepare("UPDATE rule_changes SET review_status = 'rejected' WHERE id = ?")
     .bind(changeId)
     .run();
+
+  await syncChangeReviewDecision(db, {
+    legacyChangeId: changeId,
+    decision: "rejected",
+    reviewedBy: options.reviewedBy,
+    reviewNote: options.note,
+  });
 
   return { rejected: true };
 }
