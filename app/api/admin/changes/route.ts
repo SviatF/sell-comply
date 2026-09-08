@@ -1,3 +1,71 @@
+  const result = await db
+    .prepare(
+      `SELECT
+         c.id,
+         c.market_slug,
+         c.product_slug,
+         c.change_type,
+         c.title,
+         c.summary,
+         c.detected_at,
+         c.source_url,
+         c.review_status,
+         ur.triage_outcome,
+         ur.review_note,
+         ur.reviewed_by,
+         ur.reviewed_at,
+         ur.seller_alert_eligible,
+         ur.requires_rule_update,
+         GROUP_CONCAT(DISTINCT i.rule_key) AS impacted_rule_keys,
+         GROUP_CONCAT(DISTINCT rr.rule_key) AS reviewed_rule_keys
+       FROM rule_changes c
+       LEFT JOIN regulatory_update_reviews ur
+         ON ur.change_id = c.id
+       LEFT JOIN regulatory_change_events e
+         ON e.legacy_change_id = c.id
+       LEFT JOIN regulatory_change_impacts i
+         ON i.change_event_id = e.id
+       LEFT JOIN regulatory_update_review_rules rr
+         ON rr.review_id = ur.id
+       GROUP BY
+         c.id,
+         c.market_slug,
+         c.product_slug,
+         c.change_type,
+         c.title,
+         c.summary,
+         c.detected_at,
+         c.source_url,
+         c.review_status,
+         ur.triage_outcome,
+         ur.review_note,
+         ur.reviewed_by,
+         ur.reviewed_at,
+         ur.seller_alert_eligible,
+         ur.requires_rule_update
+       ORDER BY
+         CASE
+           WHEN ur.triage_outcome IS NULL THEN 0
+           WHEN ur.triage_outcome = 'needs_rule_update' THEN 1
+           ELSE 2
+         END,
+         c.detected_at DESC
+       LIMIT 100`
+    )
+    .all();
+
+  const items = (result.results || []).map((row: any) => ({
+    ...row,
+    impacted_rule_keys: row.impacted_rule_keys
+      ? String(row.impacted_rule_keys).split(",").filter(Boolean).sort()
+      : [],
+    reviewed_rule_keys: row.reviewed_rule_keys
+      ? String(row.reviewed_rule_keys).split(",").filter(Boolean).sort()
+      : [],
+    seller_alert_eligible: Boolean(row.seller_alert_eligible),
+    requires_rule_update: Boolean(row.requires_rule_update),
+  }));
+
 import { NextResponse } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getOptionalDb } from "@/lib/cloudflare-db";
@@ -43,5 +111,5 @@ export async function GET(request: Request) {
     )
     .all();
 
-  return NextResponse.json({ ok: true, items: result.results || [] });
+  return NextResponse.json({ ok: true, items });
 }
