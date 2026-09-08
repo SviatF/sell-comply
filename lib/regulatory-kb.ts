@@ -3,8 +3,13 @@ import { regulatoryRules, type RegulatoryRule } from "@/lib/regulatory-rules";
 import { products } from "@/lib/seo-data";
 import { syncRuleApplicability } from "@/lib/regulatory-applicability";
 import { syncRuleTiming } from "@/lib/regulatory-timing";
+import {
+  syncExistingOfficialSourcesToRegistry,
+  syncRuleSourceRegistry,
+} from "@/lib/regulatory-source-registry";
 
 const APPLICABILITY_MODEL_VERSION = 1;
+const SOURCE_REGISTRY_MODEL_VERSION = 1;
 
 type CurrentRuleRow = {
   rule_key: string;
@@ -63,6 +68,7 @@ async function knowledgeBaseHash() {
       rules: rows,
       products: products.map((product) => product.slug).sort(),
       applicabilityModelVersion: APPLICABILITY_MODEL_VERSION,
+      sourceRegistryModelVersion: SOURCE_REGISTRY_MODEL_VERSION,
     })
   );
 }
@@ -76,6 +82,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
   let featureConditions = 0;
   let timingRows = 0;
   let structuredTimingRules = 0;
+  let ruleSourceLinks = 0;
+  let registeredSources = 0;
 
   for (const rule of regulatoryRules) {
     const hash = await ruleHash(rule);
@@ -112,6 +120,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
       const timing = await syncRuleTiming(db, rule, 1);
       timingRows += 1;
       if (timing.hasStructuredTiming) structuredTimingRules += 1;
+      await syncRuleSourceRegistry(db, rule, 1);
+      ruleSourceLinks += 1;
       const applicability = await syncRuleApplicability(db, rule, 1);
       applicabilityRows += applicability.applicabilityRows;
       featureConditions += applicability.featureConditions;
@@ -128,6 +138,13 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
       );
       timingRows += 1;
       if (timing.hasStructuredTiming) structuredTimingRules += 1;
+
+      await syncRuleSourceRegistry(
+        db,
+        rule,
+        Number(current.current_version)
+      );
+      ruleSourceLinks += 1;
 
       const applicability = await syncRuleApplicability(
         db,
@@ -162,6 +179,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
     const timing = await syncRuleTiming(db, rule, nextVersion);
     timingRows += 1;
     if (timing.hasStructuredTiming) structuredTimingRules += 1;
+    await syncRuleSourceRegistry(db, rule, nextVersion);
+    ruleSourceLinks += 1;
     const applicability = await syncRuleApplicability(db, rule, nextVersion);
     applicabilityRows += applicability.applicabilityRows;
     featureConditions += applicability.featureConditions;
@@ -220,8 +239,21 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
       .bind(row.rule_key)
       .run();
 
+    await db
+      .prepare(
+        `UPDATE regulatory_rule_sources
+         SET is_current = 0,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE rule_key = ?`
+      )
+      .bind(row.rule_key)
+      .run();
+
     deactivated += 1;
   }
+
+  const legacySources = await syncExistingOfficialSourcesToRegistry(db);
+  registeredSources = legacySources.synced;
 
   const syncHash = await knowledgeBaseHash();
   await db
@@ -246,6 +278,8 @@ export async function syncRegulatoryKnowledgeBase(db: SellComplyD1) {
     featureConditions,
     timingRows,
     structuredTimingRules,
+    ruleSourceLinks,
+    registeredSources,
     hash: syncHash,
   };
 }
