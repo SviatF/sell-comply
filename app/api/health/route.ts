@@ -4,6 +4,7 @@ import { ensureDatabaseSchema } from "@/lib/db-schema";
 import { ensureOfficialSources } from "@/lib/source-bootstrap";
 import { getEmailProviderState } from "@/lib/email-provider";
 import { ensureRegulatoryKnowledgeBase } from "@/lib/regulatory-kb";
+import { ensureKnowledgeCoverage } from "@/lib/regulatory-coverage";
 
 export async function GET() {
   const db = getOptionalDb();
@@ -21,6 +22,7 @@ export async function GET() {
     await ensureDatabaseSchema(db);
     await ensureOfficialSources(db);
     await ensureRegulatoryKnowledgeBase(db);
+    await ensureKnowledgeCoverage(db);
 
     const version = await db
       .prepare("SELECT value FROM schema_meta WHERE key = 'schema_version' LIMIT 1")
@@ -249,10 +251,30 @@ export async function GET() {
       )
       .first<{ total: number }>();
 
+    const coverageSummary = await db
+      .prepare(
+        `SELECT
+           COUNT(*) AS total_pairs,
+           SUM(CASE WHEN readiness = 'ready' THEN 1 ELSE 0 END) AS ready_pairs,
+           SUM(CASE WHEN readiness = 'partial' THEN 1 ELSE 0 END) AS partial_pairs,
+           SUM(CASE WHEN readiness = 'blocked' THEN 1 ELSE 0 END) AS blocked_pairs,
+           SUM(CASE WHEN is_indexable = 1 THEN 1 ELSE 0 END) AS indexable_pairs,
+           ROUND(AVG(quality_score), 1) AS average_score
+         FROM regulatory_coverage_snapshots`
+      )
+      .first<{
+        total_pairs: number;
+        ready_pairs: number;
+        partial_pairs: number;
+        blocked_pairs: number;
+        indexable_pairs: number;
+        average_score: number;
+      }>();
+
     return NextResponse.json({
       ok: true,
       d1: "connected",
-      schema: version?.value === "12" ? "ready" : "unknown",
+      schema: version?.value === "13" ? "ready" : "unknown",
       schemaVersion: version?.value || null,
       officialSources: Number(sourceCount?.total || 0),
       monitoredProducts: Number(monitorCount?.total || 0),
@@ -284,6 +306,12 @@ export async function GET() {
       regulatoryKbInformationalUpdates: Number(informationalUpdateCount?.total || 0),
       regulatoryKbRequirementChanges: Number(requirementChangedCount?.total || 0),
       regulatoryKbNeedsRuleUpdate: Number(needsRuleUpdateCount?.total || 0),
+      regulatoryKbCoveragePairs: Number(coverageSummary?.total_pairs || 0),
+      regulatoryKbReadyPairs: Number(coverageSummary?.ready_pairs || 0),
+      regulatoryKbPartialPairs: Number(coverageSummary?.partial_pairs || 0),
+      regulatoryKbBlockedPairs: Number(coverageSummary?.blocked_pairs || 0),
+      regulatoryKbIndexablePairs: Number(coverageSummary?.indexable_pairs || 0),
+      regulatoryKbAverageCoverageScore: Number(coverageSummary?.average_score || 0),
       emailProvider: getEmailProviderState(),
     });
   } catch (error) {
