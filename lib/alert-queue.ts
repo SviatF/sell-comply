@@ -26,10 +26,9 @@ function safeJson(value: unknown) {
   }
 }
 
-export async function approveChangeAndQueueAlerts(
+export async function queueAlertsForChange(
   db: SellComplyD1,
-  changeId: string,
-  options: { note?: string; reviewedBy?: string } = {}
+  changeId: string
 ) {
   const change = await db
     .prepare(
@@ -43,59 +42,69 @@ export async function approveChangeAndQueueAlerts(
 
   if (!change) throw new Error("CHANGE_NOT_FOUND");
 
-  await db
+  const historyEvent = await db
     .prepare(
-      `INSERT INTO change_reviews (
-        id, change_id, decision, review_note, reviewed_by, reviewed_at
-      ) VALUES (?, ?, 'approved', ?, ?, CURRENT_TIMESTAMP)
-      ON CONFLICT(change_id) DO UPDATE SET
-        decision = 'approved',
-        review_note = excluded.review_note,
-        reviewed_by = excluded.reviewed_by,
-        reviewed_at = CURRENT_TIMESTAMP`
+      `SELECT id
+       FROM regulatory_change_events
+       WHERE legacy_change_id = ?
+       ORDER BY detected_at DESC
+       LIMIT 1`
     )
-    .bind(
-      crypto.randomUUID(),
-      changeId,
-      options.note || null,
-      options.reviewedBy || "admin"
-    )
-    .run();
-
-  await db
-    .prepare("UPDATE rule_changes SET review_status = 'approved' WHERE id = ?")
     .bind(changeId)
-    .run();
+    .first<{ id: string }>();
 
-  await syncChangeReviewDecision(db, {
-    legacyChangeId: changeId,
-    decision: "approved",
-    reviewedBy: options.reviewedBy,
-    reviewNote: options.note,
-  });
+  let recipients;
 
-  const recipients = await db
-    .prepare(
-      `SELECT
-         m.id AS monitor_id,
-         es.id AS subscriber_id,
-         m.raw_product,
-         m.market_name,
-         m.marketplace_name
-       FROM monitoring_subscriptions m
-       INNER JOIN monitoring_recipients mr
-         ON mr.monitor_id = m.id
-        AND mr.channel = 'email'
-        AND mr.is_active = 1
-       INNER JOIN email_subscribers es
-         ON es.id = mr.subscriber_id
-        AND es.status = 'active'
-       WHERE m.is_active = 1
-         AND m.market_slug = ?
-         AND (? IS NULL OR m.product_slug = ?)`
-    )
-    .bind(change.market_slug, change.product_slug, change.product_slug)
-    .all<RecipientRow>();
+  if (historyEvent?.id) {
+    recipients = await db
+      .prepare(
+        `SELECT DISTINCT
+           m.id AS monitor_id,
+           es.id AS subscriber_id,
+           m.raw_product,
+           m.market_name,
+           m.marketplace_name
+         FROM monitoring_subscriptions m
+         INNER JOIN monitoring_recipients mr
+           ON mr.monitor_id = m.id
+          AND mr.channel = 'email'
+          AND mr.is_active = 1
+         INNER JOIN email_subscribers es
+           ON es.id = mr.subscriber_id
+          AND es.status = 'active'
+         INNER JOIN regulatory_change_impacts i
+           ON i.change_event_id = ?
+          AND i.impact_phase = 'detected'
+          AND i.market_slug = m.market_slug
+          AND i.product_slug = m.product_slug
+         WHERE m.is_active = 1`
+      )
+      .bind(historyEvent.id)
+      .all<RecipientRow>();
+  } else {
+    recipients = await db
+      .prepare(
+        `SELECT
+           m.id AS monitor_id,
+           es.id AS subscriber_id,
+           m.raw_product,
+           m.market_name,
+           m.marketplace_name
+         FROM monitoring_subscriptions m
+         INNER JOIN monitoring_recipients mr
+           ON mr.monitor_id = m.id
+          AND mr.channel = 'email'
+          AND mr.is_active = 1
+         INNER JOIN email_subscribers es
+           ON es.id = mr.subscriber_id
+          AND es.status = 'active'
+         WHERE m.is_active = 1
+           AND m.market_slug = ?
+           AND (? IS NULL OR m.product_slug = ?)`
+      )
+      .bind(change.market_slug, change.product_slug, change.product_slug)
+      .all<RecipientRow>();
+  }
 
   let queued = 0;
 
@@ -143,6 +152,52 @@ export async function approveChangeAndQueueAlerts(
   }
 
   return { queued };
+}
+
+export async function approveChangeAndQueueAlerts(
+  db: SellComplyD1,
+  changeId: string,
+  options: { note?: string; reviewedBy?: string } = {}
+) {
+  const exists = await db
+    .prepare("SELECT id FROM rule_changes WHERE id = ? LIMIT 1")
+    .bind(changeId)
+    .first<{ id: string }>();
+
+  if (!exists) throw new Error("CHANGE_NOT_FOUND");
+
+  await db
+    .prepare(
+      `INSERT INTO change_reviews (
+        id, change_id, decision, review_note, reviewed_by, reviewed_at
+      ) VALUES (?, ?, 'approved', ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(change_id) DO UPDATE SET
+        decision = 'approved',
+        review_note = excluded.review_note,
+        reviewed_by = excluded.reviewed_by,
+        reviewed_at = CURRENT_TIMESTAMP`
+    )
+    .bind(
+      crypto.randomUUID(),
+      changeId,
+      options.note || null,
+      options.reviewedBy || "admin"
+    )
+    .run();
+
+  await db
+    .prepare("UPDATE rule_changes SET review_status = 'approved' WHERE id = ?")
+    .bind(changeId)
+    .run();
+
+  await syncChangeReviewDecision(db, {
+    legacyChangeId: changeId,
+    decision: "approved",
+    reviewedBy: options.reviewedBy,
+    reviewNote: options.note,
+  });
+
+  return queueAlertsForChange(db, changeId);
 }
 
 export async function rejectChange(
