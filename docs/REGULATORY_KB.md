@@ -2,7 +2,7 @@
 
 Timing query status: production-ready.
 
-Current implementation status: applicability graph and regulatory timing are complete. Next phase: official source registry.
+Current implementation status: applicability graph, regulatory timing, and official source registry are complete. Next phase: reviewed / verified metadata.
 
 ## Purpose
 
@@ -10,7 +10,7 @@ The Regulatory Knowledge Base is the durable data layer behind SellComply's chec
 
 The checker currently continues to read the rule-pack source in code while the D1 knowledge layer is built and verified in parallel.
 
-## Schema version 8
+## Schema version 9
 
 ### regulatory_rules
 
@@ -163,6 +163,87 @@ Use:
 
 to inspect future and expired rules as well as currently applicable ones.
 
+### regulatory_source_registry
+
+The existing `sources` table remains SellComply's single source identity and monitoring store.
+
+The registry layer adds canonical metadata without duplicating source-monitor state:
+
+- canonical URL
+- canonical host
+- authority slug/name
+- jurisdiction
+- source kind
+- primary-source flag
+
+Known regulator families are normalized, including:
+
+- EUR-Lex / European Union
+- U.S. CPSC
+- U.S. FCC
+- U.S. FDA
+- U.S. PHMSA
+- GOV.UK
+- Health Canada
+- ISED Canada
+- ACMA
+- ACCC Product Safety
+
+### regulatory_source_markets
+
+Maps one canonical source to one or more SellComply markets.
+
+This is important for EU sources that cover multiple Member State pages such as Germany and France.
+
+### regulatory_rule_sources
+
+Version-specific provenance link:
+
+`rule_key × rule_version → source_id`
+
+Current rule versions keep `is_current = 1`; old version links remain as history.
+
+Every rule currently has one primary source, but the model supports multiple source relations later.
+
+## Source canonicalization
+
+Official URLs are normalized before registry identity is created:
+
+- fragments removed
+- tracking parameters removed
+- query parameters sorted
+- non-root trailing slashes normalized
+- host lower-cased
+
+Meaningful query parameters are preserved.
+
+## Source monitoring integration
+
+The registry does not create a separate monitoring system.
+
+Canonical sources continue to use `sources` for:
+
+- last checked time
+- HTTP status
+- content fingerprint
+- last verified time
+- source-change monitoring
+
+New rule sources automatically become monitorable because they are inserted into the same official `sources` catalog.
+
+## Source registry query
+
+Protected internal endpoint:
+
+`GET /api/admin/kb/sources`
+
+Optional filters:
+
+- `authority=<authority_slug>`
+- `market=<market_slug>`
+
+The response includes source authority, source kind, market scope, last checked, last verified, content hash, HTTP status, and current rule-link count.
+
 ## Direct knowledge query
 
 The internal protected endpoint can query the D1 graph directly:
@@ -185,4 +266,4 @@ These counts describe the current normalized knowledge graph.
 
 ## Next KB step
 
-Normalize the official source registry so every current rule version is linked to a canonical regulator/source record with verification and monitoring metadata.
+Add explicit last-reviewed and last-verified metadata for rule versions and source evidence so SellComply can distinguish automated source checks from human regulatory verification.
