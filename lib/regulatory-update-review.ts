@@ -227,7 +227,9 @@ export async function triageRegulatoryChange(
 
   let queued = 0;
   if (policy.sellerAlertEligible) {
-    const result = await queueAlertsForChange(db, changeId);
+    const result = await queueAlertsForChange(db, changeId, {
+      ruleKeys: selectedRules,
+    });
     queued = result.queued;
   }
 
