@@ -3,6 +3,8 @@ import Link from "next/link";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
 import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
+import SeoJsonLd from "@/app/components/SeoJsonLd";
+import { SITE_ORIGIN, buildWebPageSchema } from "@/lib/seo-structured-data";
 
 export const metadata: Metadata = {
   title: "About SellComply",
@@ -56,25 +58,21 @@ const doesNot = [
 ];
 
 export default function AboutPage() {
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "AboutPage",
+  const schema = buildWebPageSchema({
+    path: "/about",
     name: "About SellComply",
-    url: "https://sellcomply.com/about",
     description:
       "SellComply is a product-compliance intelligence and workflow platform for sellers, importers and ecommerce teams.",
-    isPartOf: {
-      "@type": "WebSite",
-      name: "SellComply",
-      url: "https://sellcomply.com",
-    },
+    type: "AboutPage",
     about: {
       "@type": "SoftwareApplication",
+      "@id": `${SITE_ORIGIN}/#software`,
       name: "SellComply",
+      url: SITE_ORIGIN,
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
     },
-  };
+  });
 
   return (
     <div className="seo-page trust-page">
@@ -244,7 +242,7 @@ export default function AboutPage() {
         </section>
       </main>
       <SeoFooter />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      <SeoJsonLd data={schema} />
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import SeoJsonLd from "@/app/components/SeoJsonLd";
+import { getSiteIdentitySchema } from "@/lib/seo-structured-data";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,7 +41,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body><SeoJsonLd data={getSiteIdentitySchema()} />{children}</body>
     </html>
   );
 }

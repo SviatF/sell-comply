@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import type { SeoBreadcrumbItem } from "@/lib/seo-breadcrumbs";
-
-const SITE_ORIGIN = "https://sellcomply.com";
+import SeoJsonLd from "@/app/components/SeoJsonLd";
+import { buildBreadcrumbSchema } from "@/lib/seo-structured-data";
 
 type Props = {
   items: SeoBreadcrumbItem[];
@@ -11,16 +11,7 @@ type Props = {
 export default function SeoBreadcrumbs({ items }: Props) {
   if (items.length < 2) return null;
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: new URL(item.href, SITE_ORIGIN).toString(),
-    })),
-  };
+  const schema = buildBreadcrumbSchema(items);
 
   return (
     <>
@@ -40,10 +31,7 @@ export default function SeoBreadcrumbs({ items }: Props) {
           );
         })}
       </nav>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      {schema ? <SeoJsonLd data={schema} /> : null}
     </>
   );
 }

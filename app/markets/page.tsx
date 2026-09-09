@@ -4,12 +4,21 @@ import { markets } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
 import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
+import SeoJsonLd from "@/app/components/SeoJsonLd";
+import { buildCollectionPageSchema } from "@/lib/seo-structured-data";
 
 export const metadata: Metadata = {
   title: "Global Product Compliance Markets",
   description: "Explore product compliance checks for Germany, France, the United States, United Kingdom, Canada and Australia.",
   alternates: { canonical: "/markets" },
 };
+
+const schema = buildCollectionPageSchema({
+  path: "/markets",
+  name: "Global Product Compliance Markets",
+  description: "Explore product compliance checks for Germany, France, the United States, United Kingdom, Canada and Australia.",
+  items: markets.map((market) => ({ name: market.name, href: `/sell/wireless-headphones/${market.slug}` })),
+});
 
 export default function MarketsPage() {
   return (
@@ -33,6 +42,7 @@ export default function MarketsPage() {
         </div>
       </main>
       <SeoFooter />
+      <SeoJsonLd data={schema} />
     </div>
   );
 }
