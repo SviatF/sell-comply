@@ -5,6 +5,7 @@ import UnsubscribeClient from "./UnsubscribeClient";
 export const metadata: Metadata = {
   title: "Unsubscribe from SellComply Alerts",
   robots: { index: false, follow: false },
+  alternates: { canonical: null },
 };
 
 export default async function UnsubscribePage({
