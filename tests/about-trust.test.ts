@@ -11,7 +11,8 @@ describe("About trust page", () => {
   it("ships indexable metadata and canonical URL", () => {
     expect(about).toContain('title: "About SellComply"');
     expect(about).toContain('alternates: { canonical: "/about" }');
-    expect(about).toContain('"@type": "AboutPage"');
+    expect(about).toContain('type: "AboutPage"');
+    expect(about).toContain("buildWebPageSchema({");
   });
 
   it("clearly defines product scope and limitations", () => {
