@@ -147,7 +147,7 @@ export default function Home() {
           <a href="#pricing">Pricing</a>
           <a href="/products">Resources</a>
           <a href="/dashboard">Dashboard</a>
-          <a href="#about">About</a>
+          <a href="/about">About</a>
         </nav>
 
         <div className="header-actions">
@@ -579,14 +579,14 @@ export default function Home() {
         </a>
       </section>
 
-      <footer id="about">
+      <footer>
         <a className="brand" href="#">
           <span className="brand-mark" aria-hidden="true"><span /><span /></span>
           <span>Sell<span>Comply</span></span>
         </a>
         <p>Global product compliance intelligence for modern commerce.</p>
         <div className="footer-links" id="resources">
-          <a href="/products">Products</a><a href="/markets">Markets</a><a href="/marketplaces">Marketplaces</a><a href="#">Privacy</a><a href="#">Terms</a>
+          <a href="/products">Products</a><a href="/markets">Markets</a><a href="/marketplaces">Marketplaces</a><a href="/about">About</a><a href="#">Privacy</a><a href="#">Terms</a>
         </div>
         <span>© 2026 SellComply</span>
       </footer>
