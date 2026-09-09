@@ -65,7 +65,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 ### 5. Existing SEO Batch 1 QA
 
 - [x] Audit all current indexable URLs
-- [ ] Unique title / description / H1
+- [x] Unique title / description / H1
 - [ ] Canonicals
 - [ ] Breadcrumbs
 - [ ] Structured data
