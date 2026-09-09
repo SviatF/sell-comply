@@ -66,12 +66,16 @@ function decodeHtml(value: string) {
 }
 
 function extractH1(node: React.ReactNode) {
-  const html = renderToStaticMarkup(<>{node}</>);
+  const html = renderToStaticMarkup(
+    React.createElement(React.Fragment, null, node)
+  );
   const matches = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)];
 
   expect(matches, "Every indexable page must render exactly one H1").toHaveLength(1);
 
-  return decodeHtml(matches[0][1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+  return decodeHtml(
+    matches[0][1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+  );
 }
 
 function coreRecord(
@@ -90,19 +94,43 @@ function coreRecord(
 
 async function buildSeoAuditInventory(): Promise<SeoAuditRecord[]> {
   const records: SeoAuditRecord[] = [
-    coreRecord("/", rootMetadata, <Home />),
-    coreRecord("/products", productsMetadata, <ProductsPage />),
-    coreRecord("/markets", marketsMetadata, <MarketsPage />),
-    coreRecord("/marketplaces", marketplacesMetadata, <MarketplacesPage />),
-    coreRecord("/about", aboutMetadata, <AboutPage />),
-    coreRecord("/methodology", methodologyMetadata, <MethodologyPage />),
-    coreRecord("/sources-policy", sourcesPolicyMetadata, <SourcesPolicyPage />),
-    coreRecord("/editorial-policy", editorialPolicyMetadata, <EditorialPolicyPage />),
-    coreRecord("/corrections", correctionsMetadata, <CorrectionsPage />),
-    coreRecord("/contact", contactMetadata, <ContactPage />),
-    coreRecord("/privacy", privacyMetadata, <PrivacyPage />),
-    coreRecord("/terms", termsMetadata, <TermsPage />),
-    coreRecord("/disclaimer", disclaimerMetadata, <DisclaimerPage />),
+    coreRecord("/", rootMetadata, React.createElement(Home)),
+    coreRecord("/products", productsMetadata, React.createElement(ProductsPage)),
+    coreRecord("/markets", marketsMetadata, React.createElement(MarketsPage)),
+    coreRecord(
+      "/marketplaces",
+      marketplacesMetadata,
+      React.createElement(MarketplacesPage)
+    ),
+    coreRecord("/about", aboutMetadata, React.createElement(AboutPage)),
+    coreRecord(
+      "/methodology",
+      methodologyMetadata,
+      React.createElement(MethodologyPage)
+    ),
+    coreRecord(
+      "/sources-policy",
+      sourcesPolicyMetadata,
+      React.createElement(SourcesPolicyPage)
+    ),
+    coreRecord(
+      "/editorial-policy",
+      editorialPolicyMetadata,
+      React.createElement(EditorialPolicyPage)
+    ),
+    coreRecord(
+      "/corrections",
+      correctionsMetadata,
+      React.createElement(CorrectionsPage)
+    ),
+    coreRecord("/contact", contactMetadata, React.createElement(ContactPage)),
+    coreRecord("/privacy", privacyMetadata, React.createElement(PrivacyPage)),
+    coreRecord("/terms", termsMetadata, React.createElement(TermsPage)),
+    coreRecord(
+      "/disclaimer",
+      disclaimerMetadata,
+      React.createElement(DisclaimerPage)
+    ),
   ];
 
   for (const product of products) {
@@ -115,7 +143,9 @@ async function buildSeoAuditInventory(): Promise<SeoAuditRecord[]> {
         path: `/sell/${product.slug}/${market.slug}`,
         title: metadataTitle(metadata),
         description: metadataDescription(metadata),
-        h1: extractH1(<ComplianceSeoPage product={product} market={market} />),
+        h1: extractH1(
+          React.createElement(ComplianceSeoPage, { product, market })
+        ),
         kind: "product-market",
       });
     }
@@ -135,7 +165,7 @@ async function buildSeoAuditInventory(): Promise<SeoAuditRecord[]> {
         title: metadataTitle(metadata),
         description: metadataDescription(metadata),
         h1: extractH1(
-          <ComplianceSeoPage product={product} marketplace={marketplace} />
+          React.createElement(ComplianceSeoPage, { product, marketplace })
         ),
         kind: "marketplace-product",
       });
@@ -161,12 +191,18 @@ describe("SEO Batch 1 — title / description / H1 quality gate", () => {
 
   it("requires one useful title, description and H1 on every indexable URL", () => {
     for (const record of records) {
-      expect(record.title.length, `${record.path}: title too short`).toBeGreaterThanOrEqual(10);
+      expect(
+        record.title.length,
+        `${record.path}: title too short`
+      ).toBeGreaterThanOrEqual(10);
       expect(
         record.description.length,
         `${record.path}: description too short`
       ).toBeGreaterThanOrEqual(50);
-      expect(record.h1.length, `${record.path}: H1 too short`).toBeGreaterThanOrEqual(8);
+      expect(
+        record.h1.length,
+        `${record.path}: H1 too short`
+      ).toBeGreaterThanOrEqual(8);
     }
   });
 
