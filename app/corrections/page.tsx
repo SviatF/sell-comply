@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 export default function CorrectionsPage() {
   return (
     <TrustPolicyPage
+      path="/corrections"
       eyebrow="CORRECTIONS POLICY"
       title="Errors should be"
       accent="correctable."
