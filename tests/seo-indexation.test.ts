@@ -98,7 +98,7 @@ describe("SEO Batch 1 — crawl and indexation quality gate", () => {
     expect(source).toContain('userAgent: "*"');
     expect(source).toContain('allow: "/"');
     expect(source).toContain("disallow: [...ROBOTS_DISALLOW_PREFIXES]");
-    expect(source).toContain(`sitemap: \`${SITE_ORIGIN}/sitemap.xml\``);
+    expect(source).toContain("sitemap: `${SITE_ORIGIN}/sitemap.xml`");
     expect(source).toContain("host: SITE_ORIGIN");
 
     for (const item of noindexPageFiles) {
