@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <TrustPolicyPage
+      path="/privacy"
       eyebrow="PRIVACY POLICY"
       title="Privacy for a"
       accent="guest-first product."
