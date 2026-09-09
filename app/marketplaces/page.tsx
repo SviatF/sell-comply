@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { marketplaces } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
+import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
+import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Marketplace Product Compliance",
@@ -14,6 +16,7 @@ export default function MarketplacesPage() {
     <div className="seo-page">
       <SeoHeader />
       <main className="seo-main">
+        <SeoBreadcrumbs items={getCoreBreadcrumbs("/marketplaces")} />
         <section className="hub-hero">
           <span className="seo-kicker"><i /> Marketplace compliance</span>
           <h1>Platform rules are only <em>one layer.</em></h1>
