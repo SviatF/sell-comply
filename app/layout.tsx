@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   },
   description:
     "Check product regulations, marketplace requirements and compliance risks before you sell in a new country. Sell globally with more confidence.",
+  alternates: { canonical: "/" },
   keywords: [
     "product compliance checker",
     "global product compliance",
