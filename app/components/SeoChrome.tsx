@@ -12,6 +12,7 @@ export function SeoHeader() {
         <Link href="/markets">Markets</Link>
         <Link href="/marketplaces">Marketplaces</Link>
         <Link href="/about">About</Link>
+        <Link href="/methodology">Methodology</Link>
         <Link href="/dashboard">Dashboard</Link>
         <Link href="/#checker">Checker</Link>
       </nav>
@@ -23,12 +24,27 @@ export function SeoHeader() {
 export function SeoFooter() {
   return (
     <footer className="seo-footer">
-      <span>© 2026 SellComply · Product compliance intelligence</span>
-      <div className="seo-footer-links">
-        <Link href="/products">Products</Link>
-        <Link href="/markets">Markets</Link>
-        <Link href="/marketplaces">Marketplaces</Link>
-        <Link href="/about">About</Link>
+      <div className="seo-footer-brand">
+        <strong>© 2026 SellComply</strong>
+        <span>Product compliance intelligence</span>
+      </div>
+      <div className="seo-footer-groups">
+        <div className="seo-footer-links">
+          <Link href="/products">Products</Link>
+          <Link href="/markets">Markets</Link>
+          <Link href="/marketplaces">Marketplaces</Link>
+          <Link href="/about">About</Link>
+          <Link href="/methodology">Methodology</Link>
+          <Link href="/sources-policy">Sources</Link>
+          <Link href="/editorial-policy">Editorial</Link>
+          <Link href="/corrections">Corrections</Link>
+        </div>
+        <div className="seo-footer-links legal">
+          <Link href="/contact">Contact</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/disclaimer">Disclaimer</Link>
+        </div>
       </div>
     </footer>
   );
