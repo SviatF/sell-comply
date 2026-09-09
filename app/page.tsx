@@ -586,7 +586,7 @@ export default function Home() {
         </a>
         <p>Global product compliance intelligence for modern commerce.</p>
         <div className="footer-links" id="resources">
-          <a href="/products">Products</a><a href="/markets">Markets</a><a href="/marketplaces">Marketplaces</a><a href="/about">About</a><a href="#">Privacy</a><a href="#">Terms</a>
+          <a href="/products">Products</a><a href="/markets">Markets</a><a href="/marketplaces">Marketplaces</a><a href="/about">About</a><a href="/methodology">Methodology</a><a href="/sources-policy">Sources</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/disclaimer">Disclaimer</a>
         </div>
         <span>© 2026 SellComply</span>
       </footer>
