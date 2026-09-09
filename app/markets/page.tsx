@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { markets } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
 import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
 import SeoJsonLd from "@/app/components/SeoJsonLd";
 import { buildCollectionPageSchema } from "@/lib/seo-structured-data";
+import { getMarketHubLinks } from "@/lib/seo-internal-links";
 
 export const metadata: Metadata = {
   title: "Global Product Compliance Markets",
@@ -13,11 +13,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/markets" },
 };
 
+const hubLinks = getMarketHubLinks();
+
 const schema = buildCollectionPageSchema({
   path: "/markets",
   name: "Global Product Compliance Markets",
   description: "Explore product compliance checks for Germany, France, the United States, United Kingdom, Canada and Australia.",
-  items: markets.map((market) => ({ name: market.name, href: `/sell/wireless-headphones/${market.slug}` })),
+  items: hubLinks.map((link) => ({ name: link.label, href: link.href })),
 });
 
 export default function MarketsPage() {
@@ -32,11 +34,11 @@ export default function MarketsPage() {
           <p>Start with a target market and explore how the compliance review changes by product category, language, regulator and supply-chain role.</p>
         </section>
         <div className="hub-grid">
-          {markets.map((market) => (
-            <Link className="hub-card" key={market.slug} href={`/sell/wireless-headphones/${market.slug}`}>
-              <span className="hub-icon">{market.flag}</span>
-              <h2>{market.name}</h2>
-              <p>{market.region} · {market.language}</p>
+          {hubLinks.map((link) => (
+            <Link className="hub-card" key={link.href} href={link.href}>
+              <span className="hub-icon">{link.icon}</span>
+              <h2>{link.label}</h2>
+              <p>{link.description}</p>
             </Link>
           ))}
         </div>
