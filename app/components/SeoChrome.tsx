@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SEO_FOOTER_LEGAL_LINKS, SEO_FOOTER_PRIMARY_LINKS, SEO_HEADER_LINKS } from "@/lib/seo-internal-links";
 
 export function SeoHeader() {
   return (
@@ -8,11 +9,7 @@ export function SeoHeader() {
         <span>Sell<span>Comply</span></span>
       </Link>
       <nav className="seo-nav">
-        <Link href="/products">Products</Link>
-        <Link href="/markets">Markets</Link>
-        <Link href="/marketplaces">Marketplaces</Link>
-        <Link href="/about">About</Link>
-        <Link href="/methodology">Methodology</Link>
+        {SEO_HEADER_LINKS.map((link) => <Link href={link.href} key={link.href}>{link.label}</Link>)}
         <Link href="/dashboard">Dashboard</Link>
         <Link href="/#checker">Checker</Link>
       </nav>
@@ -30,20 +27,10 @@ export function SeoFooter() {
       </div>
       <div className="seo-footer-groups">
         <div className="seo-footer-links">
-          <Link href="/products">Products</Link>
-          <Link href="/markets">Markets</Link>
-          <Link href="/marketplaces">Marketplaces</Link>
-          <Link href="/about">About</Link>
-          <Link href="/methodology">Methodology</Link>
-          <Link href="/sources-policy">Sources</Link>
-          <Link href="/editorial-policy">Editorial</Link>
-          <Link href="/corrections">Corrections</Link>
+          {SEO_FOOTER_PRIMARY_LINKS.map((link) => <Link href={link.href} key={link.href}>{link.label}</Link>)}
         </div>
         <div className="seo-footer-links legal">
-          <Link href="/contact">Contact</Link>
-          <Link href="/privacy">Privacy</Link>
-          <Link href="/terms">Terms</Link>
-          <Link href="/disclaimer">Disclaimer</Link>
+          {SEO_FOOTER_LEGAL_LINKS.map((link) => <Link href={link.href} key={link.href}>{link.label}</Link>)}
         </div>
       </div>
     </footer>
