@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   title: "Product Compliance Check Results",
   description: "Review product, market and marketplace compliance areas with SellComply.",
   robots: { index: false, follow: true },
+  alternates: { canonical: null },
 };
 
 const statusLabel = {
