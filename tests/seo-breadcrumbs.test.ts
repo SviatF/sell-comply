@@ -152,10 +152,14 @@ describe("SEO Batch 1 — breadcrumb quality gate", () => {
   it("renders semantic breadcrumb navigation and BreadcrumbList JSON-LD from the same items", () => {
     expect(componentSource).toContain('aria-label="Breadcrumb"');
     expect(componentSource).toContain('aria-current="page"');
-    expect(componentSource).toContain('"@type": "BreadcrumbList"');
-    expect(componentSource).toContain('"@type": "ListItem"');
-    expect(componentSource).toContain("itemListElement: items.map");
-    expect(componentSource).toContain("new URL(item.href, SITE_ORIGIN).toString()");
+    expect(componentSource).toContain("buildBreadcrumbSchema(items)");
+    expect(componentSource).toContain("<SeoJsonLd data={schema} />");
+
+    const structuredDataSource = readFileSync("lib/seo-structured-data.ts", "utf8");
+    expect(structuredDataSource).toContain('"@type": "BreadcrumbList"');
+    expect(structuredDataSource).toContain('"@type": "ListItem"');
+    expect(structuredDataSource).toContain("itemListElement: items.map");
+    expect(structuredDataSource).toContain("absoluteSeoUrl(item.href)");
   });
 
   it("uses the shared breadcrumb component across dynamic, trust and core SEO templates", () => {
