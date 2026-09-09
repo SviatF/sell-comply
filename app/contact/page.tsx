@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <TrustPolicyPage
+      path="/contact"
       eyebrow="CONTACT"
       title="Send the issue with"
       accent="context."
