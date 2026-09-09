@@ -21,14 +21,16 @@ describe("trust and editorial architecture", () => {
     }
   });
 
-  it("makes the trust center discoverable globally and in the sitemap", () => {
+  it("makes the trust center discoverable globally and in the sitemap manifest", () => {
     const chrome = readFileSync("app/components/SeoChrome.tsx", "utf8");
+    const indexableManifest = readFileSync("lib/indexable-routes.ts", "utf8");
     const sitemap = readFileSync("app/sitemap.ts", "utf8");
 
     for (const [route] of trustRoutes) {
-      expect(sitemap, route).toContain(`/${route}`);
+      expect(indexableManifest, route).toContain(`/${route}`);
     }
 
+    expect(sitemap).toContain("indexableRoutes");
     expect(chrome).toContain('href="/methodology"');
     expect(chrome).toContain('href="/sources-policy"');
     expect(chrome).toContain('href="/editorial-policy"');
