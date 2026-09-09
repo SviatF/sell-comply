@@ -4,12 +4,21 @@ import { products } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
 import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
+import SeoJsonLd from "@/app/components/SeoJsonLd";
+import { buildCollectionPageSchema } from "@/lib/seo-structured-data";
 
 export const metadata: Metadata = {
   title: "Product Compliance Checks",
   description: "Browse product-specific compliance checks for electronics, toys, cosmetics, candles, jewelry and more.",
   alternates: { canonical: "/products" },
 };
+
+const schema = buildCollectionPageSchema({
+  path: "/products",
+  name: "Product Compliance Checks",
+  description: "Browse product-specific compliance checks for electronics, toys, cosmetics, candles, jewelry and more.",
+  items: products.map((product) => ({ name: product.name, href: `/sell/${product.slug}/germany` })),
+});
 
 export default function ProductsPage() {
   return (
@@ -33,6 +42,7 @@ export default function ProductsPage() {
         </div>
       </main>
       <SeoFooter />
+      <SeoJsonLd data={schema} />
     </div>
   );
 }
