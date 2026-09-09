@@ -220,17 +220,17 @@ export default function AboutPage() {
             <span className="seo-kicker"><i /> TRANSPARENCY</span>
             <h2>Trust should be inspectable.</h2>
             <p>
-              SellComply is building a public trust architecture around methodology, source
-              selection, editorial standards, corrections, disclaimers and reviewer metadata.
-              Those pages will explain how regulatory information enters the system, how changes
+              SellComply publishes a public trust architecture around methodology, source
+              selection, editorial standards, corrections, disclaimers and review metadata.
+              These pages explain how regulatory information enters the system, how changes
               are handled and where the platform's limits sit.
             </p>
           </div>
           <div className="trust-transparency-links">
-            <span>Methodology — next</span>
-            <span>Sources policy — planned</span>
-            <span>Corrections policy — planned</span>
-            <span>Reviewer / last-reviewed metadata — planned</span>
+            <Link href="/methodology">Methodology <b>→</b></Link>
+            <Link href="/sources-policy">Sources policy <b>→</b></Link>
+            <Link href="/editorial-policy">Editorial policy <b>→</b></Link>
+            <Link href="/corrections">Corrections policy <b>→</b></Link>
           </div>
         </section>
 
