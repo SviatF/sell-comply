@@ -67,7 +67,8 @@ describe("trust and editorial architecture", () => {
     const api = readFileSync("app/api/contact/route.ts", "utf8");
     const schema = readFileSync("lib/db-schema.ts", "utf8");
 
-    expect(page).toContain("Correction / regulatory issue");
+    expect(page).toContain("Contact SellComply");
+    expect(form).toContain("Correction / regulatory issue");
     expect(form).toContain('fetch("/api/contact"');
     expect(api).toContain("INVALID_CONTACT_PAYLOAD");
     expect(api).toContain("CONTACT_STORAGE_UNAVAILABLE");
@@ -91,7 +92,10 @@ describe("trust and editorial architecture", () => {
 
   it("marks the trust editorial roadmap complete", () => {
     const roadmap = readFileSync("docs/TRAFFIC_ROADMAP.md", "utf8");
+    const trustSection = roadmap
+      .split("## SEO foundation")[0]
+      .split("### 4. Trust / editorial architecture — DONE")[1];
     expect(roadmap).toContain("### 4. Trust / editorial architecture — DONE");
-    expect(roadmap).not.toMatch(/### 4[\s\S]*?- \[ \]/);
+    expect(trustSection).not.toMatch(/- \[ \]/);
   });
 });
