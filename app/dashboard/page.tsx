@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Compliance Dashboard",
   description: "Manage saved product compliance checks and monitored markets in SellComply.",
   robots: { index: false, follow: true },
+  alternates: { canonical: null },
 };
 
 export default function DashboardPage() {

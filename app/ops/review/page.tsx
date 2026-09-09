@@ -5,6 +5,7 @@ import ReviewClient from "./ReviewClient";
 export const metadata: Metadata = {
   title: "SellComply Regulatory Review",
   robots: { index: false, follow: false },
+  alternates: { canonical: null },
 };
 
 export default function ReviewPage() {
