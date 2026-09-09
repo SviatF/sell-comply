@@ -67,7 +67,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Audit all current indexable URLs
 - [x] Unique title / description / H1
 - [x] Canonicals
-- [ ] Breadcrumbs
+- [x] Breadcrumbs
 - [ ] Structured data
 - [ ] Internal links
 - [ ] Crawl/indexation checks
