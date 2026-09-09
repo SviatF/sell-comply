@@ -30,3 +30,10 @@
   .report-rule-status.required{background:#d8f4e1!important;color:#12331e!important}.report-rule-status.likely{background:#fde0ed!important;color:#7e1747!important}.report-rule-status.verify{background:#ededf0!important;color:#333!important}.report-rule-status.platform{background:#e5eafa!important;color:#273d83!important}
   a{text-decoration:none!important}
 }
+
+
+/* Shareable report stays account-free */
+.report-toolbar-access{display:grid;gap:4px;min-width:0}
+.report-toolbar-access>a{font-size:11px;color:#85858e}
+.report-toolbar-access>span{font-size:8px;line-height:1.4;color:#666670}
+@media(max-width:560px){.report-toolbar-access>span{font-size:9px}}
