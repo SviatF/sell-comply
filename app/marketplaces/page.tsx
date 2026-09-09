@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { marketplaces } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
 import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
 import SeoJsonLd from "@/app/components/SeoJsonLd";
 import { buildCollectionPageSchema } from "@/lib/seo-structured-data";
+import { getMarketplaceHubLinks } from "@/lib/seo-internal-links";
 
 export const metadata: Metadata = {
   title: "Marketplace Product Compliance",
@@ -13,11 +13,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/marketplaces" },
 };
 
+const hubLinks = getMarketplaceHubLinks();
+
 const schema = buildCollectionPageSchema({
   path: "/marketplaces",
   name: "Marketplace Product Compliance",
   description: "Explore product compliance and listing checks for Amazon, Etsy, eBay, TikTok Shop and Shopify sellers.",
-  items: marketplaces.map((marketplace) => ({ name: marketplace.name, href: `/marketplaces/${marketplace.slug}/wireless-headphones` })),
+  items: hubLinks.map((link) => ({ name: link.label, href: link.href })),
 });
 
 export default function MarketplacesPage() {
@@ -32,11 +34,11 @@ export default function MarketplacesPage() {
           <p>Compare marketplace listing requirements with the product rules that apply in the destination market. SellComply is built to connect both layers.</p>
         </section>
         <div className="hub-grid">
-          {marketplaces.map((marketplace) => (
-            <Link className="hub-card" key={marketplace.slug} href={`/marketplaces/${marketplace.slug}/wireless-headphones`}>
+          {hubLinks.map((link) => (
+            <Link className="hub-card" key={link.href} href={link.href}>
               <span className="hub-icon">▦</span>
-              <h2>{marketplace.name}</h2>
-              <p>{marketplace.reviewAreas.slice(0, 2).join(" · ")}</p>
+              <h2>{link.label}</h2>
+              <p>{link.description}</p>
             </Link>
           ))}
         </div>
