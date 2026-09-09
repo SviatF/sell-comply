@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
 import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
+import SeoJsonLd from "@/app/components/SeoJsonLd";
+import { buildWebPageSchema } from "@/lib/seo-structured-data";
 
 export type TrustSection = {
   title: string;
@@ -46,6 +48,14 @@ export default function TrustPolicyPage({
   sections,
   children,
 }: Props) {
+  const pageName = `${title}${accent ? ` ${accent}` : ""}`;
+  const schema = buildWebPageSchema({
+    path,
+    name: pageName,
+    description: lead,
+    type: path === "/contact" ? "ContactPage" : "WebPage",
+  });
+
   return (
     <div className="seo-page trust-page">
       <SeoHeader />
@@ -98,6 +108,7 @@ export default function TrustPolicyPage({
         </div>
       </main>
       <SeoFooter />
+      <SeoJsonLd data={schema} />
     </div>
   );
 }
