@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
+import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
+import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
 
 export const metadata: Metadata = {
   title: "About SellComply",
@@ -78,9 +80,7 @@ export default function AboutPage() {
     <div className="seo-page trust-page">
       <SeoHeader />
       <main className="seo-main trust-main">
-        <div className="breadcrumbs">
-          <Link href="/">Home</Link><span>/</span><span>About</span>
-        </div>
+        <SeoBreadcrumbs items={getCoreBreadcrumbs("/about")} />
 
         <section className="trust-hero">
           <div>
