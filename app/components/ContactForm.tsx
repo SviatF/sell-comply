@@ -18,7 +18,8 @@ export default function ContactForm() {
     event.preventDefault();
     if (status === "sending") return;
 
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const payload = {
       name: String(form.get("name") || "").trim(),
       email: String(form.get("email") || "").trim(),
@@ -42,7 +43,7 @@ export default function ContactForm() {
         throw new Error(result?.error || "CONTACT_SAVE_FAILED");
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       setStatus("sent");
     } catch {
       setError("We could not submit your message right now. Please try again.");
