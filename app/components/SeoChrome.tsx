@@ -11,6 +11,7 @@ export function SeoHeader() {
         <Link href="/products">Products</Link>
         <Link href="/markets">Markets</Link>
         <Link href="/marketplaces">Marketplaces</Link>
+        <Link href="/about">About</Link>
         <Link href="/dashboard">Dashboard</Link>
         <Link href="/#checker">Checker</Link>
       </nav>
@@ -27,6 +28,7 @@ export function SeoFooter() {
         <Link href="/products">Products</Link>
         <Link href="/markets">Markets</Link>
         <Link href="/marketplaces">Marketplaces</Link>
+        <Link href="/about">About</Link>
       </div>
     </footer>
   );
