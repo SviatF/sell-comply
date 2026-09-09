@@ -34,10 +34,11 @@ describe("About trust page", () => {
     expect(sitemap).toContain("/about");
   });
 
-  it("keeps future trust pages explicit instead of pretending they already exist", () => {
-    expect(about).toContain("Methodology — next");
-    expect(about).toContain("Sources policy — planned");
-    expect(about).toContain("Corrections policy — planned");
-    expect(about).toContain("Reviewer / last-reviewed metadata — planned");
+  it("links the completed trust architecture", () => {
+    expect(about).toContain('href="/methodology"');
+    expect(about).toContain('href="/sources-policy"');
+    expect(about).toContain('href="/editorial-policy"');
+    expect(about).toContain('href="/corrections"');
+    expect(about).not.toContain("— planned");
   });
 });
