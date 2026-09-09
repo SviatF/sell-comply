@@ -135,6 +135,7 @@ export function getMarketplaceProductInternalLinks(
       href: `/sell/${product.slug}/${item.slug}`,
       label: item.name,
       description: `${product.name} compliance check`,
+      icon: item.flag,
     })),
     products: products
       .filter((item) => item.slug !== product.slug)
