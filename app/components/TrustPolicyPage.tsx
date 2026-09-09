@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 
 export type TrustSection = {
@@ -16,7 +17,7 @@ type Props = {
   lastUpdated: string;
   summary: string;
   sections: TrustSection[];
-  children?: React.ReactNode;
+  children?: ReactNode;
 };
 
 const trustLinks = [
