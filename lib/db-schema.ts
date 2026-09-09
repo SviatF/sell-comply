@@ -174,6 +174,19 @@ const statements = [
   )`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_alert_jobs_unique ON alert_jobs(change_id, monitor_id, subscriber_id)`,
   `CREATE INDEX IF NOT EXISTS idx_alert_jobs_status_created ON alert_jobs(status, created_at)`,
+  `CREATE TABLE IF NOT EXISTS contact_messages (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    email TEXT NOT NULL,
+    topic TEXT NOT NULL,
+    message TEXT NOT NULL,
+    page TEXT,
+    status TEXT NOT NULL DEFAULT 'new',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_contact_messages_status_created ON contact_messages(status, created_at)`,
+  `CREATE INDEX IF NOT EXISTS idx_contact_messages_email ON contact_messages(email)`,
   `CREATE TABLE IF NOT EXISTS regulatory_rules (
     rule_key TEXT PRIMARY KEY,
     title TEXT NOT NULL,
@@ -413,7 +426,7 @@ export async function ensureDatabaseSchema(db: SellComplyD1) {
   await db
     .prepare(
       `INSERT INTO schema_meta (key, value, updated_at)
-       VALUES ('schema_version', '13', CURRENT_TIMESTAMP)
+       VALUES ('schema_version', '14', CURRENT_TIMESTAMP)
        ON CONFLICT(key) DO UPDATE SET
          value = excluded.value,
          updated_at = CURRENT_TIMESTAMP`

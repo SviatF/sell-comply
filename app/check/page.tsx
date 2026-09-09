@@ -8,6 +8,7 @@ import TrackEvent from "@/app/components/TrackEvent";
 import CheckRefinementForm from "@/app/components/CheckRefinementForm";
 import ReportLauncher from "@/app/components/ReportLauncher";
 import MarketComparisonGrid from "@/app/components/MarketComparisonGrid";
+import ReviewDisclosure from "@/app/components/ReviewDisclosure";
 import { buildCheckParams, parseCheckFacts } from "@/lib/check-query";
 import { getComparisonSummary } from "@/lib/market-comparison";
 import { markets } from "@/lib/seo-data";
@@ -61,6 +62,12 @@ export default async function CheckPage({
     facts,
   });
   const reportHref = `/report?${reportQuery.toString()}`;
+  const matchedVerificationDates = result.reviewItems
+    .map((item) => item.lastVerified)
+    .filter((value): value is string => Boolean(value))
+    .sort();
+  const latestMatchedVerification =
+    matchedVerificationDates.at(-1) || "Current source verification required";
 
   const marketComparisons = markets
     .map((market) => {
@@ -169,6 +176,12 @@ export default async function CheckPage({
             </div>
           </div>
         </section>
+
+        <ReviewDisclosure
+          label="CHECKER REVIEW BASIS"
+          lastReviewed={latestMatchedVerification}
+          basis="Matched curated rule packs + linked official sources"
+        />
 
         <section className={`check-risk-section risk-${result.risk.level}`}>
           <div className="risk-score-panel">
@@ -343,6 +356,7 @@ export default async function CheckPage({
                     {item.why && <small className="review-why"><b>Why:</b> {item.why}</small>}
                     <div className="review-rule-meta">
                       {item.effectiveNote && <span>{item.effectiveNote}</span>}
+                      {item.lastVerified && <span>Source verified {item.lastVerified}</span>}
                       {item.sourceUrl && item.sourceLabel && (
                         <a href={item.sourceUrl} target="_blank" rel="noreferrer">
                           {item.sourceLabel} ↗

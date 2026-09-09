@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MarketSeo, MarketplaceSeo, ProductSeo, marketplaces, markets, products } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "./SeoChrome";
+import ReviewDisclosure from "./ReviewDisclosure";
 
 type Props = {
   product: ProductSeo;
@@ -106,6 +107,11 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
             <Link className="button button-accent" href="/#checker">Check product for free →</Link>
           </aside>
         </section>
+
+        <ReviewDisclosure
+          lastReviewed="9 September 2026"
+          basis="Editorial overview + structured compliance knowledge base"
+        />
 
         <section className="seo-grid">
           <article className="seo-card">

@@ -47,18 +47,18 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Mobile checker QA
 - [x] No forced signup
 
-### 4. Trust / editorial architecture — NEXT
+### 4. Trust / editorial architecture — DONE
 
 - [x] About
-- [ ] How SellComply works / methodology
-- [ ] Sources policy
-- [ ] Editorial/compliance policy
-- [ ] Corrections policy
-- [ ] Contact
-- [ ] Privacy
-- [ ] Terms
-- [ ] Compliance disclaimer
-- [ ] Reviewer / last-reviewed presentation
+- [x] How SellComply works / methodology
+- [x] Sources policy
+- [x] Editorial/compliance policy
+- [x] Corrections policy
+- [x] Contact
+- [x] Privacy
+- [x] Terms
+- [x] Compliance disclaimer
+- [x] Reviewer / last-reviewed presentation
 
 ## SEO foundation
 
