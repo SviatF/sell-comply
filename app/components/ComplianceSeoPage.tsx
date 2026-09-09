@@ -4,6 +4,8 @@ import { SeoFooter, SeoHeader } from "./SeoChrome";
 import ReviewDisclosure from "./ReviewDisclosure";
 import SeoBreadcrumbs from "./SeoBreadcrumbs";
 import { getMarketplaceProductBreadcrumbs, getProductMarketBreadcrumbs } from "@/lib/seo-breadcrumbs";
+import SeoJsonLd from "./SeoJsonLd";
+import { buildFaqPageSchema, buildWebPageSchema } from "@/lib/seo-structured-data";
 
 type Props = {
   product: ProductSeo;
@@ -15,6 +17,12 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
   const title = market
     ? `Can I sell ${product.name} in ${market.name}?`
     : `${product.name} compliance for ${marketplace?.name}`;
+
+  const pagePath = market
+    ? `/sell/${product.slug}/${market.slug}`
+    : marketplace
+      ? `/marketplaces/${marketplace.slug}/${product.slug}`
+      : "/";
 
   const breadcrumbs = market
     ? getProductMarketBreadcrumbs(product, market)
@@ -71,24 +79,18 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
         },
       ];
 
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
+  const schema = buildWebPageSchema({
+    path: pagePath,
     name: title,
     description: lead,
-    isPartOf: { "@type": "WebSite", name: "SellComply", url: "https://sellcomply.com" },
-    about: { "@type": "Product", name: product.name, category: product.category },
-  };
+    about: {
+      "@type": "Thing",
+      name: product.name,
+      description: product.intro,
+    },
+  });
 
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqs.map((item) => ({
-      "@type": "Question",
-      name: item.q,
-      acceptedAnswer: { "@type": "Answer", text: item.a },
-    })),
-  };
+  const faqSchema = buildFaqPageSchema(pagePath, faqs);
 
   return (
     <div className="seo-page">
@@ -190,8 +192,8 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
         </section>
       </main>
       <SeoFooter />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <SeoJsonLd data={schema} />
+      <SeoJsonLd data={faqSchema} />
     </div>
   );
 }
