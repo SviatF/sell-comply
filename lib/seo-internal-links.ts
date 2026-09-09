@@ -12,6 +12,7 @@ export type SeoInternalLink = {
   href: string;
   label: string;
   description?: string;
+  icon?: string;
 };
 
 export const SEO_HEADER_LINKS: SeoInternalLink[] = [
@@ -86,6 +87,7 @@ export function getMarketHubLinks(): SeoInternalLink[] {
     href: `/sell/wireless-headphones/${market.slug}`,
     label: market.name,
     description: `${market.region} · ${market.language}`,
+    icon: market.flag,
   }));
 }
 
@@ -108,6 +110,7 @@ export function getProductMarketInternalLinks(
         href: `/sell/${product.slug}/${item.slug}`,
         label: item.name,
         description: `${product.name} compliance check`,
+        icon: item.flag,
       })),
     products: products
       .filter((item) => item.slug !== product.slug)
