@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const about = readFileSync("app/about/page.tsx", "utf8");
 const chrome = readFileSync("app/components/SeoChrome.tsx", "utf8");
+const indexableManifest = readFileSync("lib/indexable-routes.ts", "utf8");
 const sitemap = readFileSync("app/sitemap.ts", "utf8");
 const home = readFileSync("app/page.tsx", "utf8");
 
@@ -31,7 +32,8 @@ describe("About trust page", () => {
   it("is discoverable from global chrome, homepage and sitemap", () => {
     expect(chrome).toContain('href="/about"');
     expect(home).toContain('href="/about">About</a>');
-    expect(sitemap).toContain("/about");
+    expect(indexableManifest).toContain('path: "/about"');
+    expect(sitemap).toContain("indexableRoutes");
   });
 
   it("links the completed trust architecture", () => {
