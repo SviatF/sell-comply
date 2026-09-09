@@ -12,6 +12,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/markets`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/marketplaces`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.75 },
+    { url: `${baseUrl}/methodology`, lastModified: now, changeFrequency: "monthly", priority: 0.72 },
+    { url: `${baseUrl}/sources-policy`, lastModified: now, changeFrequency: "monthly", priority: 0.68 },
+    { url: `${baseUrl}/editorial-policy`, lastModified: now, changeFrequency: "monthly", priority: 0.66 },
+    { url: `${baseUrl}/corrections`, lastModified: now, changeFrequency: "monthly", priority: 0.64 },
+    { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.55 },
+    { url: `${baseUrl}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.45 },
+    { url: `${baseUrl}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.45 },
+    { url: `${baseUrl}/disclaimer`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
   ];
 
   const productMarket: MetadataRoute.Sitemap = products.flatMap((product) =>
