@@ -49,7 +49,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 
 ### 4. Trust / editorial architecture — NEXT
 
-- [ ] About
+- [x] About
 - [ ] How SellComply works / methodology
 - [ ] Sources policy
 - [ ] Editorial/compliance policy

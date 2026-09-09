@@ -1,0 +1,43 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+
+const about = readFileSync("app/about/page.tsx", "utf8");
+const chrome = readFileSync("app/components/SeoChrome.tsx", "utf8");
+const sitemap = readFileSync("app/sitemap.ts", "utf8");
+const home = readFileSync("app/page.tsx", "utf8");
+
+describe("About trust page", () => {
+  it("ships indexable metadata and canonical URL", () => {
+    expect(about).toContain('title: "About SellComply"');
+    expect(about).toContain('alternates: { canonical: "/about" }');
+    expect(about).toContain('"@type": "AboutPage"');
+  });
+
+  it("clearly defines product scope and limitations", () => {
+    expect(about).toContain("Product compliance should be");
+    expect(about).toContain("SellComply is an informational screening and workflow tool");
+    expect(about).toContain("SELLCOMPLY DOES");
+    expect(about).toContain("SELLCOMPLY DOES NOT");
+    expect(about).toContain("Provide legal advice or legal representation");
+    expect(about).toContain("Issue certifications, approvals or conformity assessments");
+  });
+
+  it("makes uncertainty and official-source verification part of the trust model", () => {
+    expect(about).toContain("Official sources over unsupported claims");
+    expect(about).toContain("Uncertainty should stay visible");
+    expect(about).toContain("Trust should be inspectable");
+  });
+
+  it("is discoverable from global chrome, homepage and sitemap", () => {
+    expect(chrome).toContain('href="/about"');
+    expect(home).toContain('href="/about">About</a>');
+    expect(sitemap).toContain("/about");
+  });
+
+  it("keeps future trust pages explicit instead of pretending they already exist", () => {
+    expect(about).toContain("Methodology — next");
+    expect(about).toContain("Sources policy — planned");
+    expect(about).toContain("Corrections policy — planned");
+    expect(about).toContain("Reviewer / last-reviewed metadata — planned");
+  });
+});

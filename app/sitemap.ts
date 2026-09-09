@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/products`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/markets`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/marketplaces`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${baseUrl}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.75 },
   ];
 
   const productMarket: MetadataRoute.Sitemap = products.flatMap((product) =>
