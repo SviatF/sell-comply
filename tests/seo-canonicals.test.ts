@@ -41,7 +41,7 @@ function extractStaticCanonical(source: string) {
 }
 
 function buildCanonicalInventory() {
-  const canonicals = coreCanonicalSources.map(({ path, source }) => ({
+  const canonicals: Array<{ routePath: string; canonicalPath: string }> = coreCanonicalSources.map(({ path, source }) => ({
     routePath: path,
     canonicalPath: extractStaticCanonical(readFileSync(source, "utf8")),
   }));
