@@ -6,6 +6,7 @@ const chrome = readFileSync("app/components/SeoChrome.tsx", "utf8");
 const indexableManifest = readFileSync("lib/indexable-routes.ts", "utf8");
 const sitemap = readFileSync("app/sitemap.ts", "utf8");
 const home = readFileSync("app/page.tsx", "utf8");
+const internalLinks = readFileSync("lib/seo-internal-links.ts", "utf8");
 
 describe("About trust page", () => {
   it("ships indexable metadata and canonical URL", () => {
@@ -31,8 +32,9 @@ describe("About trust page", () => {
   });
 
   it("is discoverable from global chrome, homepage and sitemap", () => {
-    expect(chrome).toContain('href="/about"');
-    expect(home).toContain('href="/about">About</a>');
+    expect(chrome).toContain("SEO_HEADER_LINKS");
+    expect(home).toContain("SEO_FOOTER_PRIMARY_LINKS");
+    expect(internalLinks).toContain('{ href: "/about", label: "About" }');
     expect(indexableManifest).toContain('path: "/about"');
     expect(sitemap).toContain("indexableRoutes");
   });
