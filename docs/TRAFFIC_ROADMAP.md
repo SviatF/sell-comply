@@ -70,7 +70,7 @@ Traffic targets are goals, not guarantees. Scaling decisions must be based on Se
 - [x] Breadcrumbs
 - [x] Structured data
 - [x] Internal links
-- [ ] Crawl/indexation checks
+- [x] Crawl/indexation checks
 - [ ] Sitemap QA
 - [ ] Core Web Vitals / rendering QA
 
