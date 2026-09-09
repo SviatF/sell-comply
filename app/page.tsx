@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
 import { ACCESS_COPY } from "@/lib/access-policy";
+import SeoJsonLd from "@/app/components/SeoJsonLd";
+import { buildWebPageSchema } from "@/lib/seo-structured-data";
 import {
   ArrowRight,
   Bell,
@@ -81,6 +83,13 @@ const productExamples = [
   "Children's plush toy for ages 3+",
   "Face serum cosmetic, 30 ml",
 ];
+
+const homeSchema = buildWebPageSchema({
+  path: "/",
+  name: "SellComply — Product Compliance Checker for Global Sellers",
+  description:
+    "Check product regulations, marketplace requirements and compliance risks before you sell in a new country. Sell globally with more confidence.",
+});
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -590,6 +599,7 @@ export default function Home() {
         </div>
         <span>© 2026 SellComply</span>
       </footer>
+      <SeoJsonLd data={homeSchema} />
     </main>
   );
 }
