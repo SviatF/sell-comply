@@ -25,20 +25,20 @@ describe("trust and editorial architecture", () => {
     const chrome = readFileSync("app/components/SeoChrome.tsx", "utf8");
     const indexableManifest = readFileSync("lib/indexable-routes.ts", "utf8");
     const sitemap = readFileSync("app/sitemap.ts", "utf8");
+    const internalLinks = readFileSync("lib/seo-internal-links.ts", "utf8");
 
     for (const [route] of trustRoutes) {
       expect(indexableManifest, route).toContain(`/${route}`);
     }
 
     expect(sitemap).toContain("indexableRoutes");
-    expect(chrome).toContain('href="/methodology"');
-    expect(chrome).toContain('href="/sources-policy"');
-    expect(chrome).toContain('href="/editorial-policy"');
-    expect(chrome).toContain('href="/corrections"');
-    expect(chrome).toContain('href="/contact"');
-    expect(chrome).toContain('href="/privacy"');
-    expect(chrome).toContain('href="/terms"');
-    expect(chrome).toContain('href="/disclaimer"');
+    expect(chrome).toContain("SEO_HEADER_LINKS");
+    expect(chrome).toContain("SEO_FOOTER_PRIMARY_LINKS");
+    expect(chrome).toContain("SEO_FOOTER_LEGAL_LINKS");
+
+    for (const [route] of trustRoutes) {
+      expect(internalLinks, route).toContain(`href: "/${route}"`);
+    }
   });
 
   it("documents the real checker methodology rather than a generic AI claim", () => {
