@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function MethodologyPage() {
   return (
     <TrustPolicyPage
+      path="/methodology"
       eyebrow="METHODOLOGY"
       title="How SellComply"
       accent="works."
