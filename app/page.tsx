@@ -5,6 +5,7 @@ import { trackEvent } from "@/lib/analytics-client";
 import { ACCESS_COPY } from "@/lib/access-policy";
 import SeoJsonLd from "@/app/components/SeoJsonLd";
 import { buildWebPageSchema } from "@/lib/seo-structured-data";
+import { HOME_DISCOVERY_LINKS, SEO_FOOTER_LEGAL_LINKS, SEO_FOOTER_PRIMARY_LINKS } from "@/lib/seo-internal-links";
 import {
   ArrowRight,
   Bell,
@@ -544,36 +545,13 @@ export default function Home() {
         </div>
 
         <div className="seo-discovery-grid">
-          <a className="seo-discovery-card" href="/sell/wireless-headphones/germany">
-            <span>Electronics · Germany</span>
-            <strong>Can I sell wireless headphones in Germany?</strong>
-            <ArrowRight size={17} />
-          </a>
-          <a className="seo-discovery-card" href="/sell/toys/united-states">
-            <span>Children&apos;s products · USA</span>
-            <strong>Toy compliance for the United States</strong>
-            <ArrowRight size={17} />
-          </a>
-          <a className="seo-discovery-card" href="/sell/cosmetics/france">
-            <span>Beauty · France</span>
-            <strong>Cosmetics compliance for France</strong>
-            <ArrowRight size={17} />
-          </a>
-          <a className="seo-discovery-card" href="/marketplaces/amazon/power-banks">
-            <span>Amazon · Electronics</span>
-            <strong>Power bank compliance for Amazon sellers</strong>
-            <ArrowRight size={17} />
-          </a>
-          <a className="seo-discovery-card" href="/markets">
-            <span>Browse by country</span>
-            <strong>Explore global markets</strong>
-            <ArrowRight size={17} />
-          </a>
-          <a className="seo-discovery-card" href="/products">
-            <span>Browse by category</span>
-            <strong>Explore product compliance checks</strong>
-            <ArrowRight size={17} />
-          </a>
+          {HOME_DISCOVERY_LINKS.map((link) => (
+            <a className="seo-discovery-card" href={link.href} key={link.href}>
+              <span>{link.description}</span>
+              <strong>{link.label}</strong>
+              <ArrowRight size={17} />
+            </a>
+          ))}
         </div>
       </section>
 
@@ -595,7 +573,9 @@ export default function Home() {
         </a>
         <p>Global product compliance intelligence for modern commerce.</p>
         <div className="footer-links" id="resources">
-          <a href="/products">Products</a><a href="/markets">Markets</a><a href="/marketplaces">Marketplaces</a><a href="/about">About</a><a href="/methodology">Methodology</a><a href="/sources-policy">Sources</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/disclaimer">Disclaimer</a>
+          {[...SEO_FOOTER_PRIMARY_LINKS, ...SEO_FOOTER_LEGAL_LINKS].map((link) => (
+            <a href={link.href} key={link.href}>{link.label}</a>
+          ))}
         </div>
         <span>© 2026 SellComply</span>
       </footer>
