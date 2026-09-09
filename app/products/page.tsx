@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { products } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
 import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
 import SeoJsonLd from "@/app/components/SeoJsonLd";
 import { buildCollectionPageSchema } from "@/lib/seo-structured-data";
+import { getProductHubLinks } from "@/lib/seo-internal-links";
 
 export const metadata: Metadata = {
   title: "Product Compliance Checks",
@@ -13,11 +13,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/products" },
 };
 
+const hubLinks = getProductHubLinks();
+
 const schema = buildCollectionPageSchema({
   path: "/products",
   name: "Product Compliance Checks",
   description: "Browse product-specific compliance checks for electronics, toys, cosmetics, candles, jewelry and more.",
-  items: products.map((product) => ({ name: product.name, href: `/sell/${product.slug}/germany` })),
+  items: hubLinks.map((link) => ({ name: link.label, href: link.href })),
 });
 
 export default function ProductsPage() {
@@ -32,11 +34,11 @@ export default function ProductsPage() {
           <p>Choose a product category, then compare the compliance review across markets and marketplaces. Each page is designed to move from a broad SEO question into a product-specific SellComply check.</p>
         </section>
         <div className="hub-grid">
-          {products.map((product) => (
-            <Link className="hub-card" key={product.slug} href={`/sell/${product.slug}/germany`}>
+          {hubLinks.map((link) => (
+            <Link className="hub-card" key={link.href} href={link.href}>
               <span className="hub-icon">◌</span>
-              <h2>{product.name}</h2>
-              <p>{product.category} · {product.reviewAreas.slice(0, 2).join(" · ")}</p>
+              <h2>{link.label}</h2>
+              <p>{link.description}</p>
             </Link>
           ))}
         </div>

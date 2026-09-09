@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { MarketSeo, MarketplaceSeo, ProductSeo, marketplaces, markets, products } from "@/lib/seo-data";
+import type { MarketSeo, MarketplaceSeo, ProductSeo } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "./SeoChrome";
 import ReviewDisclosure from "./ReviewDisclosure";
 import SeoBreadcrumbs from "./SeoBreadcrumbs";
 import { getMarketplaceProductBreadcrumbs, getProductMarketBreadcrumbs } from "@/lib/seo-breadcrumbs";
 import SeoJsonLd from "./SeoJsonLd";
 import { buildFaqPageSchema, buildWebPageSchema } from "@/lib/seo-structured-data";
+import { getMarketplaceProductInternalLinks, getProductMarketInternalLinks } from "@/lib/seo-internal-links";
 
 type Props = {
   product: ProductSeo;
@@ -38,8 +39,11 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
     ? [...product.reviewAreas, ...market.reviewAreas].slice(0, 7)
     : [...product.reviewAreas, ...(marketplace?.reviewAreas ?? [])].slice(0, 7);
 
-  const relatedMarkets = markets.slice(0, 6);
-  const relatedProducts = products.filter((item) => item.slug !== product.slug).slice(0, 6);
+  const internalLinks = market
+    ? getProductMarketInternalLinks(product, market)
+    : marketplace
+      ? getMarketplaceProductInternalLinks(product, marketplace)
+      : { markets: [], products: [], marketplaces: [] };
 
   const faqs = market
     ? [
@@ -167,17 +171,14 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
         <section className="seo-section">
           <div className="seo-section-head"><h2>{market ? "Check other markets" : "Popular target markets"}</h2><p>Reuse the same product profile and compare how the compliance review changes by market.</p></div>
           <div className="link-grid">
-            {relatedMarkets.map((item) => <Link className="seo-link-card" key={item.slug} href={`/sell/${product.slug}/${item.slug}`}><strong>{item.flag} {item.name}</strong><span>{product.name} compliance check</span></Link>)}
+            {internalLinks.markets.map((link) => <Link className="seo-link-card" key={link.href} href={link.href}><strong>{link.icon ? `${link.icon} ` : ""}{link.label}</strong><span>{link.description}</span></Link>)}
           </div>
         </section>
 
         <section className="seo-section">
           <div className="seo-section-head"><h2>Related product checks</h2><p>Explore adjacent categories and build a wider product-compliance library.</p></div>
           <div className="link-grid">
-            {relatedProducts.map((item) => {
-              const href = market ? `/sell/${item.slug}/${market.slug}` : `/marketplaces/${marketplace?.slug}/${item.slug}`;
-              return <Link className="seo-link-card" key={item.slug} href={href}><strong>{item.name}</strong><span>{item.category}</span></Link>;
-            })}
+            {internalLinks.products.map((link) => <Link className="seo-link-card" key={link.href} href={link.href}><strong>{link.label}</strong><span>{link.description}</span></Link>)}
           </div>
         </section>
 
@@ -188,7 +189,7 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
 
         <section className="seo-section">
           <div className="seo-section-head"><h2>Compare marketplace requirements</h2><p>Product compliance and platform eligibility should be reviewed together.</p></div>
-          <div className="link-grid">{marketplaces.map((item) => <Link className="seo-link-card" key={item.slug} href={`/marketplaces/${item.slug}/${product.slug}`}><strong>{item.name}</strong><span>{product.name} marketplace compliance</span></Link>)}</div>
+          <div className="link-grid">{internalLinks.marketplaces.map((link) => <Link className="seo-link-card" key={link.href} href={link.href}><strong>{link.label}</strong><span>{link.description}</span></Link>)}</div>
         </section>
       </main>
       <SeoFooter />
