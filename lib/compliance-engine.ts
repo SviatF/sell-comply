@@ -18,6 +18,7 @@ export type ReviewItem = {
   sourceLabel?: string;
   sourceUrl?: string;
   effectiveNote?: string;
+  lastVerified?: string;
 };
 
 export type ProductFacts = {
@@ -254,6 +255,7 @@ function ruleToReviewItem(rule: RegulatoryRule): ReviewItem {
     sourceLabel: rule.source.label,
     sourceUrl: rule.source.url,
     effectiveNote: rule.effectiveNote,
+    lastVerified: rule.lastVerified,
   };
 }
 
