@@ -316,3 +316,12 @@
   .market-compare-card{padding:14px}
   .market-complexity-badge{font-size:7px;letter-spacing:.06em}
 }
+
+
+/* Guest-first access contract */
+.guest-access-note{border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.025);padding:11px 12px}
+.guest-access-note span,.guest-access-note strong,.guest-access-note small{display:block}
+.guest-access-note span{font-size:7px;font-weight:900;letter-spacing:.1em;color:#ff7fba}
+.guest-access-note strong{font-size:10px;margin-top:4px}
+.guest-access-note small{font-size:8px;line-height:1.45;color:#70707a;margin-top:3px}
+@media(max-width:680px){.guest-access-note{padding:12px}.guest-access-note strong{font-size:11px}.guest-access-note small{font-size:9px}}

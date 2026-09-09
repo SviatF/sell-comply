@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
+import { ACCESS_COPY } from "@/lib/access-policy";
 import { sameRetentionTarget } from "@/lib/retention";
 import {
   getVisitorId,
@@ -223,6 +224,12 @@ export default function CheckActions(props: Props) {
 
   return (
     <div className="check-action-buttons">
+      <div className="guest-access-note">
+        <span>GUEST ACCESS</span>
+        <strong>{ACCESS_COPY.workspace}</strong>
+        <small>Check, refine, compare, save, dashboard and report stay open without registration.</small>
+      </div>
+
       <div className="retention-state-grid" aria-live="polite">
         <div className={saved ? "retention-state active" : "retention-state"}>
           <span>{saved ? "✓" : "01"}</span>
@@ -316,7 +323,7 @@ export default function CheckActions(props: Props) {
               ) : (
                 <p className="monitor-consent">
                   One action saves this check and enables product-compliance monitoring.
-                  No account required. Unsubscribe will be available from every alert.
+                  {ACCESS_COPY.monitoring} Unsubscribe will be available from every alert.
                 </p>
               )}
             </form>

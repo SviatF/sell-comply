@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
+import { ACCESS_COPY } from "@/lib/access-policy";
 import {
   ArrowRight,
   Bell,
@@ -189,7 +190,7 @@ export default function Home() {
                 <span>FREE PRODUCT COMPLIANCE SCREENING</span>
                 <strong>Product → market → optional sales channel</strong>
               </div>
-              <small>No account required</small>
+              <small>{ACCESS_COPY.checker}</small>
             </div>
 
             <div className="checker-tabs" role="tablist" aria-label="Product input method">
@@ -309,7 +310,7 @@ export default function Home() {
 
             <div className={inputError ? "checker-note checker-error" : "checker-note"}>
               <LockKeyhole size={13} />
-              {inputError || "Free screening · no account · no credit card · not legal certification."}
+              {inputError || `Free screening · ${ACCESS_COPY.checker.toLowerCase()} · no credit card · not legal certification.`}
             </div>
           </div>
 

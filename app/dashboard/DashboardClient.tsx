@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
+import { ACCESS_COPY } from "@/lib/access-policy";
 import {
   buildRetentionCheckHref,
   retentionKey,
@@ -156,7 +157,7 @@ export default function DashboardClient() {
         <div>
           <span className="seo-kicker"><i /> COMPLIANCE WORKSPACE</span>
           <h1>Your products.<br /><em>Your markets.</em></h1>
-          <p>Saved checks, monitored product-market combinations and regulatory changes in one workspace — without a signup wall.</p>
+          <p>Saved checks, monitored product-market combinations and regulatory changes in one workspace. {ACCESS_COPY.workspace}.</p>
         </div>
         <div className="dashboard-sync">
           <span className={syncState === "cloud" ? "sync-dot cloud" : "sync-dot"} />
@@ -165,7 +166,7 @@ export default function DashboardClient() {
             <small>
               {syncState === "cloud"
                 ? "Saved checks and monitoring are synced for this browser identity."
-                : "Saved checks stay available on this browser. No account is required."}
+                : `Saved checks stay available on this browser. ${ACCESS_COPY.checker}.`}
             </small>
           </div>
         </div>
@@ -291,7 +292,7 @@ export default function DashboardClient() {
         <div>
           <span className="seo-kicker"><i /> RETENTION FLOW</span>
           <h2>Save first. Add alerts only when they matter.</h2>
-          <p>A check can live in your browser workspace with no account. Monitoring adds an email relationship to that exact product-market watch without forcing registration.</p>
+          <p>A check can live in your browser workspace with no account. Monitoring asks only for the delivery email needed for alerts; it does not create or require an account.</p>
         </div>
         <div className="dashboard-upgrade-list">
           <span>✓ Saved result state</span>

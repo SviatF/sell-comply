@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { trackEvent } from "@/lib/analytics-client";
+import { ACCESS_COPY } from "@/lib/access-policy";
 
 export default function ReportToolbar({ checkHref }: { checkHref: string }) {
   const [copied, setCopied] = useState(false);
@@ -41,7 +42,10 @@ export default function ReportToolbar({ checkHref }: { checkHref: string }) {
 
   return (
     <div className="report-toolbar no-print">
-      <Link href={checkHref}>← Back to checker</Link>
+      <div className="report-toolbar-access">
+        <Link href={checkHref}>← Back to checker</Link>
+        <span>{ACCESS_COPY.report}</span>
+      </div>
       <div>
         <button type="button" onClick={copyLink}>
           {copied ? "Copied ✓" : "Copy link"}
