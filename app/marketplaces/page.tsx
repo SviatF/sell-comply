@@ -4,12 +4,21 @@ import { marketplaces } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
 import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
 import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
+import SeoJsonLd from "@/app/components/SeoJsonLd";
+import { buildCollectionPageSchema } from "@/lib/seo-structured-data";
 
 export const metadata: Metadata = {
   title: "Marketplace Product Compliance",
   description: "Explore product compliance and listing checks for Amazon, Etsy, eBay, TikTok Shop and Shopify sellers.",
   alternates: { canonical: "/marketplaces" },
 };
+
+const schema = buildCollectionPageSchema({
+  path: "/marketplaces",
+  name: "Marketplace Product Compliance",
+  description: "Explore product compliance and listing checks for Amazon, Etsy, eBay, TikTok Shop and Shopify sellers.",
+  items: marketplaces.map((marketplace) => ({ name: marketplace.name, href: `/marketplaces/${marketplace.slug}/wireless-headphones` })),
+});
 
 export default function MarketplacesPage() {
   return (
@@ -33,6 +42,7 @@ export default function MarketplacesPage() {
         </div>
       </main>
       <SeoFooter />
+      <SeoJsonLd data={schema} />
     </div>
   );
 }
