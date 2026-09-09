@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <TrustPolicyPage
+      path="/terms"
       eyebrow="TERMS OF USE"
       title="Use SellComply as"
       accent="a screening tool."

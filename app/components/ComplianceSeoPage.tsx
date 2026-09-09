@@ -2,6 +2,8 @@ import Link from "next/link";
 import { MarketSeo, MarketplaceSeo, ProductSeo, marketplaces, markets, products } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "./SeoChrome";
 import ReviewDisclosure from "./ReviewDisclosure";
+import SeoBreadcrumbs from "./SeoBreadcrumbs";
+import { getMarketplaceProductBreadcrumbs, getProductMarketBreadcrumbs } from "@/lib/seo-breadcrumbs";
 
 type Props = {
   product: ProductSeo;
@@ -13,6 +15,12 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
   const title = market
     ? `Can I sell ${product.name} in ${market.name}?`
     : `${product.name} compliance for ${marketplace?.name}`;
+
+  const breadcrumbs = market
+    ? getProductMarketBreadcrumbs(product, market)
+    : marketplace
+      ? getMarketplaceProductBreadcrumbs(product, marketplace)
+      : [];
 
   const lead = market
     ? `${product.intro} For ${market.name}, SellComply combines product-category review areas with market-specific checks so you can identify what needs verification before listing or importing.`
@@ -86,13 +94,7 @@ export default function ComplianceSeoPage({ product, market, marketplace }: Prop
     <div className="seo-page">
       <SeoHeader />
       <main className="seo-main">
-        <div className="breadcrumbs">
-          <Link href="/">Home</Link><span>/</span>
-          <Link href="/products">Products</Link><span>/</span>
-          <span>{product.name}</span>
-          {market && <><span>/</span><span>{market.name}</span></>}
-          {marketplace && <><span>/</span><span>{marketplace.name}</span></>}
-        </div>
+        <SeoBreadcrumbs items={breadcrumbs} />
 
         <section className="seo-hero">
           <div>

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
+import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
+import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
 
 export type TrustSection = {
   title: string;
@@ -10,6 +12,7 @@ export type TrustSection = {
 };
 
 type Props = {
+  path: string;
   eyebrow: string;
   title: string;
   accent?: string;
@@ -33,6 +36,7 @@ const trustLinks = [
 ] as const;
 
 export default function TrustPolicyPage({
+  path,
   eyebrow,
   title,
   accent,
@@ -46,9 +50,7 @@ export default function TrustPolicyPage({
     <div className="seo-page trust-page">
       <SeoHeader />
       <main className="seo-main trust-policy-main">
-        <div className="breadcrumbs">
-          <Link href="/">Home</Link><span>/</span><Link href="/about">Trust</Link><span>/</span><span>{title}</span>
-        </div>
+        <SeoBreadcrumbs items={getCoreBreadcrumbs(path)} />
 
         <section className="trust-policy-hero">
           <div>

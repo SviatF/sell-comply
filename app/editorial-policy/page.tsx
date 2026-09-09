@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function EditorialPolicyPage() {
   return (
     <TrustPolicyPage
+      path="/editorial-policy"
       eyebrow="EDITORIAL POLICY"
       title="Accuracy over"
       accent="certainty theater."

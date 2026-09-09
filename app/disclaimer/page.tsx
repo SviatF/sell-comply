@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function DisclaimerPage() {
   return (
     <TrustPolicyPage
+      path="/disclaimer"
       eyebrow="COMPLIANCE DISCLAIMER"
       title="Screening is not"
       accent="approval."

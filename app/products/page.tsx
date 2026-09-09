@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { products } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
+import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
+import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Product Compliance Checks",
@@ -14,6 +16,7 @@ export default function ProductsPage() {
     <div className="seo-page">
       <SeoHeader />
       <main className="seo-main">
+        <SeoBreadcrumbs items={getCoreBreadcrumbs("/products")} />
         <section className="hub-hero">
           <span className="seo-kicker"><i /> Product library</span>
           <h1>Start with the <em>product.</em></h1>

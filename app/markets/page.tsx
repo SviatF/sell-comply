@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { markets } from "@/lib/seo-data";
 import { SeoFooter, SeoHeader } from "@/app/components/SeoChrome";
+import SeoBreadcrumbs from "@/app/components/SeoBreadcrumbs";
+import { getCoreBreadcrumbs } from "@/lib/seo-breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Global Product Compliance Markets",
@@ -14,6 +16,7 @@ export default function MarketsPage() {
     <div className="seo-page">
       <SeoHeader />
       <main className="seo-main">
+        <SeoBreadcrumbs items={getCoreBreadcrumbs("/markets")} />
         <section className="hub-hero">
           <span className="seo-kicker"><i /> Global markets</span>
           <h1>Where do you want to <em>sell?</em></h1>
