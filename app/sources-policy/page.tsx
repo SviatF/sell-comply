@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function SourcesPolicyPage() {
   return (
     <TrustPolicyPage
+      path="/sources-policy"
       eyebrow="SOURCES POLICY"
       title="Sources before"
       accent="assertions."
